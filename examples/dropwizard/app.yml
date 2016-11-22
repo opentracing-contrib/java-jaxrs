@@ -1,0 +1,21 @@
+# HTTP-specific options.
+server:
+  type: simple
+  applicationContextPath: /dropwizard
+  adminContextPath: /admin
+  connector:
+    type: http
+    port: 3000
+
+  requestLog:
+    appenders:
+      - type: console
+        timeZone: UTC
+        target: stdout
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+      timeZone: UTC
+      target: stdout

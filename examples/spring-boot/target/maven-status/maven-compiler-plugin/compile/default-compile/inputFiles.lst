@@ -1,0 +1,4 @@
+/home/ploffay/projects/opentracing-java-jax-rs/examples/spring-boot/src/main/java/sk/loffay/opentracing/example/spring/boot/Configuration.java
+/home/ploffay/projects/opentracing-java-jax-rs/examples/spring-boot/src/main/java/sk/loffay/opentracing/example/spring/boot/JerseyConfig.java
+/home/ploffay/projects/opentracing-java-jax-rs/examples/spring-boot/src/main/java/sk/loffay/opentracing/example/spring/boot/App.java
+/home/ploffay/projects/opentracing-java-jax-rs/examples/spring-boot/src/main/java/sk/loffay/opentracing/example/spring/boot/HelloHandler.java

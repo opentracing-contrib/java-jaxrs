@@ -1,0 +1,3 @@
+sk/loffay/opentracing/jax/rs/CurrentSpan.class
+sk/loffay/opentracing/jax/rs/SpanFinishResponseFilter.class
+sk/loffay/opentracing/jax/rs/SpanExtractRequestFilter.class
