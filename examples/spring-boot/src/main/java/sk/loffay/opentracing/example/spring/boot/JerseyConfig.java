@@ -5,8 +5,8 @@ import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.stereotype.Component;
 
-import sk.loffay.opentracing.jax.rs.SpanExtractRequestFilter;
-import sk.loffay.opentracing.jax.rs.SpanFinishResponseFilter;
+import sk.loffay.opentracing.jax.rs.server.SpanServerRequestFilter;
+import sk.loffay.opentracing.jax.rs.server.SpanServerResponseFilter;
 
 /**
  * @author Pavol Loffay
@@ -17,7 +17,7 @@ public class JerseyConfig extends ResourceConfig {
 
     public JerseyConfig() {
         register(HelloHandler.class);
-        register(SpanExtractRequestFilter.class);
-        register(SpanFinishResponseFilter.class);
+        register(SpanServerRequestFilter.class);
+        register(SpanServerResponseFilter.class);
     }
 }

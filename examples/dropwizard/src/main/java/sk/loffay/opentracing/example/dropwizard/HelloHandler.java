@@ -17,14 +17,17 @@
 
 package sk.loffay.opentracing.example.dropwizard;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import sk.loffay.opentracing.jax.rs.CurrentSpan;
+import sk.loffay.opentracing.jax.rs.server.CurrentSpan;
 
 /**
  * @author Pavol Loffay
@@ -32,10 +35,12 @@ import sk.loffay.opentracing.jax.rs.CurrentSpan;
 @Path("/")
 public class HelloHandler {
 
+    private Client client;
     private Tracer tracer;
 
-    public HelloHandler(Tracer tracer) {
+    public HelloHandler(Tracer tracer, Client client) {
         this.tracer = tracer;
+        this.client = client;
     }
 
     @GET
@@ -55,6 +60,13 @@ public class HelloHandler {
     @GET
     @Path("/bar")
     public Response bar() {
+        return Response.ok().entity("/bar").build();
+    }
+
+    @GET
+    @Path("/outgoing")
+    public Response outgoing(@Context HttpServletRequest request) {
+        client.target("http://localhost:" + request.getServerPort() + "/bar").request().get();
         return Response.ok().entity("/bar").build();
     }
 }

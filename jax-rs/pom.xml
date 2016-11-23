@@ -14,7 +14,7 @@
 
   <properties>
     <version.javax.inject>1</version.javax.inject>
-    <version.javax.javaee-api>7.0</version.javax.javaee-api>
+    <version.javax.ws.rs-api>2.0</version.javax.ws.rs-api>
   </properties>
 
   <dependencies>
@@ -29,9 +29,9 @@
       <version>${version.javax.inject}</version>
     </dependency>
     <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-      <version>${version.javax.javaee-api}</version>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <version>${version.javax.ws.rs-api}</version>
     </dependency>
   </dependencies>
 </project>

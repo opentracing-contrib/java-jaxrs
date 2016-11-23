@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import sk.loffay.opentracing.jax.rs.CurrentSpan;
+import sk.loffay.opentracing.jax.rs.server.CurrentSpan;
 
 /**
  * @author Pavol Loffay

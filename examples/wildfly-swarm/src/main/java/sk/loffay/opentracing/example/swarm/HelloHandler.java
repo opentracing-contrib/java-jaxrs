@@ -8,8 +8,7 @@ import javax.ws.rs.core.Response;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import sk.loffay.opentracing.jax.rs.CurrentSpan;
-//import sk.loffay.opentracing.jax.rs.CurrentSpan;
+import sk.loffay.opentracing.jax.rs.server.CurrentSpan;
 
 /**
  * @author Pavol Loffay

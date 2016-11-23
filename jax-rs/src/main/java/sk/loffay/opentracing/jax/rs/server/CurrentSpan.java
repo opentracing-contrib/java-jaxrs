@@ -1,4 +1,4 @@
-package sk.loffay.opentracing.jax.rs;
+package sk.loffay.opentracing.jax.rs.server;
 
 import io.opentracing.Span;
 
@@ -11,7 +11,7 @@ public class CurrentSpan {
     private Span span;
 
     public CurrentSpan() {
-        span = SpanExtractRequestFilter.threadLocalSpan.get();
+        span = SpanServerRequestFilter.threadLocalSpan.get();
     }
 
     public Span injectedSpan() {

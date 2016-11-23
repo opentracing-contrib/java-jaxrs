@@ -1,4 +1,4 @@
-package sk.loffay.opentracing.jax.rs;
+package sk.loffay.opentracing.jax.rs.server;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,16 +21,16 @@ import io.opentracing.tag.Tags;
  * @author Pavol Loffay
  */
 @Provider
-public class SpanExtractRequestFilter implements ContainerRequestFilter {
+public class SpanServerRequestFilter implements ContainerRequestFilter {
 
     public static ThreadLocal<Span> threadLocalSpan = new ThreadLocal<>();
 
     @Inject
     private Tracer tracer;
 
-    public SpanExtractRequestFilter() {}
+    public SpanServerRequestFilter() {}
 
-    public SpanExtractRequestFilter(Tracer tracer) {
+    public SpanServerRequestFilter(Tracer tracer) {
         this.tracer = tracer;
     }
 

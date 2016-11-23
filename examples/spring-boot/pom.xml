@@ -47,7 +47,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>opentracing-integration-jax-rs</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
     <!-- OpenTracing impl -->

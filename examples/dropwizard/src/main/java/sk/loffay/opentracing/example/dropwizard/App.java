@@ -17,7 +17,10 @@
 
 package sk.loffay.opentracing.example.dropwizard;
 
+import javax.ws.rs.client.Client;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.hawkular.apm.client.opentracing.APMTracer;
 
 import io.dropwizard.Application;
@@ -26,8 +29,10 @@ import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.opentracing.Tracer;
-import sk.loffay.opentracing.jax.rs.SpanExtractRequestFilter;
-import sk.loffay.opentracing.jax.rs.SpanFinishResponseFilter;
+import sk.loffay.opentracing.jax.rs.server.SpanServerRequestFilter;
+import sk.loffay.opentracing.jax.rs.server.SpanServerResponseFilter;
+import sk.loffay.opentracing.jax.rs.client.SpanClientRequestFilter;
+import sk.loffay.opentracing.jax.rs.client.SpanClientResponseFilter;
 
 /**
  * @author Pavol Loffay
@@ -53,9 +58,12 @@ public class App extends Application<AppConfiguration> {
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         Tracer tracer = new APMTracer();
+        Client client = new JerseyClientBuilder()
+                .register(new SpanClientRequestFilter(tracer))
+                .register(new SpanClientResponseFilter()).build();
 
-        environment.jersey().register(new SpanExtractRequestFilter(tracer));
-        environment.jersey().register(new SpanFinishResponseFilter());
+        environment.jersey().register(new SpanServerRequestFilter(tracer));
+        environment.jersey().register(new SpanServerResponseFilter());
         environment.jersey().register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -65,6 +73,6 @@ public class App extends Application<AppConfiguration> {
         });
 
         // Register resources
-        environment.jersey().register(new HelloHandler(tracer));
+        environment.jersey().register(new HelloHandler(tracer, client));
     }
 }
