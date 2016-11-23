@@ -16,7 +16,7 @@
   <properties>
     <finalName>opentracing-integration-example-wildfly</finalName>
     <failOnMissingWebXml>false</failOnMissingWebXml>
-    <version.wildfly.swarm>2016.9</version.wildfly.swarm>
+    <version.wildfly.swarm>2016.11.0</version.wildfly.swarm>
     <version.org.hawkular.apm>0.12.0.Final</version.org.hawkular.apm>
   </properties>
 
