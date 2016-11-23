@@ -8,6 +8,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
 import io.opentracing.Span;
+import io.opentracing.tag.Tags;
 
 @Provider
 public class SpanFinishResponseFilter implements ContainerResponseFilter {
@@ -16,7 +17,8 @@ public class SpanFinishResponseFilter implements ContainerResponseFilter {
     public void filter(ContainerRequestContext req, ContainerResponseContext res) throws IOException {
         Span span = SpanExtractRequestFilter.threadLocalSpan.get();
         if (span != null) {
-            span.finish();
+            span.setTag(Tags.HTTP_STATUS.getKey(), res.getStatus())
+                .finish();
         }
     }
 }

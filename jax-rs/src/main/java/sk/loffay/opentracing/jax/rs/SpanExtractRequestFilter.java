@@ -15,7 +15,7 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
-
+import io.opentracing.tag.Tags;
 
 /**
  * @author Pavol Loffay
@@ -40,8 +40,10 @@ public class SpanExtractRequestFilter implements ContainerRequestFilter {
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.TEXT_MAP,
                     new TextMapExtractAdapter(toMap(requestContext.getHeaders())));
 
-            Span currentSpan = tracer.buildSpan(requestContext.getUriInfo().getAbsolutePath().toString())
+            Span currentSpan = tracer.buildSpan(requestContext.getUriInfo().getPath().toString())
                     .asChildOf(extractedSpanContext)
+                    .withTag(Tags.HTTP_URL.getKey(), requestContext.getUriInfo().getAbsolutePath().toString())
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
                     .start();
 
             threadLocalSpan.set(currentSpan);
