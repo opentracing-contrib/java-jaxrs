@@ -1,4 +1,4 @@
-package sk.loffay.opentracing.jax.rs;
+package sk.loffay.opentracing.jax.rs.server;
 
 import java.io.IOException;
 
@@ -11,11 +11,11 @@ import io.opentracing.Span;
 import io.opentracing.tag.Tags;
 
 @Provider
-public class SpanFinishResponseFilter implements ContainerResponseFilter {
+public class SpanServerResponseFilter implements ContainerResponseFilter {
 
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) throws IOException {
-        Span span = SpanExtractRequestFilter.threadLocalSpan.get();
+        Span span = SpanServerRequestFilter.threadLocalSpan.get();
         if (span != null) {
             span.setTag(Tags.HTTP_STATUS.getKey(), res.getStatus())
                 .finish();
