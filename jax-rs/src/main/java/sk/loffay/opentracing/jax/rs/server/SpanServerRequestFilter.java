@@ -1,8 +1,8 @@
 package sk.loffay.opentracing.jax.rs.server;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -51,12 +51,8 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
     }
 
     private static Map<String, String> toMap(MultivaluedMap<String, String> multivaluedMap) {
-        HashMap<String, String> map = new HashMap<>(multivaluedMap.size());
-
-        multivaluedMap.entrySet().stream()
+        return multivaluedMap.entrySet().stream()
                 .filter(entry -> entry.getValue().size() > 0)
-                .forEach(entry ->  map.put(entry.getKey(), entry.getValue().get(0).toString()));
-
-        return map;
+                .collect(Collectors.toMap(o -> o.getKey(), t -> t.getValue().get(0).toString()));
     }
 }
