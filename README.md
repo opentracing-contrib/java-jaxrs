@@ -6,8 +6,8 @@ Warning: This library is still a work in progress!
 
 
 This repository will provide instrumentation of several Java frameworks using OpenTracing API.
-Consumer of this libraries will provide OpenTracing API implementation, therefore this 
+Consumers of this libraries will provide OpenTracing API implementation, therefore this 
 instrumentation does not depend on any tracer implementation.
 
 ## Supported Frameworks
-* Jax-RS
+* JAX-RS

@@ -1,5 +1,8 @@
 package sk.loffay.opentracing.jax.rs.server;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
 import io.opentracing.Span;
 
 
@@ -8,13 +11,10 @@ import io.opentracing.Span;
  */
 public class CurrentSpan {
 
-    private Span span;
-
-    public CurrentSpan() {
-        span = SpanServerRequestFilter.threadLocalSpan.get();
-    }
+    @Context
+    private HttpServletRequest request;
 
     public Span injectedSpan() {
-        return span;
+        return (Span) request.getAttribute(SpanServerRequestFilter.SPAN_PROP_ID);
     }
 }

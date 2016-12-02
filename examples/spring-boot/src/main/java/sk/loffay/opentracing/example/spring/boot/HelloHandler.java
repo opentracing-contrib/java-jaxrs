@@ -1,12 +1,9 @@
 package sk.loffay.opentracing.example.spring.boot;
 
-import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-
-import org.springframework.stereotype.Component;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
@@ -15,12 +12,14 @@ import sk.loffay.opentracing.jax.rs.server.CurrentSpan;
 /**
  * @author Pavol Loffay
  */
-@Component
 @Path("/")
 public class HelloHandler {
 
-    @Inject
     private Tracer tracer;
+
+    public HelloHandler(Tracer tracer) {
+        this.tracer = tracer;
+    }
 
     @GET
     @Path("/foo")
@@ -36,11 +35,9 @@ public class HelloHandler {
         return Response.ok().entity("/foo").build();
     }
 
-
     @GET
     @Path("/bar")
     public Response bar() {
-        System.out.println("not traced");
         return Response.status(Response.Status.OK).entity("/bar").build();
     }
 }

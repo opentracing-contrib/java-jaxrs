@@ -13,8 +13,8 @@
   <artifactId>opentracing-integration-jax-rs</artifactId>
 
   <properties>
-    <version.javax.inject>1</version.javax.inject>
     <version.javax.ws.rs-api>2.0</version.javax.ws.rs-api>
+    <version.javax.servlet-api>3.1.0</version.javax.servlet-api>
   </properties>
 
   <dependencies>
@@ -23,15 +23,22 @@
       <artifactId>opentracing-api</artifactId>
     </dependency>
 
+    <!-- Logging -->
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>${version.javax.inject}</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${version.org.slf4j-api}</version>
     </dependency>
+
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
       <version>${version.javax.ws.rs-api}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${version.javax.servlet-api}</version>
     </dependency>
   </dependencies>
 </project>

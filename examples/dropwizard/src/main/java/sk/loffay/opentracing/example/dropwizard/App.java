@@ -29,10 +29,8 @@ import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.opentracing.Tracer;
-import sk.loffay.opentracing.jax.rs.server.SpanServerRequestFilter;
-import sk.loffay.opentracing.jax.rs.server.SpanServerResponseFilter;
-import sk.loffay.opentracing.jax.rs.client.SpanClientRequestFilter;
-import sk.loffay.opentracing.jax.rs.client.SpanClientResponseFilter;
+import sk.loffay.opentracing.jax.rs.client.ClientTracingFeature;
+import sk.loffay.opentracing.jax.rs.server.ServerTracingDynamicFeature;
 
 /**
  * @author Pavol Loffay
@@ -58,12 +56,11 @@ public class App extends Application<AppConfiguration> {
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         Tracer tracer = new APMTracer();
-        Client client = new JerseyClientBuilder()
-                .register(new SpanClientRequestFilter(tracer))
-                .register(new SpanClientResponseFilter()).build();
+        Client client = ClientTracingFeature.Builder
+                .traceAll(tracer, new JerseyClientBuilder().build())
+                .build();
 
-        environment.jersey().register(new SpanServerRequestFilter(tracer));
-        environment.jersey().register(new SpanServerResponseFilter());
+        environment.jersey().register(ServerTracingDynamicFeature.Builder.traceAll(tracer).build());
         environment.jersey().register(new AbstractBinder() {
             @Override
             protected void configure() {
