@@ -1,12 +1,13 @@
 package sk.loffay.opentracing.example.spring.boot;
 
+import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.stereotype.Component;
 
-import sk.loffay.opentracing.jax.rs.server.SpanServerRequestFilter;
-import sk.loffay.opentracing.jax.rs.server.SpanServerResponseFilter;
+import io.opentracing.Tracer;
+import sk.loffay.opentracing.jax.rs.server.ServerTracingDynamicFeature;
 
 /**
  * @author Pavol Loffay
@@ -15,9 +16,12 @@ import sk.loffay.opentracing.jax.rs.server.SpanServerResponseFilter;
 @ApplicationPath("/jax-rs")
 public class JerseyConfig extends ResourceConfig {
 
-    public JerseyConfig() {
-        register(HelloHandler.class);
-        register(SpanServerRequestFilter.class);
-        register(SpanServerResponseFilter.class);
+    @Inject
+    public JerseyConfig(Tracer tracer) {
+        register(new HelloHandler(tracer));
+        register(ServerTracingDynamicFeature.Builder
+                .traceAll(tracer)
+                .withStandardTags()
+                .build());
     }
 }
