@@ -1,14 +1,10 @@
 package io.opentracing.contrib.jaxrs.client;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Optional;
-
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientResponseContext;
 
 import io.opentracing.Span;
+import io.opentracing.contrib.jaxrs.URLUtils;
 import io.opentracing.tag.Tags;
 
 /**
@@ -26,25 +22,13 @@ public interface SpanDecorator {
             span.setTag("http.method", requestContext.getMethod())
                 .setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
 
-            Optional<URL> url = toURL(requestContext.getUri());
-            url.ifPresent(url1 -> span.setTag(Tags.HTTP_URL.getKey(), url1.toString()));
+            URLUtils.url(requestContext.getUri())
+                    .ifPresent(url -> span.setTag(Tags.HTTP_URL.getKey(), url));
         }
 
         @Override
         public void decorateResponse(ClientResponseContext responseContext, Span span) {
             span.setTag(Tags.HTTP_STATUS.getKey(), responseContext.getStatus());
         }
-
-        private Optional<URL> toURL(URI uri) {
-            URL url = null;
-
-            try {
-                url = uri.toURL();
-            } catch (MalformedURLException e) {}
-
-            return Optional.ofNullable(url);
-        }
     };
-
-
 }

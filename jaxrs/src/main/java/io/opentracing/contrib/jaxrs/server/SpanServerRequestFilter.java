@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.contrib.jaxrs.SpanWrapper;
+import io.opentracing.contrib.jaxrs.URLUtils;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 
@@ -40,26 +42,37 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
+        // return in case filter if registered twice
+        if (requestContext.getProperty(SPAN_PROP_ID) != null) {
+            return;
+        }
+
         if (tracer != null) {
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.TEXT_MAP,
                     new TextMapExtractAdapter(toMap(requestContext.getHeaders())));
 
-            Span span = tracer.buildSpan(operationName.orElse(requestContext.getUriInfo().getPath().toString()))
-                    .asChildOf(extractedSpanContext)
-                    .start();
+            Tracer.SpanBuilder spanBuilder =
+                    tracer.buildSpan(operationName.orElse(
+                            URLUtils.path(requestContext.getUriInfo().getRequestUri()).get()));
+
+            if (extractedSpanContext != null) {
+                spanBuilder.asChildOf(extractedSpanContext);
+            }
+
+            Span span = spanBuilder.start();
 
             spanDecorators.ifPresent(decorators ->
                     decorators.forEach(decorator -> decorator.decorateRequest(requestContext, span)));
 
             log.trace("Creating server span: {}", span);
 
-            requestContext.setProperty(SPAN_PROP_ID, span);
+            requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));
         }
     }
 
     private static Map<String, String> toMap(MultivaluedMap<String, String> multivaluedMap) {
         return multivaluedMap.entrySet().stream()
-                .filter(entry -> entry.getValue().size() > 0)
+                .filter(entry -> entry.getValue().size() > 0 && entry.getValue().get(0) != null)
                 .collect(Collectors.toMap(key -> key.getKey(), value -> value.getValue().get(0).toString()));
     }
 }

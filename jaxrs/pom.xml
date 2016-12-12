@@ -7,15 +7,9 @@
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jaxrs-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>opentracing-jaxrs</artifactId>
-
-  <properties>
-    <version.javax.ws.rs-api>2.0</version.javax.ws.rs-api>
-    <version.javax.servlet-api>3.1.0</version.javax.servlet-api>
-  </properties>
 
   <dependencies>
     <dependency>

@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.opentracing.contrib.jaxrs.SpanWrapper;
+import io.opentracing.contrib.jaxrs.URLUtils;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapInjectAdapter;
 
@@ -42,9 +44,14 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
             return;
         }
 
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getUri().getPath());
+        // in case filter is registered twice
+        if (requestContext.getProperty(SPAN_PROP_ID) != null) {
+            return;
+        }
 
-        Span parentSpan = (Span)requestContext.getProperty(TracingProperties.PARENT_SPAN);
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(URLUtils.path(requestContext.getUri()).get());
+
+        Span parentSpan = (Span)requestContext.getProperty(TracingProperties.CHILD_OF);
         if (parentSpan != null) {
             spanBuilder.asChildOf(parentSpan);
             log.trace("Client will be childOf: {}", parentSpan);
@@ -56,7 +63,7 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
         log.trace("Starting client span: {}", span);
 
         injectHeadersToRequest(requestContext, span);
-        requestContext.setProperty(SPAN_PROP_ID, span);
+        requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));
     }
 
     private void injectHeadersToRequest(ClientRequestContext clientRequestContext, Span span) {
