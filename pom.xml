@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>sk.loffay.opentracing</groupId>
-  <artifactId>opentracing-integration-parent</artifactId>
+  <groupId>io.opentracing.contrib</groupId>
+  <artifactId>opentracing-jaxrs-parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -17,11 +17,10 @@
     <!-- Versions -->
     <version.io.opentracing-opentracing-api>0.20.2</version.io.opentracing-opentracing-api>
     <version.org.slf4j-api>1.7.21</version.org.slf4j-api>
-    <version.ch.qos.logback-logback-classic>1.1.7</version.ch.qos.logback-logback-classic>
   </properties>
 
   <modules>
-    <module>jax-rs</module>
+    <module>jaxrs</module>
     <module>examples/dropwizard</module>
     <module>examples/spring-boot</module>
     <module>examples/wildfly-swarm</module>
@@ -31,7 +30,7 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>opentracing-integration-jax-rs</artifactId>
+        <artifactId>opentracing-jaxrs</artifactId>
         <version>${project.version}</version>
       </dependency>
 

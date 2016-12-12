@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>sk.loffay.opentracing</groupId>
-    <artifactId>opentracing-integration-parent</artifactId>
+    <groupId>io.opentracing.contrib</groupId>
+    <artifactId>opentracing-jaxrs-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>opentracing-integration-example-wildfly-swarm</artifactId>
+  <artifactId>opentracing-jaxrs-example-wildfly-swarm</artifactId>
   <packaging>war</packaging>
 
   <properties>
-    <finalName>opentracing-integration-example-wildfly</finalName>
+    <finalName>opentracing-jaxrs-example-wildfly</finalName>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <version.wildfly.swarm>2016.11.0</version.wildfly.swarm>
     <version.org.hawkular.apm>0.12.0.Final</version.org.hawkular.apm>
@@ -43,7 +43,7 @@
     <!--OpenTracing-->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>opentracing-integration-jax-rs</artifactId>
+      <artifactId>opentracing-jaxrs</artifactId>
     </dependency>
 
     <!-- OpenTracing impl -->

@@ -5,7 +5,7 @@ Dropwizard application instrumented with OpenTracing.
 ## Build & Run
 ```shell
 $ mvn clean install
-$ java -jar target/opentracing-integration-example-dropwizard.jar server app.yml
+$ java -jar target/opentracing-jaxrs-example-dropwizard.jar server app.yml
 ```
 
 ## Example Requests
