@@ -1,4 +1,4 @@
-package io.opentracing.contrib.jaxrs.example.swarm;
+package io.opentracing.contrib.jarxrs.itest.common.rest;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -18,39 +18,42 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import io.opentracing.contrib.jaxrs.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs.client.TracingProperties;
 import io.opentracing.contrib.jaxrs.server.CurrentSpan;
+import io.opentracing.contrib.jaxrs.server.Traced;
 
 /**
  * @author Pavol Loffay
  */
 @Path("/")
-public class HelloHandler {
+public class TestHandler {
 
     private Tracer tracer;
     private Client client;
 
-    public HelloHandler(Tracer tracer) {
+    public TestHandler(Tracer tracer, Client client) {
         this.tracer = tracer;
-        this.client = ClientTracingFeature.Builder
-                .traceAll(tracer, ResteasyClientBuilder.newClient())
-                .build();
+        this.client = client;
     }
 
     @GET
     @Path("/hello")
-    public Response hello(@Context HttpHeaders headers) {
+    public Response helloMethod(@Context HttpHeaders headers) {
         return Response.status(Response.Status.OK).entity("/hello").build();
     }
 
     @GET
-    @Path("/outgoing")
-    public Response outgoing(@Context HttpServletRequest request) {
+    @Path("/operation")
+    @Traced(operationName = "renamedOperation")
+    public Response operation(@Context HttpHeaders headers) {
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @GET
+    @Path("/clientTracingDisabled")
+    public Response clientTracingDisabled(@Context HttpServletRequest request) {
 
         // NOTE that this client request will be in different trace because parent span is not passed
         Response response = client.target("http://localhost:" + request.getServerPort() +
@@ -59,13 +62,16 @@ public class HelloHandler {
                 .property(TracingProperties.TRACING_DISABLED, true)
                 .get();
 
-        return Response.ok().entity(response.getEntity()).build();
+        Object entity = response.getEntity();
+        response.close();
+
+        return Response.ok().entity(entity).build();
     }
 
     @GET
-    @Path("/outgoingNewThread")
-    public Response outgoingNewThread(@Context HttpServletRequest request,
-                                      @BeanParam CurrentSpan currentSpan) throws ExecutionException, InterruptedException {
+    @Path("/clientTracingEnabled")
+    public Response clientTracingEnabled(@Context HttpServletRequest request,
+                                         @BeanParam CurrentSpan currentSpan) throws ExecutionException, InterruptedException {
 
         final int port = request.getServerPort();
         final String contextPath = request.getServletPath();
@@ -81,7 +87,9 @@ public class HelloHandler {
                         .property(TracingProperties.CHILD_OF, span)
                         .get();
 
-                return (String)response.getEntity();
+                String entity = response.readEntity(String.class);
+                response.close();
+                return entity;
             }
         };
 
@@ -93,7 +101,7 @@ public class HelloHandler {
 
     @GET
     @Path("/async")
-    public void async(@Suspended final AsyncResponse asyncResponse,
+    public void async(@Suspended AsyncResponse asyncResponse,
                       @BeanParam CurrentSpan currentSpan) {
 
         final Span serverSpan = currentSpan.injectedSpan();
@@ -121,10 +129,11 @@ public class HelloHandler {
                     .start()) {
                 try {
                     Thread.sleep(random.nextInt(5));
-                    asyncResponse.resume("async finished");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            } finally {
+                asyncResponse.resume("async finished");
             }
         }
     }

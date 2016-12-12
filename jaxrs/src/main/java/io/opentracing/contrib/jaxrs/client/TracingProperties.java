@@ -1,5 +1,7 @@
 package io.opentracing.contrib.jaxrs.client;
 
+import io.opentracing.References;
+
 /**
  * @author Pavol Loffay
  */
@@ -12,7 +14,7 @@ public class TracingProperties {
      * If it is not specified a new trace will be started.
      * Set on {@link javax.ws.rs.client.Client#property(String, Object)}
      */
-    public static final String PARENT_SPAN = "parentSpan";
+    public static final String CHILD_OF = References.CHILD_OF;
 
     /**
      * Indicates whether request should be traced or not. If it is not

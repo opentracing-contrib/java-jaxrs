@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>opentracing-jaxrs-parent</artifactId>
+    <groupId>io.opentracing.contrib</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>integration-tests</artifactId>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>common</module>
+    <module>jersey</module>
+    <module>resteasy</module>
+    <module>apache-cxf</module>
+  </modules>
+
+  <properties>
+    <version.org.apache.cxf>3.1.8</version.org.apache.cxf>
+    <version.org.eclipse.jetty>9.4.0.v20161208</version.org.eclipse.jetty>
+    <version.org.glassfish.jersey>2.25</version.org.glassfish.jersey>
+    <version.org.jboss.resteasy>3.0.19.Final</version.org.jboss.resteasy>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+  </dependencies>
+</project>

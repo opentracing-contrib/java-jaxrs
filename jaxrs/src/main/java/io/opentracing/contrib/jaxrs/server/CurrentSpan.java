@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 
 import io.opentracing.Span;
+import io.opentracing.contrib.jaxrs.SpanWrapper;
 
 
 /**
@@ -15,6 +16,7 @@ public class CurrentSpan {
     private HttpServletRequest request;
 
     public Span injectedSpan() {
-        return (Span) request.getAttribute(SpanServerRequestFilter.SPAN_PROP_ID);
+        SpanWrapper spanWrapper = (SpanWrapper) request.getAttribute(SpanServerRequestFilter.SPAN_PROP_ID);
+        return spanWrapper != null ? spanWrapper.span() : null;
     }
 }

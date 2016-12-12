@@ -11,7 +11,7 @@ import javax.ws.rs.client.ClientResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.opentracing.Span;
+import io.opentracing.contrib.jaxrs.SpanWrapper;
 
 /**
  * @author Pavol Loffay
@@ -28,13 +28,12 @@ public class SpanClientResponseFilter implements ClientResponseFilter {
 
     @Override
     public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) throws IOException {
-        Span span = (Span)requestContext.getProperty(SpanClientRequestFilter.SPAN_PROP_ID);
-        if (span != null) {
-            log.trace("Finishing client span: {}", span);
+        SpanWrapper spanWrapper = (SpanWrapper)requestContext.getProperty(SpanClientRequestFilter.SPAN_PROP_ID);
+        if (spanWrapper != null && !spanWrapper.isFinished()) {
+            log.trace("Finishing client span: {}", spanWrapper);
             spanDecorators.ifPresent(decorators ->
-                    decorators.forEach(decorator -> decorator.decorateResponse(responseContext, span)));
-            span.finish();
+                    decorators.forEach(decorator -> decorator.decorateResponse(responseContext, spanWrapper.span())));
+            spanWrapper.finish();
         }
-
     }
 }
