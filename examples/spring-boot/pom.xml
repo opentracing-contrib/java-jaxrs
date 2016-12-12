@@ -4,19 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>sk.loffay.opentracing</groupId>
-    <artifactId>opentracing-integration-parent</artifactId>
+    <groupId>io.opentracing.contrib</groupId>
+    <artifactId>opentracing-jaxrs-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>opentracing-integration-example-spring-boot</artifactId>
+  <artifactId>opentracing-jaxrs-example-spring-boot</artifactId>
 
   <properties>
     <finalName>${project.artifactId}</finalName>
     <version.org.springframework.boot>1.4.2.RELEASE</version.org.springframework.boot>
     <version.org.hawkular.apm>0.12.0.Final</version.org.hawkular.apm>
-    <start-class>sk.loffay.opentracing.example.spring.boot.App</start-class>
+    <start-class>io.opentracing.contrib.jaxrs.example.spring.boot.App</start-class>
   </properties>
 
   <dependencyManagement>
@@ -46,7 +46,7 @@
     <!-- OpenTracing -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>opentracing-integration-jax-rs</artifactId>
+      <artifactId>opentracing-jaxrs</artifactId>
     </dependency>
 
     <!-- OpenTracing impl -->

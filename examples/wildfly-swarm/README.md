@@ -5,7 +5,7 @@ Wildfly Swarm application instrumented with OpenTracing.
 ## Build & Run
 ```shell
 $ mvn clean install
-$ java -jar target/opentracing-integration-example-wildfly-swarm.jar -Dswarm.http.port=3000 -Dswarm.logging=TRACE
+$ java -jar target/opentracing-jaxrs-example-wildfly-swarm.jar -Dswarm.http.port=3000 -Dswarm.logging=TRACE
 ```
 
 ## Example Requests
