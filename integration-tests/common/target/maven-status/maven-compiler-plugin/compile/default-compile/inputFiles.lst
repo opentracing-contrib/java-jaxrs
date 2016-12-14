@@ -1,4 +1,0 @@
-/home/ploffay/projects/opentracing-java-jax-rs/integration-tests/common/src/main/java/io/opentracing/contrib/jarxrs/itest/common/rest/TestHandler.java
-/home/ploffay/projects/opentracing-java-jax-rs/integration-tests/common/src/main/java/io/opentracing/contrib/jarxrs/itest/common/AbstractJettyTest.java
-/home/ploffay/projects/opentracing-java-jax-rs/integration-tests/common/src/main/java/io/opentracing/contrib/jarxrs/itest/common/rest/InstrumentedRestApplication.java
-/home/ploffay/projects/opentracing-java-jax-rs/integration-tests/common/src/main/java/io/opentracing/mock/TextMapPropagator.java

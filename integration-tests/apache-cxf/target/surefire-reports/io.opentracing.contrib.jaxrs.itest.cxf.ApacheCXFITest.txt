@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: io.opentracing.contrib.jaxrs.itest.cxf.ApacheCXFITest
--------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.877 sec

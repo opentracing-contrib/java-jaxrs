@@ -1,6 +1,0 @@
-io/opentracing/contrib/jarxrs/itest/common/rest/TestHandler.class
-io/opentracing/contrib/jarxrs/itest/common/rest/TestHandler$ExpensiveOperation.class
-io/opentracing/mock/TextMapPropagator.class
-io/opentracing/contrib/jarxrs/itest/common/rest/InstrumentedRestApplication.class
-io/opentracing/contrib/jarxrs/itest/common/rest/TestHandler$1.class
-io/opentracing/contrib/jarxrs/itest/common/AbstractJettyTest.class
