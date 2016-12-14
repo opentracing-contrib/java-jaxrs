@@ -16,7 +16,7 @@
   <properties>
     <finalName>opentracing-jaxrs-example-wildfly</finalName>
     <failOnMissingWebXml>false</failOnMissingWebXml>
-    <version.wildfly.swarm>2016.11.0</version.wildfly.swarm>
+    <version.wildfly.swarm>2016.12.0</version.wildfly.swarm>
     <version.org.hawkular.apm>0.12.0.Final</version.org.hawkular.apm>
   </properties>
 
@@ -44,6 +44,22 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>opentracing-jaxrs</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>opentracing-jaxrs-itest-common</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-server</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-servlet</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- OpenTracing impl -->
@@ -78,6 +94,11 @@
         <groupId>org.wildfly.swarm</groupId>
         <artifactId>wildfly-swarm-plugin</artifactId>
         <version>${version.wildfly.swarm}</version>
+        <configuration>
+          <properties>
+            <swarm.http.port>3000</swarm.http.port>
+          </properties>
+        </configuration>
         <executions>
           <execution>
             <goals>

@@ -10,6 +10,7 @@ $ java -jar target/opentracing-jaxrs-example-spring-boot-exec.jar
 
 ## Example Requests
 ```shell
-$ curl -ivX GET 'http://localhost:3000/spring-boot/jax-rs/bar'
-$ curl -ivX GET 'http://localhost:3000/spring-boot/jax-rs/foo'
+$ curl -ivX GET 'http://localhost:3000/hello'
 ```
+
+More requests can be found in `integration-tests/common/../../rest/TestHandler.java`

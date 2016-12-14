@@ -10,6 +10,7 @@ $ java -jar target/opentracing-jaxrs-example-dropwizard.jar server app.yml
 
 ## Example Requests
 ```shell
-$ curl -ivX GET 'http://localhost:3000/dropwizard/bar'
-$ curl -ivX GET 'http://localhost:3000/dropwizard/foo'
+$ curl -ivX GET 'http://localhost:3000/hello'
 ```
+
+More requests can be found in `integration-tests/common/../../rest/TestHandler.java`
