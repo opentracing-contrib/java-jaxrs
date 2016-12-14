@@ -1,7 +1,7 @@
-package io.opentracing.contrib.jarxrs.itest.common.rest;
+package io.opentracing.contrib.jaxrs.itest.common.rest;
 
-import static io.opentracing.contrib.jarxrs.itest.common.AbstractJettyTest.CLIENT_ATTRIBUTE;
-import static io.opentracing.contrib.jarxrs.itest.common.AbstractJettyTest.TRACER_ATTRIBUTE;
+import static io.opentracing.contrib.jaxrs.itest.common.AbstractJettyTest.CLIENT_ATTRIBUTE;
+import static io.opentracing.contrib.jaxrs.itest.common.AbstractJettyTest.TRACER_ATTRIBUTE;
 
 import java.util.Collections;
 import java.util.HashSet;

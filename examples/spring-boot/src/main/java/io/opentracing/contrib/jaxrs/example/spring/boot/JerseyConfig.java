@@ -9,7 +9,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.stereotype.Component;
 
 import io.opentracing.Tracer;
-import io.opentracing.contrib.jarxrs.itest.common.rest.TestHandler;
+import io.opentracing.contrib.jaxrs.itest.common.rest.TestHandler;
 import io.opentracing.contrib.jaxrs.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs.server.ServerTracingDynamicFeature;
 

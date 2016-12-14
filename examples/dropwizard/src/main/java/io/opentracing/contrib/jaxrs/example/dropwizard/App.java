@@ -28,7 +28,7 @@ import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.opentracing.Tracer;
-import io.opentracing.contrib.jarxrs.itest.common.rest.TestHandler;
+import io.opentracing.contrib.jaxrs.itest.common.rest.TestHandler;
 import io.opentracing.contrib.jaxrs.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs.server.ServerTracingDynamicFeature;
 

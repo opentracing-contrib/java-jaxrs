@@ -3,8 +3,8 @@ package io.opentracing.contrib.jaxrs.itest.cxf;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import io.opentracing.contrib.jarxrs.itest.common.AbstractJettyTest;
-import io.opentracing.contrib.jarxrs.itest.common.rest.InstrumentedRestApplication;
+import io.opentracing.contrib.jaxrs.itest.common.AbstractJettyTest;
+import io.opentracing.contrib.jaxrs.itest.common.rest.InstrumentedRestApplication;
 
 /**
  * @author Pavol Loffay

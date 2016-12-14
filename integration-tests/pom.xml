@@ -9,7 +9,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>integration-tests</artifactId>
+  <artifactId>opentracing-jaxrs-itest-parent</artifactId>
   <packaging>pom</packaging>
 
   <modules>

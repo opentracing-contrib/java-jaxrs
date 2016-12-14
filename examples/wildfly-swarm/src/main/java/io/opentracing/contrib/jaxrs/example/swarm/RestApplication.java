@@ -12,7 +12,7 @@ import javax.ws.rs.core.Application;
 import org.hawkular.apm.client.opentracing.APMTracer;
 
 import io.opentracing.Tracer;
-import io.opentracing.contrib.jarxrs.itest.common.rest.TestHandler;
+import io.opentracing.contrib.jaxrs.itest.common.rest.TestHandler;
 import io.opentracing.contrib.jaxrs.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs.server.ServerTracingDynamicFeature;
 

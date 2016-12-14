@@ -1,4 +1,4 @@
-package io.opentracing.contrib.jarxrs.itest.common;
+package io.opentracing.contrib.jaxrs.itest.common;
 
 
 import java.util.Arrays;

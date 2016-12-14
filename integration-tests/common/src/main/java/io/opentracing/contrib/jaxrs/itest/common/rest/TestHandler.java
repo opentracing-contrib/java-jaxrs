@@ -1,4 +1,4 @@
-package io.opentracing.contrib.jarxrs.itest.common.rest;
+package io.opentracing.contrib.jaxrs.itest.common.rest;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
