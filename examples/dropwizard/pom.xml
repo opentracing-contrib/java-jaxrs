@@ -46,6 +46,22 @@
       <artifactId>opentracing-jaxrs</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>opentracing-jaxrs-itest-common</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-server</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-servlet</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <!-- Your preferred OpenTracing impl -->
     <dependency>
       <groupId>org.hawkular.apm</groupId>

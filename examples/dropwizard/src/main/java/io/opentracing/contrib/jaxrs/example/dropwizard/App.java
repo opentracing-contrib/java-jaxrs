@@ -18,9 +18,8 @@
 package io.opentracing.contrib.jaxrs.example.dropwizard;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.hawkular.apm.client.opentracing.APMTracer;
 
 import io.dropwizard.Application;
@@ -29,6 +28,7 @@ import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.opentracing.Tracer;
+import io.opentracing.contrib.jarxrs.itest.common.rest.TestHandler;
 import io.opentracing.contrib.jaxrs.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs.server.ServerTracingDynamicFeature;
 
@@ -56,20 +56,19 @@ public class App extends Application<AppConfiguration> {
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         Tracer tracer = new APMTracer();
-        Client client = ClientTracingFeature.Builder
-                .traceAll(tracer, new JerseyClientBuilder().build())
+
+        Client client = ClientBuilder.newClient();
+
+        ClientTracingFeature.Builder
+                .traceAll(tracer, client)
                 .build();
 
-        environment.jersey().register(ServerTracingDynamicFeature.Builder.traceAll(tracer).build());
-        environment.jersey().register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-//                TODO remove
-                bind(APMTracer.class).to(Tracer.class);
-            }
-        });
+        environment.jersey().register(ServerTracingDynamicFeature.Builder
+                .traceAll(tracer)
+                .withStandardTags()
+                .build());
 
         // Register resources
-        environment.jersey().register(new HelloHandler(tracer, client));
+        environment.jersey().register(new TestHandler(tracer, client));
     }
 }
