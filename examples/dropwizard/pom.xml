@@ -43,7 +43,7 @@
     <!-- OpenTracing -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>opentracing-jaxrs</artifactId>
+      <artifactId>opentracing-jaxrs2</artifactId>
     </dependency>
 
     <dependency>

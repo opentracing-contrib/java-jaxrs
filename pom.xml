@@ -22,7 +22,7 @@
   </properties>
 
   <modules>
-    <module>jaxrs</module>
+    <module>jaxrs2</module>
     <module>integration-tests</module>
     <module>examples/dropwizard</module>
     <module>examples/spring-boot</module>
@@ -33,7 +33,7 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>opentracing-jaxrs</artifactId>
+        <artifactId>opentracing-jaxrs2</artifactId>
         <version>${project.version}</version>
       </dependency>
 
