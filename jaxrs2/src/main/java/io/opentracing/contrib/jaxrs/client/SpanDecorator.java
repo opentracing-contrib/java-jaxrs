@@ -14,7 +14,7 @@ public interface SpanDecorator {
 
     void decorateRequest(ClientRequestContext containerRequestContext, Span span);
 
-    void decorateResponse(ClientResponseContext containerRequestContext, Span span);
+    void decorateResponse(ClientResponseContext containerResponseContext, Span span);
 
     SpanDecorator STANDARD_TAGS = new SpanDecorator() {
         @Override

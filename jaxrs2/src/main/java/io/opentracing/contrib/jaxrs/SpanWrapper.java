@@ -18,14 +18,14 @@ public class SpanWrapper {
         return span;
     }
 
-    synchronized public void finish() {
+    public synchronized void finish() {
         if (!finished) {
             finished = true;
             span.finish();
         }
     }
 
-    public boolean isFinished() {
+    public synchronized boolean isFinished() {
         return finished;
     }
 }

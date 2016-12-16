@@ -2,7 +2,7 @@
 
 Warning: This library is still a work in progress!
 
-[![Travis](https://travis-ci.org/pavolloffay/opentracing-java-integrations.svg?branch=master)](https://travis-ci.org/pavolloffay/opentracing-java-integrations)
+[![Travis](https://travis-ci.org/opentracing-contrib/java-jaxrs.svg?branch=master)](https://travis-ci.org/opentracing-contrib/java-jaxrs)
 
 OpenTracing instrumentation for JAX-RS standard. 
 It supports server and client request tracing.
