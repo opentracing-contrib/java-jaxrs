@@ -2,25 +2,22 @@ package io.opentracing.contrib.jaxrs.server;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
+import java.util.logging.Logger;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.opentracing.contrib.jaxrs.SpanWrapper;
 
 public class SpanServerResponseFilter implements ContainerResponseFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(SpanServerResponseFilter.class);
+    private static final Logger log = Logger.getLogger(SpanServerResponseFilter.class.getName());
 
-    private Optional<List<SpanDecorator>> spanDecorators;
+    private List<SpanDecorator> spanDecorators;
 
     public SpanServerResponseFilter(List<SpanDecorator> spanDecorators) {
-        this.spanDecorators = Optional.ofNullable(spanDecorators);
+        this.spanDecorators = spanDecorators;
     }
 
     @Override
@@ -29,10 +26,14 @@ public class SpanServerResponseFilter implements ContainerResponseFilter {
         SpanWrapper spanWrapper = (SpanWrapper)requestContext.getProperty(SpanServerRequestFilter.SPAN_PROP_ID);
 
         if (spanWrapper != null && !spanWrapper.isFinished()) {
-            log.trace("Finishing server span: {}", spanWrapper);
+            log.finest("Finishing server span");
 
-            spanDecorators.ifPresent(decorators ->
-                    decorators.forEach(decorator -> decorator.decorateResponse(responseContext, spanWrapper.span())));
+            if (spanDecorators != null) {
+                for (SpanDecorator decorator: spanDecorators) {
+                    decorator.decorateResponse(responseContext, spanWrapper.span());
+                }
+            }
+
             spanWrapper.finish();
         }
     }

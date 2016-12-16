@@ -2,14 +2,13 @@ package io.opentracing.contrib.jaxrs.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.opentracing.Tracer;
 
@@ -19,7 +18,7 @@ import io.opentracing.Tracer;
 @Provider
 public class ServerTracingDynamicFeature implements DynamicFeature {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerTracingDynamicFeature.class);
+    private static final Logger log = Logger.getLogger(ServerTracingDynamicFeature.class.getName());
 
     private Builder builder;
 
@@ -31,8 +30,12 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
         if (builder.allTraced || shouldBeTraced(resourceInfo)) {
             // TODO why it is called twice for the same endpoint
-            log.info("{} Registering tracing: {}#{}", this, resourceInfo.getResourceClass().getCanonicalName(),
-                    resourceInfo.getResourceMethod().getName());
+            if (log.isLoggable(Level.INFO)) {
+                String msg = String.format("%s registering tracing: %s#%s", this,
+                        resourceInfo.getResourceClass().getCanonicalName(),
+                        resourceInfo.getResourceMethod().getName());
+                log.info(msg);
+            }
 
             context.register(new SpanServerRequestFilter(builder.tracer, operationName(resourceInfo), builder.spanDecorators));
             context.register(new SpanServerResponseFilter(builder.spanDecorators));

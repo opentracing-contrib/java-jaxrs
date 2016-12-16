@@ -4,9 +4,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import io.opentracing.contrib.jaxrs.client.ClientHeadersInjectTextMap;
+import io.opentracing.contrib.jaxrs.server.ServerHeadersExtractTextMap;
 import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMapExtractAdapter;
-import io.opentracing.propagation.TextMapInjectAdapter;
 
 public class TextMapPropagator implements MockTracer.Propagator {
 
@@ -16,7 +16,7 @@ public class TextMapPropagator implements MockTracer.Propagator {
     @Override
     public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
         if (format.equals(Format.Builtin.TEXT_MAP)) {
-            TextMapInjectAdapter injectAdapter = (TextMapInjectAdapter) carrier;
+            ClientHeadersInjectTextMap injectAdapter = (ClientHeadersInjectTextMap) carrier;
             injectAdapter.put(SPAN_ID, String.valueOf(ctx.spanId()));
             injectAdapter.put(TRACE_ID, String.valueOf(ctx.traceId()));
         } else {
@@ -30,7 +30,7 @@ public class TextMapPropagator implements MockTracer.Propagator {
         Long spanId = null;
 
         if (format.equals(Format.Builtin.TEXT_MAP)) {
-            TextMapExtractAdapter extractAdapter = (TextMapExtractAdapter) carrier;
+            ServerHeadersExtractTextMap extractAdapter = (ServerHeadersExtractTextMap) carrier;
             Iterator<Map.Entry<String, String>> iterator = extractAdapter.iterator();
             while (iterator.hasNext()) {
                 Map.Entry<String, String> entry = iterator.next();
@@ -45,7 +45,7 @@ public class TextMapPropagator implements MockTracer.Propagator {
         }
 
         if (traceId != null && spanId != null) {
-            return new MockSpan.MockContext(traceId, spanId, Collections.emptyMap());
+            return new MockSpan.MockContext(traceId, spanId, Collections.<String, String>emptyMap());
         }
 
         return null;

@@ -22,8 +22,10 @@ public interface SpanDecorator {
             span.setTag("http.method", requestContext.getMethod())
                 .setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
 
-            URLUtils.url(requestContext.getUri())
-                    .ifPresent(url -> span.setTag(Tags.HTTP_URL.getKey(), url));
+            String url = URLUtils.url(requestContext.getUri());
+            if (url != null) {
+                span.setTag(Tags.HTTP_URL.getKey(), url);
+            }
         }
 
         @Override

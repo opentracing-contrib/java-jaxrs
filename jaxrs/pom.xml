@@ -17,13 +17,6 @@
       <artifactId>opentracing-api</artifactId>
     </dependency>
 
-    <!-- Logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${version.org.slf4j-api}</version>
-    </dependency>
-
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
@@ -33,6 +26,7 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>${version.javax.servlet-api}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

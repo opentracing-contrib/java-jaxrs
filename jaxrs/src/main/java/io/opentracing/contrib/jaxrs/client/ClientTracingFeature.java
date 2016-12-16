@@ -2,6 +2,8 @@ package io.opentracing.contrib.jaxrs.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ws.rs.client.Client;
 
@@ -12,7 +14,14 @@ import io.opentracing.Tracer;
  */
 public class ClientTracingFeature {
 
+    private static final Logger log = Logger.getLogger(ClientTracingFeature.class.getName());
+
+
     private ClientTracingFeature(Builder builder) {
+        if (log.isLoggable(Level.INFO)) {
+            log.info("Registering client tracing for: " + builder.client);
+        }
+
         builder.client.register(new SpanClientRequestFilter(builder.tracer, builder.spanDecorators), 0)
                 .register(new SpanClientResponseFilter(builder.spanDecorators), 0);
     }

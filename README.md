@@ -39,7 +39,7 @@ ClientTracingFeature.Builder
     .traceAll(tracer, jaxRsClient)
     .build();
 
-Response response = jaxRsClient.target("http://localhost/enpoint")
+Response response = jaxRsClient.target("http://localhost/endpoint")
     .request()
     .property(TracingProperties.CHILD_OF, parentSpan) // optional, by default new trace is started
     .property(TracingProperties.TRACING_DISABLED, false) // optional, by default false

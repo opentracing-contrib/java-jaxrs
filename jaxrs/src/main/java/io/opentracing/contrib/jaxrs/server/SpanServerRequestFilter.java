@@ -2,16 +2,11 @@ package io.opentracing.contrib.jaxrs.server;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.MultivaluedMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -19,25 +14,24 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs.SpanWrapper;
 import io.opentracing.contrib.jaxrs.URLUtils;
 import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMapExtractAdapter;
 
 /**
  * @author Pavol Loffay
  */
 public class SpanServerRequestFilter implements ContainerRequestFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(SpanServerRequestFilter.class);
+    private static final Logger log = Logger.getLogger(SpanServerRequestFilter.class.getName());
 
     public static final String SPAN_PROP_ID = "currentServerSpan";
 
     private Tracer tracer;
-    private Optional<String> operationName;
-    private Optional<List<SpanDecorator>> spanDecorators;
+    private String operationName;
+    private List<SpanDecorator> spanDecorators;
 
     public SpanServerRequestFilter(Tracer tracer, String operationName, List<SpanDecorator> spanDecorators) {
         this.tracer = tracer;
-        this.operationName = Optional.ofNullable(operationName);
-        this.spanDecorators = Optional.ofNullable(spanDecorators);
+        this.operationName = operationName;
+        this.spanDecorators = spanDecorators;
     }
 
     @Override
@@ -49,11 +43,12 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
 
         if (tracer != null) {
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.TEXT_MAP,
-                    new TextMapExtractAdapter(toMap(requestContext.getHeaders())));
+                    new ServerHeadersExtractTextMap(requestContext.getHeaders()));
 
-            Tracer.SpanBuilder spanBuilder =
-                    tracer.buildSpan(operationName.orElse(
-                            URLUtils.path(requestContext.getUriInfo().getRequestUri()).get()));
+            String operationName = this.operationName != null ? this.operationName :
+                    URLUtils.path(requestContext.getUriInfo().getRequestUri());
+
+            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
 
             if (extractedSpanContext != null) {
                 spanBuilder.asChildOf(extractedSpanContext);
@@ -61,18 +56,17 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
 
             Span span = spanBuilder.start();
 
-            spanDecorators.ifPresent(decorators ->
-                    decorators.forEach(decorator -> decorator.decorateRequest(requestContext, span)));
+            if (spanDecorators != null) {
+                for (SpanDecorator decorator: spanDecorators) {
+                    decorator.decorateRequest(requestContext, span);
+                }
+            }
 
-            log.trace("Creating server span: {}", span);
+            if (log.isLoggable(Level.FINEST)) {
+                log.finest("Creating server span: " + operationName);
+            }
 
             requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));
         }
-    }
-
-    private static Map<String, String> toMap(MultivaluedMap<String, String> multivaluedMap) {
-        return multivaluedMap.entrySet().stream()
-                .filter(entry -> entry.getValue().size() > 0 && entry.getValue().get(0) != null)
-                .collect(Collectors.toMap(key -> key.getKey(), value -> value.getValue().get(0).toString()));
     }
 }

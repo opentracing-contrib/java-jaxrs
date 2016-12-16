@@ -10,8 +10,8 @@
   <packaging>pom</packaging>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Versions -->
@@ -19,7 +19,6 @@
     <version.javax.ws.rs-api>2.0.1</version.javax.ws.rs-api>
     <version.javax.servlet-api>3.1.0</version.javax.servlet-api>
     <version.junit>4.12</version.junit>
-    <version.org.slf4j-api>1.7.21</version.org.slf4j-api>
   </properties>
 
   <modules>
