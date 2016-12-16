@@ -24,9 +24,7 @@
   <modules>
     <module>jaxrs2</module>
     <module>integration-tests</module>
-    <module>examples/dropwizard</module>
     <module>examples/spring-boot</module>
-    <module>examples/wildfly-swarm</module>
   </modules>
 
   <dependencyManagement>
