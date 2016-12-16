@@ -21,7 +21,7 @@
 
   <properties>
     <version.org.apache.cxf>3.1.8</version.org.apache.cxf>
-    <version.org.eclipse.jetty>9.4.0.v20161208</version.org.eclipse.jetty>
+    <version.org.eclipse.jetty>9.2.19.v20160908</version.org.eclipse.jetty>
     <version.org.glassfish.jersey>2.25</version.org.glassfish.jersey>
     <version.org.jboss.resteasy>3.0.19.Final</version.org.jboss.resteasy>
   </properties>
