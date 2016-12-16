@@ -37,7 +37,9 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
                 log.info(msg);
             }
 
-            context.register(new SpanServerRequestFilter(builder.tracer, operationName(resourceInfo), builder.spanDecorators));
+            context.register(new SpanServerRequestFilter(builder.tracer,
+                    new OperationNameAdapter(operationName(resourceInfo), builder.operationNameProvider),
+                    builder.spanDecorators));
             context.register(new SpanServerResponseFilter(builder.spanDecorators));
         }
     }
@@ -61,23 +63,30 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     }
 
     public static class Builder {
-        private boolean allTraced;
         private final Tracer tracer;
+        private boolean allTraced;
+        private OperationNameProvider operationNameProvider;
         private List<SpanDecorator> spanDecorators = new ArrayList<>();
 
         private Builder(Tracer tracer) {
             this.tracer = tracer;
+            this.operationNameProvider = OperationNameProvider.HTTP_METHOD_NAME_PROVIDER;
+            this.withStandardTags();
         }
 
         public static Builder traceAll(Tracer tracer) {
             Builder builder = new Builder(tracer);
             builder.allTraced = true;
-            builder.withStandardTags();
             return builder;
         }
 
         public static Builder traceNothing(Tracer tracer) {
             return new Builder(tracer);
+        }
+
+        public Builder withOperationNameProvider(OperationNameProvider operationNameProvider) {
+            this.operationNameProvider = operationNameProvider;
+            return this;
         }
 
         public Builder withStandardTags() {
@@ -93,6 +102,10 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         public Builder withDecorator(SpanDecorator spanDecorator) {
             this.spanDecorators.add(spanDecorator);
             return this;
+        }
+
+        public Tracer tracer() {
+            return tracer;
         }
 
         public ServerTracingDynamicFeature build() {

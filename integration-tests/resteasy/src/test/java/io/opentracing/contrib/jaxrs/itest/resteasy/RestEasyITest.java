@@ -3,13 +3,13 @@ package io.opentracing.contrib.jaxrs.itest.resteasy;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import io.opentracing.contrib.jaxrs.itest.common.AbstractJettyTest;
+import io.opentracing.contrib.jaxrs.itest.common.AbstractBasicTest;
 import io.opentracing.contrib.jaxrs.itest.common.rest.InstrumentedRestApplication;
 
 /**
  * @author Pavol Loffay
  */
-public class RestEasyITest extends AbstractJettyTest {
+public class RestEasyITest extends AbstractBasicTest {
 
     @Override
     protected void initServletContext(ServletContextHandler context) {

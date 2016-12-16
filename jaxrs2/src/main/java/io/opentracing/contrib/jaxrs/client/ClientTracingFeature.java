@@ -49,6 +49,14 @@ public class ClientTracingFeature {
             return this;
         }
 
+        public Tracer tracer() {
+            return tracer;
+        }
+
+        public Client client() {
+            return client;
+        }
+
         public Client build() {
             new ClientTracingFeature(this);
             return client;

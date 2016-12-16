@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -97,6 +98,19 @@ public class TestHandler {
         executor.shutdown();
 
         return Response.ok().entity(future.get()).build();
+    }
+
+    @GET
+    @Path("/path/{pathParam}")
+    public Response pathParam(@PathParam("pathParam") String pathParam1) {
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/path/{pathParam}/path2/{pathParam2}")
+    public Response pathParam(@PathParam("pathParam") String pathParam1,
+                              @PathParam("pathParam2") String pathParam2) {
+        return Response.ok().build();
     }
 
     @GET

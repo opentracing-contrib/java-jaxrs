@@ -1,20 +1,20 @@
-package io.opentracing.contrib.jaxrs.itest.cxf;
+package io.opentracing.contrib.jaxrs.itest.jersey;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import io.opentracing.contrib.jaxrs.itest.common.AbstractBasicTest;
+import io.opentracing.contrib.jaxrs.itest.common.AbstractWildcardOperationNameTest;
 import io.opentracing.contrib.jaxrs.itest.common.rest.InstrumentedRestApplication;
 
 /**
  * @author Pavol Loffay
  */
-public class ApacheCXFITest extends AbstractBasicTest {
+public class JerseyWildcardOperationNameITest extends AbstractWildcardOperationNameTest {
 
     @Override
-    protected void initServletContext(ServletContextHandler context) {
+    public void initServletContext(ServletContextHandler context) {
         ServletHolder jerseyServlet = context.addServlet(
-                org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet.class, "/*");
+                org.glassfish.jersey.servlet.ServletContainer.class, "/*");
         jerseyServlet.setInitOrder(0);
 
         jerseyServlet.setInitParameter(

@@ -12,7 +12,6 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs.SpanWrapper;
-import io.opentracing.contrib.jaxrs.URLUtils;
 import io.opentracing.propagation.Format;
 
 /**
@@ -25,12 +24,13 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
     public static final String SPAN_PROP_ID = "currentServerSpan";
 
     private Tracer tracer;
-    private String operationName;
+    private OperationNameAdapter operationNameAdapter;
     private List<SpanDecorator> spanDecorators;
 
-    public SpanServerRequestFilter(Tracer tracer, String operationName, List<SpanDecorator> spanDecorators) {
+    public SpanServerRequestFilter(Tracer tracer, OperationNameAdapter operationNameAdapter,
+                                   List<SpanDecorator> spanDecorators) {
         this.tracer = tracer;
-        this.operationName = operationName;
+        this.operationNameAdapter = operationNameAdapter;
         this.spanDecorators = spanDecorators;
     }
 
@@ -45,10 +45,7 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.TEXT_MAP,
                     new ServerHeadersExtractTextMap(requestContext.getHeaders()));
 
-            String operationName = this.operationName != null ? this.operationName :
-                    URLUtils.path(requestContext.getUriInfo().getRequestUri());
-
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
+            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameAdapter.operationName(requestContext));
 
             if (extractedSpanContext != null) {
                 spanBuilder.asChildOf(extractedSpanContext);
@@ -63,7 +60,7 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
             }
 
             if (log.isLoggable(Level.FINEST)) {
-                log.finest("Creating server span: " + operationName);
+                log.finest("Creating server span: " + operationNameAdapter.operationName(requestContext));
             }
 
             requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));

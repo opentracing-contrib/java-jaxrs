@@ -3,13 +3,13 @@ package io.opentracing.contrib.jaxrs.itest.jersey;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import io.opentracing.contrib.jaxrs.itest.common.AbstractJettyTest;
+import io.opentracing.contrib.jaxrs.itest.common.AbstractBasicTest;
 import io.opentracing.contrib.jaxrs.itest.common.rest.InstrumentedRestApplication;
 
 /**
  * @author Pavol Loffay
  */
-public class JerseyITest extends AbstractJettyTest {
+public class JerseyITest extends AbstractBasicTest {
 
     @Override
     public void initServletContext(ServletContextHandler context) {
