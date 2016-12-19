@@ -19,7 +19,7 @@ public interface SpanDecorator {
     SpanDecorator STANDARD_TAGS = new SpanDecorator() {
         @Override
         public void decorateRequest(ClientRequestContext requestContext, Span span) {
-            span.setTag("http.method", requestContext.getMethod())
+            span.setTag(Tags.HTTP_METHOD.getKey(), requestContext.getMethod())
                 .setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
 
             String url = URLUtils.url(requestContext.getUri());
