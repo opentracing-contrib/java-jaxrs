@@ -17,7 +17,6 @@ import io.opentracing.contrib.jaxrs.server.ServerTracingDynamicFeature;
 /**
  * @author Pavol Loffay
  */
-//@ApplicationPath("/")
 public class InstrumentedRestApplication extends Application {
 
     private ClientTracingFeature.Builder clientTracingBuilder;

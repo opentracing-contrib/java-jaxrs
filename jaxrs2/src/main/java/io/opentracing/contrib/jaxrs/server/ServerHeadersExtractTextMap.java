@@ -10,6 +10,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import io.opentracing.propagation.TextMap;
 
 /**
+ * Helper class used to iterate over HTTP headers.
+ *
  * @author Pavol Loffay
  */
 public class ServerHeadersExtractTextMap implements TextMap {

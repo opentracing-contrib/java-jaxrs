@@ -5,12 +5,12 @@ import javax.ws.rs.container.ContainerRequestContext;
 /**
  * @author Pavol Loffay
  */
-public class OperationNameAdapter implements OperationNameProvider {
+public class OperationNameDecorator implements ServerOperationNameProvider {
 
     private final String operationName;
-    private final OperationNameProvider delegate;
+    private final ServerOperationNameProvider delegate;
 
-    public OperationNameAdapter(String operationName, OperationNameProvider operationNameProvider) {
+    public OperationNameDecorator(String operationName, ServerOperationNameProvider operationNameProvider) {
         this.operationName = operationName;
         this.delegate = operationNameProvider;
     }

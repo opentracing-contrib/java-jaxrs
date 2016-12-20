@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.opentracing.contrib.jaxrs.client.ClientTracingFeature;
-import io.opentracing.contrib.jaxrs.server.OperationNameProvider;
+import io.opentracing.contrib.jaxrs.server.ServerOperationNameProvider;
 import io.opentracing.contrib.jaxrs.server.ServerTracingDynamicFeature;
 import io.opentracing.mock.MockSpan;
 
@@ -27,7 +27,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
 
         ServerTracingDynamicFeature.Builder serverTracingBuilder = ServerTracingDynamicFeature.Builder
                 .traceAll(mockTracer)
-                .withOperationNameProvider(OperationNameProvider.HTTP_PATH_WILDCARD_NAME_PROVIDER);
+                .withOperationNameProvider(ServerOperationNameProvider.HTTP_PATH_WILDCARD_NAME_PROVIDER);
 
         context.setAttribute(CLIENT_BUILDER_ATTRIBUTE, clientTracingBuilder);
         context.setAttribute(TRACER_BUILDER_ATTRIBUTE, serverTracingBuilder);
@@ -57,5 +57,18 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         Assert.assertEquals("path/{pathParam}/path2/{pathParam2}", mockSpans.get(0).operationName());
+    }
+
+    @Test
+    public void testRegexParam() throws Exception {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/path/param/path/word1"))
+                .request()
+                .get();
+        response.close();
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(1, mockSpans.size());
+        Assert.assertEquals("path/{pathParam}/path/{regexParam}", mockSpans.get(0).operationName());
     }
 }

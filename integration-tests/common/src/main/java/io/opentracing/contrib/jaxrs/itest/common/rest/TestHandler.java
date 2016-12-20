@@ -76,7 +76,7 @@ public class TestHandler {
 
         final int port = request.getServerPort();
         final String contextPath = request.getServletPath();
-        final Span span = currentSpan.injectedSpan();
+        final Span span = currentSpan.get();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Callable<String> callable = new Callable<String>() {
@@ -95,9 +95,11 @@ public class TestHandler {
         };
 
         Future<String> future = executor.submit(callable);
+
+        String result = future.get();
         executor.shutdown();
 
-        return Response.ok().entity(future.get()).build();
+        return Response.ok().entity(result).build();
     }
 
     @GET
@@ -114,11 +116,18 @@ public class TestHandler {
     }
 
     @GET
+    @Path("/path/{pathParam}/path/{regexParam: \\w+}")
+    public Response pathParamRegex(@PathParam("pathParam") String pathParam,
+                                   @PathParam("regexParam") String regexParam) {
+        return Response.ok().build();
+    }
+
+    @GET
     @Path("/async")
     public void async(@Suspended AsyncResponse asyncResponse,
                       @BeanParam CurrentSpan currentSpan) {
 
-        final Span serverSpan = currentSpan.injectedSpan();
+        final Span serverSpan = currentSpan.get();
 
         new Thread(new ExpensiveOperation(serverSpan, asyncResponse))
                 .start();

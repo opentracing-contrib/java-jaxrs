@@ -13,4 +13,5 @@ $ java -jar target/opentracing-jaxrs-example-spring-boot-exec.jar
 $ curl -ivX GET 'http://localhost:3000/hello'
 ```
 
-More requests can be found in `integration-tests/common/../../rest/TestHandler.java`
+More requests can be found in [integration-tests/common/../rest/TestHandler.java](../../integration-tests/common/src/main/java/io/opentracing/contrib/jaxrs/itest/common/rest/TestHandler.java)
+

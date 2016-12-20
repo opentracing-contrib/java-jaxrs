@@ -13,11 +13,11 @@ public class RestEasyITest extends AbstractBasicTest {
 
     @Override
     protected void initServletContext(ServletContextHandler context) {
-        ServletHolder jerseyServlet = context.addServlet(
+        ServletHolder restEasyServlet = context.addServlet(
                 org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class, "/*");
-        jerseyServlet.setInitOrder(0);
+        restEasyServlet.setInitOrder(0);
 
-        jerseyServlet.setInitParameter(
+        restEasyServlet.setInitParameter(
                 "javax.ws.rs.Application", InstrumentedRestApplication.class.getCanonicalName());
     }
 }

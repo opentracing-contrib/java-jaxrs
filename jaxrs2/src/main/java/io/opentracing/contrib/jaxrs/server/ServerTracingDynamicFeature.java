@@ -13,6 +13,8 @@ import javax.ws.rs.ext.Provider;
 import io.opentracing.Tracer;
 
 /**
+ * This class has to be registered as JAX-RS provider to enable tracing of server requests.
+ *
  * @author Pavol Loffay
  */
 @Provider
@@ -38,7 +40,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
             }
 
             context.register(new SpanServerRequestFilter(builder.tracer,
-                    new OperationNameAdapter(operationName(resourceInfo), builder.operationNameProvider),
+                    new OperationNameDecorator(operationName(resourceInfo), builder.operationNameProvider),
                     builder.spanDecorators));
             context.register(new SpanServerResponseFilter(builder.spanDecorators));
         }
@@ -62,44 +64,78 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         return traced != null ? traced.operationName() : null;
     }
 
+    /**
+     * Builder for creating JAX-RS dynamic feature for tracing server requests.
+     *
+     * By default span operation name is set by {@link ServerOperationNameProvider#HTTP_METHOD_NAME_PROVIDER} and
+     * span is decorated with {@link ServerSpanDecorator#STANDARD_TAGS}.
+     */
     public static class Builder {
         private final Tracer tracer;
         private boolean allTraced;
-        private OperationNameProvider operationNameProvider;
-        private List<SpanDecorator> spanDecorators = new ArrayList<>();
+        private ServerOperationNameProvider operationNameProvider;
+        private List<ServerSpanDecorator> spanDecorators = new ArrayList<>();
 
         private Builder(Tracer tracer) {
             this.tracer = tracer;
-            this.operationNameProvider = OperationNameProvider.HTTP_METHOD_NAME_PROVIDER;
+            this.operationNameProvider = ServerOperationNameProvider.HTTP_METHOD_NAME_PROVIDER;
             this.withStandardTags();
         }
 
+        /**
+         * This enables tracing of all requests.
+         * @param tracer tracer implementation
+         * @return builder
+         */
         public static Builder traceAll(Tracer tracer) {
             Builder builder = new Builder(tracer);
             builder.allTraced = true;
             return builder;
         }
 
+        /**
+         * When constructed with this only resources annotation witn {@link Traced} will be traced.
+         * @param tracer tracer implementation
+         * @return builder
+         */
         public static Builder traceNothing(Tracer tracer) {
             return new Builder(tracer);
         }
 
-        public Builder withOperationNameProvider(OperationNameProvider operationNameProvider) {
+        /**
+         * Overrides default span operation name provider {@link ServerOperationNameProvider#HTTP_METHOD_NAME_PROVIDER}
+         * @param operationNameProvider span operation name provider
+         * @return builder
+         */
+        public Builder withOperationNameProvider(ServerOperationNameProvider operationNameProvider) {
             this.operationNameProvider = operationNameProvider;
             return this;
         }
 
+        /**
+         * Adds {@link ServerSpanDecorator#STANDARD_TAGS} decorator to decorators.
+         * @return builder
+         */
         public Builder withStandardTags() {
-            this.spanDecorators.add(SpanDecorator.STANDARD_TAGS);
+            this.spanDecorators.add(ServerSpanDecorator.STANDARD_TAGS);
             return this;
         }
 
+        /**
+         * Clears span decorators
+         * @return builder
+         */
         public Builder withEmptyDecorators() {
             this.spanDecorators.clear();
             return this;
         }
 
-        public Builder withDecorator(SpanDecorator spanDecorator) {
+        /**
+         * Adds span decorator
+         * @param spanDecorator span decorator
+         * @return builder
+         */
+        public Builder withDecorator(ServerSpanDecorator spanDecorator) {
             this.spanDecorators.add(spanDecorator);
             return this;
         }
@@ -108,6 +144,9 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
             return tracer;
         }
 
+        /**
+         * @return server tracing dynamic feature. This feature should be registered in {@link javax.ws.rs.core.Application}
+         */
         public ServerTracingDynamicFeature build() {
             return new ServerTracingDynamicFeature(this);
         }

@@ -8,6 +8,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import io.opentracing.propagation.TextMap;
 
 /**
+ * Helper class used to add carrier data to HTTP headers.
+ *
  * @author Pavol Loffay
  */
 public class ClientHeadersInjectTextMap implements TextMap {

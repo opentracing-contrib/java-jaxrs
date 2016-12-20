@@ -1,6 +1,7 @@
 package io.opentracing.contrib.jaxrs.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,7 +12,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.contrib.jaxrs.SpanWrapper;
+import io.opentracing.contrib.jaxrs.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
 
 /**
@@ -24,14 +25,14 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
     public static final String SPAN_PROP_ID = "currentServerSpan";
 
     private Tracer tracer;
-    private OperationNameAdapter operationNameAdapter;
-    private List<SpanDecorator> spanDecorators;
+    private OperationNameDecorator operationNameDecorator;
+    private List<ServerSpanDecorator> spanDecorators;
 
-    public SpanServerRequestFilter(Tracer tracer, OperationNameAdapter operationNameAdapter,
-                                   List<SpanDecorator> spanDecorators) {
+    public SpanServerRequestFilter(Tracer tracer, OperationNameDecorator operationNameDecorator,
+                                   List<ServerSpanDecorator> spanDecorators) {
         this.tracer = tracer;
-        this.operationNameAdapter = operationNameAdapter;
-        this.spanDecorators = spanDecorators;
+        this.operationNameDecorator = operationNameDecorator;
+        this.spanDecorators = new ArrayList<>(spanDecorators);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.TEXT_MAP,
                     new ServerHeadersExtractTextMap(requestContext.getHeaders()));
 
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameAdapter.operationName(requestContext));
+            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameDecorator.operationName(requestContext));
 
             if (extractedSpanContext != null) {
                 spanBuilder.asChildOf(extractedSpanContext);
@@ -54,13 +55,13 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
             Span span = spanBuilder.start();
 
             if (spanDecorators != null) {
-                for (SpanDecorator decorator: spanDecorators) {
+                for (ServerSpanDecorator decorator: spanDecorators) {
                     decorator.decorateRequest(requestContext, span);
                 }
             }
 
             if (log.isLoggable(Level.FINEST)) {
-                log.finest("Creating server span: " + operationNameAdapter.operationName(requestContext));
+                log.finest("Creating server span: " + operationNameDecorator.operationName(requestContext));
             }
 
             requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));

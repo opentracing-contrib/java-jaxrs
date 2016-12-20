@@ -58,7 +58,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(3, mockSpans.size());
         Assert.assertEquals("GET", mockSpans.get(0).operationName());
-        Assert.assertEquals("hello", mockSpans.get(1).operationName());
+        Assert.assertEquals("GET", mockSpans.get(1).operationName());
         Assert.assertEquals("GET", mockSpans.get(2).operationName());
         Assert.assertEquals(1, new HashSet<>(Arrays.asList(
                 mockSpans.get(0).context().traceId(),
@@ -138,4 +138,5 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
         Assert.assertEquals(1, mockSpans.size());
         Assert.assertEquals("GET", mockSpans.get(0).operationName());
     }
+
 }

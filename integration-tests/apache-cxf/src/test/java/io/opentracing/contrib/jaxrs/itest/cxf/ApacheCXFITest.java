@@ -13,11 +13,11 @@ public class ApacheCXFITest extends AbstractBasicTest {
 
     @Override
     protected void initServletContext(ServletContextHandler context) {
-        ServletHolder jerseyServlet = context.addServlet(
+        ServletHolder apacheCXFServlet = context.addServlet(
                 org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet.class, "/*");
-        jerseyServlet.setInitOrder(0);
+        apacheCXFServlet.setInitOrder(0);
 
-        jerseyServlet.setInitParameter(
+        apacheCXFServlet.setInitParameter(
                 "javax.ws.rs.Application", InstrumentedRestApplication.class.getCanonicalName());
     }
 }
