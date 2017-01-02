@@ -12,14 +12,13 @@ It supports server and client request tracing.
 // register this in javax.ws.rs.core.Application
 ServerTracingDynamicFeature.Builder
     .traceAll(yourPreferredTracer)
-    .withOperationNameProvider(ServerOperationNameProvider.HTTP_METHOD_NAME_PROVIDER)
     .withStandardTags()
-    .withDecorator(spanDecorator)
+    .withDecorator(ServerSpanDecorator.HTTP_PATH_OPERATION_NAME)
     .build();
 
 @GET
 @Path("/hello")
-@Traced(operationName = "helloRenamed") // optional, by default operation name is provided by OperationNameProvider
+@Traced(operationName = "helloRenamed") // optional, by default operation name is provided by ServerSpanDecorator
 public Response hello(@BeanParam CurrentSpan currentSpan) {
     /**
      * Some business logic
@@ -38,9 +37,8 @@ public Response hello(@BeanParam CurrentSpan currentSpan) {
 ```
 ClientTracingFeature.Builder
     .traceAll(yourPreferredTracer, jaxRsClient)
-    .withOperationNameProvider(ClientOperationNameProvider.HTTP_METHOD_NAME_PROVIDER)
     .withStandardTags()
-    .withDecorator(spanDecorator)
+    .withDecorator(ServerSpanDecorator.HTTP_PATH_OPERATION_NAME)
     .build();
 
 Response response = jaxRsClient.target("http://localhost/endpoint")

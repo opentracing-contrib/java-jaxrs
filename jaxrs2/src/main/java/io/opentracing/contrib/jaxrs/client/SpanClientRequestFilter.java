@@ -25,13 +25,10 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
     public static final String SPAN_PROP_ID = "currentClientSpan";
 
     private Tracer tracer;
-    private ClientOperationNameProvider operationNameProvider;
     private List<ClientSpanDecorator> spanDecorators;
 
-    public SpanClientRequestFilter(Tracer tracer, ClientOperationNameProvider operationNameProvider,
-                                   List<ClientSpanDecorator> spanDecorators) {
+    public SpanClientRequestFilter(Tracer tracer, List<ClientSpanDecorator> spanDecorators) {
         this.tracer = tracer;
-        this.operationNameProvider = operationNameProvider;
         this.spanDecorators = new ArrayList<>(spanDecorators);
     }
 
@@ -49,7 +46,7 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
             return;
         }
 
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameProvider.operationName(requestContext));
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(null);
 
         Span parentSpan = CastUtils.cast(requestContext.getProperty(TracingProperties.CHILD_OF), Span.class);
         if (parentSpan != null) {

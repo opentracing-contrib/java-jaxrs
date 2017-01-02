@@ -21,28 +21,26 @@ public class ClientTracingFeature {
             log.info("Registering client tracing for: " + builder.client);
         }
 
-        builder.client.register(new SpanClientRequestFilter(builder.tracer, builder.operationNameProvider,
-                    builder.spanDecorators), 0)
+        builder.client.register(new SpanClientRequestFilter(builder.tracer, builder.spanDecorators), 0)
                 .register(new SpanClientResponseFilter(builder.spanDecorators), 0);
     }
 
     /**
      * Builder for configuring {@link Client} to trace outgoing requests.
      *
-     * By default span operation name is set by {@link ClientOperationNameProvider#HTTP_METHOD_NAME_PROVIDER} and
+     * By default span operation name is set by {@link ClientSpanDecorator#HTTP_METHOD_OPERATION_NAME} and
      * span is decorated with {@link ClientSpanDecorator#STANDARD_TAGS}.
      */
     public static class Builder {
         private Tracer tracer;
         private Client client;
-        private ClientOperationNameProvider operationNameProvider;
         private List<ClientSpanDecorator> spanDecorators = new ArrayList<>();
 
         private Builder(Tracer tracer, Client client) {
             this.tracer = tracer;
             this.client = client;
-            this.withStandardTags();
-            this.operationNameProvider = ClientOperationNameProvider.HTTP_METHOD_NAME_PROVIDER;
+            this.spanDecorators.add(ClientSpanDecorator.HTTP_METHOD_OPERATION_NAME);
+            this.spanDecorators.add(ClientSpanDecorator.STANDARD_TAGS);
         }
 
         /**
@@ -53,16 +51,6 @@ public class ClientTracingFeature {
         public static Builder traceAll(Tracer tracer, Client client) {
             Builder builder = new Builder(tracer, client);
             return builder;
-        }
-
-        /**
-         * Overrides default span operation name provider {@link ClientOperationNameProvider#HTTP_METHOD_NAME_PROVIDER}
-         * @param operationNameProvider span operation name provider
-         * @return builder
-         */
-        public Builder withOperationNameProvider(ClientOperationNameProvider operationNameProvider) {
-            this.operationNameProvider = operationNameProvider;
-            return this;
         }
 
         /**

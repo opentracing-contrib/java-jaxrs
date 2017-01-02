@@ -25,13 +25,13 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
     public static final String SPAN_PROP_ID = "currentServerSpan";
 
     private Tracer tracer;
-    private OperationNameDecorator operationNameDecorator;
+    private String operationName;
     private List<ServerSpanDecorator> spanDecorators;
 
-    public SpanServerRequestFilter(Tracer tracer, OperationNameDecorator operationNameDecorator,
+    public SpanServerRequestFilter(Tracer tracer, String operationName,
                                    List<ServerSpanDecorator> spanDecorators) {
         this.tracer = tracer;
-        this.operationNameDecorator = operationNameDecorator;
+        this.operationName = operationName;
         this.spanDecorators = new ArrayList<>(spanDecorators);
     }
 
@@ -46,7 +46,7 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.TEXT_MAP,
                     new ServerHeadersExtractTextMap(requestContext.getHeaders()));
 
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameDecorator.operationName(requestContext));
+            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(null);
 
             if (extractedSpanContext != null) {
                 spanBuilder.asChildOf(extractedSpanContext);
@@ -60,8 +60,13 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
                 }
             }
 
+            // override operation name set by @Traced
+            if (this.operationName != null) {
+                span.setOperationName(operationName);
+            }
+
             if (log.isLoggable(Level.FINEST)) {
-                log.finest("Creating server span: " + operationNameDecorator.operationName(requestContext));
+                log.finest("Creating server span: " + operationName);
             }
 
             requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));

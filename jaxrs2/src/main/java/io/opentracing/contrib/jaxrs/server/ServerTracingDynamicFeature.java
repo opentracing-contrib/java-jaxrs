@@ -39,9 +39,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
                 log.info(msg);
             }
 
-            context.register(new SpanServerRequestFilter(builder.tracer,
-                    new OperationNameDecorator(operationName(resourceInfo), builder.operationNameProvider),
-                    builder.spanDecorators));
+            context.register(new SpanServerRequestFilter(builder.tracer, operationName(resourceInfo), builder.spanDecorators));
             context.register(new SpanServerResponseFilter(builder.spanDecorators));
         }
     }
@@ -67,19 +65,19 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     /**
      * Builder for creating JAX-RS dynamic feature for tracing server requests.
      *
-     * By default span operation name is set by {@link ServerOperationNameProvider#HTTP_METHOD_NAME_PROVIDER} and
-     * span is decorated with {@link ServerSpanDecorator#STANDARD_TAGS}.
+     * By default span is decorated with {@link ServerSpanDecorator#HTTP_METHOD_OPERATION_NAME} and
+     * {@link ServerSpanDecorator#STANDARD_TAGS} which sets HTTP method as span's operation name and adds
+     * standard tags. If you want to set different span name provide another span decorator {@link ServerSpanDecorator}.
      */
     public static class Builder {
         private final Tracer tracer;
         private boolean allTraced;
-        private ServerOperationNameProvider operationNameProvider;
         private List<ServerSpanDecorator> spanDecorators = new ArrayList<>();
 
         private Builder(Tracer tracer) {
             this.tracer = tracer;
-            this.operationNameProvider = ServerOperationNameProvider.HTTP_METHOD_NAME_PROVIDER;
-            this.withStandardTags();
+            this.spanDecorators.add(ServerSpanDecorator.HTTP_METHOD_OPERATION_NAME);
+            this.spanDecorators.add(ServerSpanDecorator.STANDARD_TAGS);
         }
 
         /**
@@ -94,22 +92,12 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         }
 
         /**
-         * When constructed with this only resources annotation witn {@link Traced} will be traced.
+         * When constructed with this only resources annotation with {@link Traced} will be traced.
          * @param tracer tracer implementation
          * @return builder
          */
         public static Builder traceNothing(Tracer tracer) {
             return new Builder(tracer);
-        }
-
-        /**
-         * Overrides default span operation name provider {@link ServerOperationNameProvider#HTTP_METHOD_NAME_PROVIDER}
-         * @param operationNameProvider span operation name provider
-         * @return builder
-         */
-        public Builder withOperationNameProvider(ServerOperationNameProvider operationNameProvider) {
-            this.operationNameProvider = operationNameProvider;
-            return this;
         }
 
         /**
@@ -122,7 +110,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         }
 
         /**
-         * Clears span decorators
+         * Clears span decorators.
          * @return builder
          */
         public Builder withEmptyDecorators() {

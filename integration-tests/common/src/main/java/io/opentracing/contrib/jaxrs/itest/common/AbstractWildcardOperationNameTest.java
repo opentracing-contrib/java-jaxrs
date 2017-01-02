@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.opentracing.contrib.jaxrs.client.ClientTracingFeature;
-import io.opentracing.contrib.jaxrs.server.ServerOperationNameProvider;
+import io.opentracing.contrib.jaxrs.server.ServerSpanDecorator;
 import io.opentracing.contrib.jaxrs.server.ServerTracingDynamicFeature;
 import io.opentracing.mock.MockSpan;
 
@@ -27,7 +27,8 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
 
         ServerTracingDynamicFeature.Builder serverTracingBuilder = ServerTracingDynamicFeature.Builder
                 .traceAll(mockTracer)
-                .withOperationNameProvider(ServerOperationNameProvider.HTTP_PATH_WILDCARD_NAME_PROVIDER);
+                .withEmptyDecorators()
+                .withDecorator(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME);
 
         context.setAttribute(CLIENT_BUILDER_ATTRIBUTE, clientTracingBuilder);
         context.setAttribute(TRACER_BUILDER_ATTRIBUTE, serverTracingBuilder);

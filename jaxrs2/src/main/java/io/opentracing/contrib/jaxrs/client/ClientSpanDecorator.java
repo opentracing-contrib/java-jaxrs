@@ -34,4 +34,32 @@ public interface ClientSpanDecorator extends SpanDecorator<ClientRequestContext,
             Tags.HTTP_STATUS.set(span, responseContext.getStatus());
         }
     };
+
+    /**
+     * As operation name provides HTTP method e.g. GET, POST..
+     */
+    ClientSpanDecorator HTTP_METHOD_OPERATION_NAME = new ClientSpanDecorator() {
+        @Override
+        public void decorateRequest(ClientRequestContext clientRequestContext, Span span) {
+            span.setOperationName(clientRequestContext.getMethod());
+        }
+
+        @Override
+        public void decorateResponse(ClientResponseContext response, Span span) {
+        }
+    };
+
+    /**
+     * As operation name provides HTTP path.
+     */
+    ClientSpanDecorator HTTP_PATH_OPERATION_NAME = new ClientSpanDecorator() {
+        @Override
+        public void decorateRequest(ClientRequestContext clientRequestContext, Span span) {
+            span.setOperationName(URIUtils.path(clientRequestContext.getUri()));
+        }
+
+        @Override
+        public void decorateResponse(ClientResponseContext response, Span span) {
+        }
+    };
 }
