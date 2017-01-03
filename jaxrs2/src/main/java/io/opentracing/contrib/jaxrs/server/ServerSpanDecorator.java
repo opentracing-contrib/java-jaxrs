@@ -18,8 +18,9 @@ import io.opentracing.tag.Tags;
 public interface ServerSpanDecorator extends SpanDecorator<ContainerRequestContext, ContainerResponseContext> {
 
     /**
-     * Adds standard tags: {@link io.opentracing.tag.Tags#SPAN_KIND}, {@link io.opentracing.tag.Tags#HTTP_METHOD} and
-     * {@link io.opentracing.tag.Tags#HTTP_URL}
+     * Adds standard tags: {@link io.opentracing.tag.Tags#SPAN_KIND},
+     * {@link io.opentracing.tag.Tags#HTTP_METHOD}, {@link io.opentracing.tag.Tags#HTTP_URL} and
+     * {@link io.opentracing.tag.Tags#HTTP_STATUS}
      */
     ServerSpanDecorator STANDARD_TAGS = new ServerSpanDecorator() {
         @Override

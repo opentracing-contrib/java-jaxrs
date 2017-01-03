@@ -64,6 +64,15 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
                 mockSpans.get(0).context().traceId(),
                 mockSpans.get(1).context().traceId(),
                 mockSpans.get(2).context().traceId())).size());
+
+        MockSpan clientSpan = mockSpans.get(1);
+        Assert.assertEquals(6, clientSpan.tags().size());
+        Assert.assertEquals(Tags.SPAN_KIND_CLIENT, clientSpan.tags().get(Tags.SPAN_KIND.getKey()));
+        Assert.assertEquals("localhost", clientSpan.tags().get(Tags.PEER_HOSTNAME.getKey()));
+        Assert.assertEquals((short)3000, clientSpan.tags().get(Tags.PEER_PORT.getKey()));
+        Assert.assertEquals("GET", clientSpan.tags().get(Tags.HTTP_METHOD.getKey()));
+        Assert.assertEquals("http://localhost:3000/hello", clientSpan.tags().get(Tags.HTTP_URL.getKey()));
+        Assert.assertEquals(200, clientSpan.tags().get(Tags.HTTP_STATUS.getKey()));
     }
 
     @Test
@@ -84,7 +93,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testStandardTags() throws Exception {
+    public void testServerStandardTags() throws Exception {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/hello"))
                 .request()
