@@ -1,5 +1,6 @@
 package io.opentracing.contrib.jaxrs.itest.common;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.client.Client;
@@ -27,8 +28,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
 
         ServerTracingDynamicFeature.Builder serverTracingBuilder = ServerTracingDynamicFeature.Builder
                 .traceAll(mockTracer)
-                .withEmptyDecorators()
-                .withDecorator(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME);
+                .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME));
 
         context.setAttribute(CLIENT_BUILDER_ATTRIBUTE, clientTracingBuilder);
         context.setAttribute(TRACER_BUILDER_ATTRIBUTE, serverTracingBuilder);

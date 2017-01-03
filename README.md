@@ -4,16 +4,18 @@ Warning: This library is still a work in progress!
 
 [![Travis](https://travis-ci.org/opentracing-contrib/java-jaxrs.svg?branch=master)](https://travis-ci.org/opentracing-contrib/java-jaxrs)
 
-OpenTracing instrumentation for JAX-RS standard. 
+OpenTracing instrumentation for JAX-RS standard.
 It supports server and client request tracing.
+
+Instrumentation by default adds set of standard tags and sets span operation name with HTTP method. 
+This can be overriden by span decorators.
 
 ## Tracing Server Requests
 ```
 // register this in javax.ws.rs.core.Application
 ServerTracingDynamicFeature.Builder
     .traceAll(yourPreferredTracer)
-    .withStandardTags()
-    .withDecorator(ServerSpanDecorator.HTTP_PATH_OPERATION_NAME)
+    .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME))
     .build();
 
 @GET
@@ -37,8 +39,7 @@ public Response hello(@BeanParam CurrentSpan currentSpan) {
 ```
 ClientTracingFeature.Builder
     .traceAll(yourPreferredTracer, jaxRsClient)
-    .withStandardTags()
-    .withDecorator(ServerSpanDecorator.HTTP_PATH_OPERATION_NAME)
+    .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_PATH_OPERATION_NAME))
     .build();
 
 Response response = jaxRsClient.target("http://localhost/endpoint")

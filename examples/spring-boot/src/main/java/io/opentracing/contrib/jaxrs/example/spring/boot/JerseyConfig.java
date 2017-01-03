@@ -30,7 +30,6 @@ public class JerseyConfig extends ResourceConfig {
 
         register(ServerTracingDynamicFeature.Builder
                 .traceAll(tracer)
-                .withStandardTags()
                 .build());
 
         register(new TestHandler(tracer, client));

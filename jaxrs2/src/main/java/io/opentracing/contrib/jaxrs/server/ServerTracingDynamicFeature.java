@@ -1,6 +1,6 @@
 package io.opentracing.contrib.jaxrs.server;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,12 +72,12 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     public static class Builder {
         private final Tracer tracer;
         private boolean allTraced;
-        private List<ServerSpanDecorator> spanDecorators = new ArrayList<>();
+        private List<ServerSpanDecorator> spanDecorators;
 
         private Builder(Tracer tracer) {
             this.tracer = tracer;
-            this.spanDecorators.add(ServerSpanDecorator.HTTP_METHOD_OPERATION_NAME);
-            this.spanDecorators.add(ServerSpanDecorator.STANDARD_TAGS);
+            this.spanDecorators = Arrays.asList(ServerSpanDecorator.HTTP_METHOD_OPERATION_NAME,
+                    ServerSpanDecorator.STANDARD_TAGS);
         }
 
         /**
@@ -101,30 +101,12 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         }
 
         /**
-         * Adds {@link ServerSpanDecorator#STANDARD_TAGS} decorator to decorators.
+         * Set span decorators.
+         * @param spanDecorators span decorator
          * @return builder
          */
-        public Builder withStandardTags() {
-            this.spanDecorators.add(ServerSpanDecorator.STANDARD_TAGS);
-            return this;
-        }
-
-        /**
-         * Clears span decorators.
-         * @return builder
-         */
-        public Builder withEmptyDecorators() {
-            this.spanDecorators.clear();
-            return this;
-        }
-
-        /**
-         * Adds span decorator
-         * @param spanDecorator span decorator
-         * @return builder
-         */
-        public Builder withDecorator(ServerSpanDecorator spanDecorator) {
-            this.spanDecorators.add(spanDecorator);
+        public Builder withDecorators(List<ServerSpanDecorator> spanDecorators) {
+            this.spanDecorators = spanDecorators;
             return this;
         }
 

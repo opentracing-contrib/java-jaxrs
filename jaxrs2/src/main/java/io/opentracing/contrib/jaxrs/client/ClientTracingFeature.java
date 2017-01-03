@@ -1,6 +1,6 @@
 package io.opentracing.contrib.jaxrs.client;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,13 +34,13 @@ public class ClientTracingFeature {
     public static class Builder {
         private Tracer tracer;
         private Client client;
-        private List<ClientSpanDecorator> spanDecorators = new ArrayList<>();
+        private List<ClientSpanDecorator> spanDecorators;
 
         private Builder(Tracer tracer, Client client) {
             this.tracer = tracer;
             this.client = client;
-            this.spanDecorators.add(ClientSpanDecorator.HTTP_METHOD_OPERATION_NAME);
-            this.spanDecorators.add(ClientSpanDecorator.STANDARD_TAGS);
+            this.spanDecorators = Arrays.asList(ClientSpanDecorator.HTTP_METHOD_OPERATION_NAME,
+                    ClientSpanDecorator.STANDARD_TAGS);
         }
 
         /**
@@ -54,29 +54,11 @@ public class ClientTracingFeature {
         }
 
         /**
-         * Clears all previously passed decorators.
+         * Set span decorators.
          * @return builder
          */
-        public Builder withEmptyDecorators() {
-            this.spanDecorators.clear();
-            return this;
-        }
-
-        /**
-         * Clears all previously passed decorators.
-         * @return builder
-         */
-        public Builder withDecorator(ClientSpanDecorator spanDecorator) {
-            this.spanDecorators.add(spanDecorator);
-            return this;
-        }
-
-        /**
-         * Adds {@link ClientSpanDecorator#STANDARD_TAGS} decorator  to decorators.
-         * @return builder
-         */
-        public Builder withStandardTags() {
-            this.spanDecorators.add(ClientSpanDecorator.STANDARD_TAGS);
+        public Builder withDecorators(List<ClientSpanDecorator> spanDecorators) {
+            this.spanDecorators= spanDecorators;
             return this;
         }
 
