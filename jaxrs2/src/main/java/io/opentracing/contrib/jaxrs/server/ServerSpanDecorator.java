@@ -55,7 +55,9 @@ public interface ServerSpanDecorator extends SpanDecorator<ContainerRequestConte
     };
 
     /**
-     * As operation name provides HTTP path.
+     * As operation name provides HTTP path. If there are path parameters used in URL then
+     * spans for the same requests would have different operation names, therefore use carefully.
+     * Better is to use ${@link ServerSpanDecorator#HTTP_WILDCARD_PATH_OPERATION_NAME}.
      */
     ServerSpanDecorator HTTP_PATH_OPERATION_NAME = new ServerSpanDecorator() {
         @Override

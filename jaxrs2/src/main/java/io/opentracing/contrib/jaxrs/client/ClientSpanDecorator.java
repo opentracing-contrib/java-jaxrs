@@ -55,7 +55,8 @@ public interface ClientSpanDecorator extends SpanDecorator<ClientRequestContext,
     };
 
     /**
-     * As operation name provides HTTP path.
+     * As operation name provides HTTP path. If there are path parameters used in URL then
+     * spans for the same requests would have different operation names, therefore use carefully.
      */
     ClientSpanDecorator HTTP_PATH_OPERATION_NAME = new ClientSpanDecorator() {
         @Override
