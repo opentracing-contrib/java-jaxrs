@@ -1,9 +1,9 @@
 package io.opentracing.contrib.jaxrs.example.spring.boot;
 
-import org.hawkular.apm.client.opentracing.APMTracer;
 import org.springframework.context.annotation.Bean;
 
 import io.opentracing.Tracer;
+import io.opentracing.mock.LoggingTracer;
 
 /**
  * @author Pavol Loffay
@@ -13,6 +13,6 @@ public class Configuration {
 
     @Bean
     public Tracer tracer() {
-        return new APMTracer();
+        return new LoggingTracer();
     }
 }
