@@ -4,14 +4,29 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientResponseContext;
 
 import io.opentracing.Span;
-import io.opentracing.contrib.jaxrs.SpanDecorator;
 import io.opentracing.contrib.jaxrs.internal.URIUtils;
 import io.opentracing.tag.Tags;
 
 /**
  * @author Pavol Loffay
  */
-public interface ClientSpanDecorator extends SpanDecorator<ClientRequestContext, ClientResponseContext> {
+public interface ClientSpanDecorator {
+
+    /**
+     * Decorate span by incoming object.
+     *
+     * @param requestContext
+     * @param span
+     */
+    void decorateRequest(ClientRequestContext requestContext, Span span);
+
+    /**
+     * Decorate spans by outgoing object.
+     *
+     * @param responseContext
+     * @param span
+     */
+    void decorateResponse(ClientResponseContext responseContext, Span span);
 
     /**
      * Adds standard tags: {@link io.opentracing.tag.Tags#SPAN_KIND},

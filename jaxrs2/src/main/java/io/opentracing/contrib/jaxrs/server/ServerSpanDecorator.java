@@ -8,14 +8,29 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.MultivaluedMap;
 
 import io.opentracing.Span;
-import io.opentracing.contrib.jaxrs.SpanDecorator;
 import io.opentracing.contrib.jaxrs.internal.URIUtils;
 import io.opentracing.tag.Tags;
 
 /**
  * @author Pavol Loffay
  */
-public interface ServerSpanDecorator extends SpanDecorator<ContainerRequestContext, ContainerResponseContext> {
+public interface ServerSpanDecorator {
+
+    /**
+     * Decorate span by incoming object.
+     *
+     * @param requestContext
+     * @param span
+     */
+    void decorateRequest(ContainerRequestContext requestContext, Span span);
+
+    /**
+     * Decorate spans by outgoing object.
+     *
+     * @param responseContext
+     * @param span
+     */
+    void decorateResponse(ContainerResponseContext responseContext, Span span);
 
     /**
      * Adds standard tags: {@link io.opentracing.tag.Tags#SPAN_KIND},
