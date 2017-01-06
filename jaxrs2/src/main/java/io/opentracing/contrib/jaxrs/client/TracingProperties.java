@@ -15,7 +15,7 @@ public class TracingProperties {
      * Value should be {@link io.opentracing.Span}.
      * Set on {@link javax.ws.rs.client.Client#property(String, Object)}.
      */
-    public static final String CHILD_OF = References.CHILD_OF;
+    public static final String CHILD_OF = SpanClientRequestFilter.class.getName() + "." + References.CHILD_OF;
 
     /**
      * Indicates whether request should be traced or not. If it is not
@@ -23,5 +23,5 @@ public class TracingProperties {
      * Value should be boolean true or false (trace disabled/enabled).
      * Set on {@link javax.ws.rs.client.Client#property(String, Object)}.
      */
-    public static final String TRACING_DISABLED = "tracingDisabled";
+    public static final String TRACING_DISABLED = SpanClientRequestFilter.class.getName() + ".tracingDisabled";
 }
