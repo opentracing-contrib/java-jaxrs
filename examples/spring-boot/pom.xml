@@ -15,7 +15,6 @@
   <properties>
     <finalName>${project.artifactId}</finalName>
     <version.org.springframework.boot>1.4.2.RELEASE</version.org.springframework.boot>
-    <version.org.hawkular.apm>0.12.0.Final</version.org.hawkular.apm>
     <start-class>io.opentracing.contrib.jaxrs.example.spring.boot.App</start-class>
   </properties>
 
