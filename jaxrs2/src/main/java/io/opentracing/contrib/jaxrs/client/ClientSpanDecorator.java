@@ -56,20 +56,6 @@ public interface ClientSpanDecorator {
     };
 
     /**
-     * As operation name provides HTTP method e.g. GET, POST..
-     */
-    ClientSpanDecorator HTTP_METHOD_OPERATION_NAME = new ClientSpanDecorator() {
-        @Override
-        public void decorateRequest(ClientRequestContext clientRequestContext, Span span) {
-            span.setOperationName(clientRequestContext.getMethod());
-        }
-
-        @Override
-        public void decorateResponse(ClientResponseContext response, Span span) {
-        }
-    };
-
-    /**
      * As operation name provides HTTP path. If there are path parameters used in URL then
      * spans for the same requests would have different operation names, therefore use carefully.
      */

@@ -56,20 +56,6 @@ public interface ServerSpanDecorator {
     };
 
     /**
-     * As operation name provides HTTP method e.g. GET, POST..
-     */
-    ServerSpanDecorator HTTP_METHOD_OPERATION_NAME = new ServerSpanDecorator() {
-        @Override
-        public void decorateRequest(ContainerRequestContext requestContext, Span span) {
-            span.setOperationName(requestContext.getMethod());
-        }
-
-        @Override
-        public void decorateResponse(ContainerResponseContext responseContext, Span span) {
-        }
-    };
-
-    /**
      * As operation name provides HTTP path. If there are path parameters used in URL then
      * spans for the same requests would have different operation names, therefore use carefully.
      * Better is to use ${@link ServerSpanDecorator#HTTP_WILDCARD_PATH_OPERATION_NAME}.

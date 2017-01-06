@@ -46,7 +46,7 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.TEXT_MAP,
                     new ServerHeadersExtractTextMap(requestContext.getHeaders()));
 
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(null);
+            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getMethod());
 
             if (extractedSpanContext != null) {
                 spanBuilder.asChildOf(extractedSpanContext);

@@ -46,7 +46,7 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
             return;
         }
 
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(null);
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getMethod());
 
         Span parentSpan = CastUtils.cast(requestContext.getProperty(TracingProperties.CHILD_OF), Span.class);
         if (parentSpan != null) {

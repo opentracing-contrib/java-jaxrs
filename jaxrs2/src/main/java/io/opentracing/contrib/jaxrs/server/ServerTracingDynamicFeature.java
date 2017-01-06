@@ -65,9 +65,9 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     /**
      * Builder for creating JAX-RS dynamic feature for tracing server requests.
      *
-     * By default span is decorated with {@link ServerSpanDecorator#HTTP_METHOD_OPERATION_NAME} and
-     * {@link ServerSpanDecorator#STANDARD_TAGS} which sets HTTP method as span's operation name and adds
-     * standard tags. If you want to set different span name provide another span decorator {@link ServerSpanDecorator}.
+     * By default span's operation name is HTTP method and span is decorated with
+     * {@link ServerSpanDecorator#STANDARD_TAGS} which adds standard tags.
+     * If you want to set different span name provide custom span decorator {@link ServerSpanDecorator}.
      */
     public static class Builder {
         private final Tracer tracer;
@@ -76,8 +76,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
 
         private Builder(Tracer tracer) {
             this.tracer = tracer;
-            this.spanDecorators = Arrays.asList(ServerSpanDecorator.HTTP_METHOD_OPERATION_NAME,
-                    ServerSpanDecorator.STANDARD_TAGS);
+            this.spanDecorators = Arrays.asList(ServerSpanDecorator.STANDARD_TAGS);
         }
 
         /**

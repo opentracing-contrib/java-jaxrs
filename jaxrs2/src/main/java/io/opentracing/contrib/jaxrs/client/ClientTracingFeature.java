@@ -28,8 +28,8 @@ public class ClientTracingFeature {
     /**
      * Builder for configuring {@link Client} to trace outgoing requests.
      *
-     * By default span operation name is set by {@link ClientSpanDecorator#HTTP_METHOD_OPERATION_NAME} and
-     * span is decorated with {@link ClientSpanDecorator#STANDARD_TAGS}.
+     * By default span's operation name is HTTP method and span is decorated with
+     * {@link ClientSpanDecorator#STANDARD_TAGS} which adds set of standard tags.
      */
     public static class Builder {
         private Tracer tracer;
@@ -39,8 +39,7 @@ public class ClientTracingFeature {
         private Builder(Tracer tracer, Client client) {
             this.tracer = tracer;
             this.client = client;
-            this.spanDecorators = Arrays.asList(ClientSpanDecorator.HTTP_METHOD_OPERATION_NAME,
-                    ClientSpanDecorator.STANDARD_TAGS);
+            this.spanDecorators = Arrays.asList(ClientSpanDecorator.STANDARD_TAGS);
         }
 
         /**
