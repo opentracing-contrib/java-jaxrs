@@ -15,7 +15,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Versions -->
-    <version.io.opentracing-opentracing>0.20.6</version.io.opentracing-opentracing>
+    <version.io.opentracing-opentracing>0.20.7</version.io.opentracing-opentracing>
     <version.javax.ws.rs-api>2.0.1</version.javax.ws.rs-api>
     <version.javax.servlet-api>3.1.0</version.javax.servlet-api>
     <version.junit>4.12</version.junit>
