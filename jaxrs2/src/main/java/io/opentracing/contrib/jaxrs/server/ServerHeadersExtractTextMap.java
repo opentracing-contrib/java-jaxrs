@@ -4,6 +4,7 @@ import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -24,7 +25,7 @@ public class ServerHeadersExtractTextMap implements TextMap {
 
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
-        return new MultivaluedMapFlatIterator<>(headers);
+        return new MultivaluedMapFlatIterator<>(headers.entrySet());
     }
 
     @Override
@@ -39,8 +40,8 @@ public class ServerHeadersExtractTextMap implements TextMap {
         private Map.Entry<K, List<V>> mapEntry;
         private Iterator<V> listIterator;
 
-        public MultivaluedMapFlatIterator(MultivaluedMap<K, V> multivaluedMap) {
-            this.mapIterator = multivaluedMap.entrySet().iterator();
+        public MultivaluedMapFlatIterator(Set<Map.Entry<K, List<V>>> multiValuesEntrySet) {
+            this.mapIterator = multiValuesEntrySet.iterator();
         }
 
         @Override
