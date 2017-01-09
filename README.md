@@ -1,17 +1,15 @@
+[![Build Status][ci-img]][ci] [![Released Version][maven-img]][maven]
+
 # OpenTracing JAX-RS Instrumentation
-
-Warning: This library is still a work in progress!
-
-[![Travis](https://travis-ci.org/opentracing-contrib/java-jaxrs.svg?branch=master)](https://travis-ci.org/opentracing-contrib/java-jaxrs)
 
 OpenTracing instrumentation for JAX-RS standard.
 It supports server and client request tracing.
 
 Instrumentation by default adds set of standard tags and sets span operation name with HTTP method. 
-This can be overriden by span decorators.
+This can be overridden by span decorators.
 
 ## Tracing Server Requests
-```
+```java
 // register this in javax.ws.rs.core.Application
 ServerTracingDynamicFeature.Builder
     .traceAll(yourPreferredTracer)
@@ -36,7 +34,7 @@ public Response hello(@BeanParam CurrentSpan currentSpan) {
 ```
 
 ## Tracing Client Requests
-```
+```java
 ClientTracingFeature.Builder
     .traceAll(yourPreferredTracer, jaxRsClient)
     .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_PATH_OPERATION_NAME))
@@ -48,3 +46,17 @@ Response response = jaxRsClient.target("http://localhost/endpoint")
     .property(TracingProperties.TRACING_DISABLED, false) // optional, by default false
     .get();
 ```
+
+## Development
+```shell
+./mvnw clean install
+```
+
+## Release
+Follow instructions in [RELEASE](README.md)
+
+
+   [ci-img]: https://travis-ci.org/opentracing-contrib/java-jaxrs.svg?branch=master
+   [ci]: https://travis-ci.org/opentracing-contrib/java-jaxrs
+   [maven-img]: https://img.shields.io/maven-central/v/io.opentracing/opentracing-jaxrs2.svg?maxAge=2592000
+   [maven]: http://search.maven.org/#search%7Cga%7C1%7Copentracing-jaxrs2

@@ -70,6 +70,13 @@
     <finalName>${finalName}</finalName>
     <plugins>
       <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${version.maven-deploy-plugin}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <executions>

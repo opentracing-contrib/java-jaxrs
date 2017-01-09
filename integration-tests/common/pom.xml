@@ -13,7 +13,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.opentracing.contrib</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>opentracing-jaxrs2</artifactId>
     </dependency>
 
