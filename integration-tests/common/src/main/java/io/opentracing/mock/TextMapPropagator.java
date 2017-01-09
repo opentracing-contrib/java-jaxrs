@@ -15,7 +15,7 @@ public class TextMapPropagator implements MockTracer.Propagator {
 
     @Override
     public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
-        if (format.equals(Format.Builtin.TEXT_MAP)) {
+        if (format.equals(Format.Builtin.HTTP_HEADERS)) {
             ClientHeadersInjectTextMap injectAdapter = (ClientHeadersInjectTextMap) carrier;
             injectAdapter.put(SPAN_ID, String.valueOf(ctx.spanId()));
             injectAdapter.put(TRACE_ID, String.valueOf(ctx.traceId()));
@@ -29,7 +29,7 @@ public class TextMapPropagator implements MockTracer.Propagator {
         Long traceId = null;
         Long spanId = null;
 
-        if (format.equals(Format.Builtin.TEXT_MAP)) {
+        if (format.equals(Format.Builtin.HTTP_HEADERS)) {
             ServerHeadersExtractTextMap extractAdapter = (ServerHeadersExtractTextMap) carrier;
             Iterator<Map.Entry<String, String>> iterator = extractAdapter.iterator();
             while (iterator.hasNext()) {

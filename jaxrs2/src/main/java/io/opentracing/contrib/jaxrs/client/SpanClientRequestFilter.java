@@ -65,7 +65,7 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
             log.finest("Starting client span");
         }
 
-        tracer.inject(span.context(), Format.Builtin.TEXT_MAP, new ClientHeadersInjectTextMap(requestContext.getHeaders()));
+        tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new ClientHeadersInjectTextMap(requestContext.getHeaders()));
         requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));
     }
 }
