@@ -40,7 +40,6 @@ public interface ServerSpanDecorator {
     ServerSpanDecorator STANDARD_TAGS = new ServerSpanDecorator() {
         @Override
         public void decorateRequest(ContainerRequestContext requestContext, Span span) {
-            Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
             Tags.HTTP_METHOD.set(span, requestContext.getMethod());
 
             String url = URIUtils.url(requestContext.getUriInfo().getAbsolutePath());
@@ -52,22 +51,6 @@ public interface ServerSpanDecorator {
         @Override
         public void decorateResponse(ContainerResponseContext responseContext, Span span) {
             Tags.HTTP_STATUS.set(span, responseContext.getStatus());
-        }
-    };
-
-    /**
-     * As operation name provides HTTP path. If there are path parameters used in URL then
-     * spans for the same requests would have different operation names, therefore use carefully.
-     * Better is to use ${@link ServerSpanDecorator#HTTP_WILDCARD_PATH_OPERATION_NAME}.
-     */
-    ServerSpanDecorator HTTP_PATH_OPERATION_NAME = new ServerSpanDecorator() {
-        @Override
-        public void decorateRequest(ContainerRequestContext requestContext, Span span) {
-            span.setOperationName(URIUtils.path(requestContext.getUriInfo().getRequestUri()));
-        }
-
-        @Override
-        public void decorateResponse(ContainerResponseContext responseContext, Span span) {
         }
     };
 

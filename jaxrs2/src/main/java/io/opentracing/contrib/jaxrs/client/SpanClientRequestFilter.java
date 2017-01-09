@@ -14,6 +14,7 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs.internal.CastUtils;
 import io.opentracing.contrib.jaxrs.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
+import io.opentracing.tag.Tags;
 
 /**
  * @author Pavol Loffay
@@ -46,7 +47,8 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
             return;
         }
 
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getMethod());
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getMethod())
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
 
         Span parentSpan = CastUtils.cast(requestContext.getProperty(TracingProperties.CHILD_OF), Span.class);
         if (parentSpan != null) {

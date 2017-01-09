@@ -14,6 +14,7 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
+import io.opentracing.tag.Tags;
 
 /**
  * @author Pavol Loffay
@@ -46,7 +47,8 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS,
                     new ServerHeadersExtractTextMap(requestContext.getHeaders()));
 
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getMethod());
+            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getMethod())
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
 
             if (extractedSpanContext != null) {
                 spanBuilder.asChildOf(extractedSpanContext);
