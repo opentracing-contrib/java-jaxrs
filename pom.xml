@@ -82,44 +82,47 @@
     </dependencies>
   </dependencyManagement>
 
+  <distributionManagement>
+    <repository>
+      <id>bintray</id>
+      <url>https://api.bintray.com/maven/opentracing/maven/opentracing-jaxrs/;publish=1</url>
+    </repository>
+    <snapshotRepository>
+      <id>jfrog-snapshots</id>
+      <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>${version.maven-release-plugin}</version>
+        <configuration>
+          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>release</releaseProfiles>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <tagNameFormat>@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>io.zipkin.centralsync-maven-plugin</groupId>
+        <artifactId>centralsync-maven-plugin</artifactId>
+        <version>${version.io.zikin.centralsync-maven-plugin}</version>
+        <configuration>
+          <subject>opentracing</subject>
+          <repo>maven</repo>
+          <packageName>opentracing-jaxrs</packageName>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <profiles>
     <profile>
       <id>release</id>
-
-      <distributionManagement>
-        <repository>
-          <id>bintray</id>
-          <url>https://api.bintray.com/maven/opentracing/maven/opentracing-jaxrs/;publish=1</url>
-        </repository>
-        <snapshotRepository>
-          <id>jfrog-snapshots</id>
-          <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
-        </snapshotRepository>
-      </distributionManagement>
-
       <build>
         <plugins>
-          <plugin>
-            <artifactId>maven-release-plugin</artifactId>
-            <version>${version.maven-release-plugin}</version>
-            <configuration>
-              <useReleaseProfile>false</useReleaseProfile>
-              <releaseProfiles>release</releaseProfiles>
-              <autoVersionSubmodules>true</autoVersionSubmodules>
-              <tagNameFormat>@{project.version}</tagNameFormat>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>io.zipkin.centralsync-maven-plugin</groupId>
-            <artifactId>centralsync-maven-plugin</artifactId>
-            <version>${version.io.zikin.centralsync-maven-plugin}</version>
-            <configuration>
-              <subject>opentracing</subject>
-              <repo>maven</repo>
-              <packageName>opentracing-jaxrs</packageName>
-            </configuration>
-          </plugin>
-
           <!-- Creates source jar -->
           <plugin>
             <artifactId>maven-source-plugin</artifactId>
