@@ -24,7 +24,7 @@ ServerTracingDynamicFeature.Builder
 public Response hello(@BeanParam CurrentSpan currentSpan) {
     /**
      * Some business logic
-    /*
+     */
     final Span span = currentSpan.get();
     Span childSpan = tracer.buildSpan("businessOperation")
             .asChildOf(span)
