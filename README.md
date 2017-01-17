@@ -53,7 +53,7 @@ Response response = jaxRsClient.target("http://localhost/endpoint")
 ```
 
 ## Release
-Follow instructions in [RELEASE](README.md)
+Follow instructions in [RELEASE](RELEASE.md)
 
 
    [ci-img]: https://travis-ci.org/opentracing-contrib/java-jaxrs.svg?branch=master
