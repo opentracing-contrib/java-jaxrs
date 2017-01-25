@@ -5,7 +5,7 @@ Spring Boot application instrumented with OpenTracing.
 ## Build & Run
 ```shell
 $ mvn clean install
-$ java -jar target/opentracing-jaxrs-example-spring-boot-exec.jar
+$ java -jar target/opentracing-jaxrs2-example-spring-boot-exec.jar
 ```
 
 ## Example Requests

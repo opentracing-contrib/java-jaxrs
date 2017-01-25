@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-import io.opentracing.contrib.jaxrs.client.ClientHeadersInjectTextMap;
-import io.opentracing.contrib.jaxrs.server.ServerHeadersExtractTextMap;
+import io.opentracing.contrib.jaxrs2.client.ClientHeadersInjectTextMap;
+import io.opentracing.contrib.jaxrs2.server.ServerHeadersExtractTextMap;
 import io.opentracing.propagation.Format;
 
 public class TextMapPropagator implements MockTracer.Propagator {
