@@ -13,19 +13,19 @@ This can be overridden by span decorators.
 // register this in javax.ws.rs.core.Application
 ServerTracingDynamicFeature.Builder
     .traceAll(yourPreferredTracer)
-    .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME))
+    .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME, 
+                                  ServerSpanDecorator.STANDARD_TAGS))
     .build();
 
 @GET
 @Path("/hello")
 @Traced(operationName = "helloRenamed") // optional, by default operation name is provided by ServerSpanDecorator
-public Response hello(@BeanParam CurrentSpan currentSpan) {
+public Response hello(@BeanParam ServerSpanContext serverSpanContext) {
     /**
      * Some business logic
      */
-    final Span span = currentSpan.get();
     Span childSpan = tracer.buildSpan("businessOperation")
-            .asChildOf(span)
+            .asChildOf(serverSpanContext.get())
             .start())
     childSpan.finish();
 
@@ -42,7 +42,7 @@ ClientTracingFeature.Builder
 
 Response response = jaxRsClient.target("http://localhost/endpoint")
     .request()
-    .property(TracingProperties.CHILD_OF, parentSpan) // optional, by default new trace is started
+    .property(TracingProperties.CHILD_OF, parentSpanContext) // optional, by default new trace is started
     .property(TracingProperties.TRACING_DISABLED, false) // optional, by default false
     .get();
 ```

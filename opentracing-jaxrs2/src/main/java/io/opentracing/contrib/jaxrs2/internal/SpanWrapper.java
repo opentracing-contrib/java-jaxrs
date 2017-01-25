@@ -18,7 +18,7 @@ public class SpanWrapper {
         this.span = span;
     }
 
-    public Span span() {
+    public Span get() {
         return span;
     }
 

@@ -5,6 +5,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -21,8 +22,6 @@ public abstract class AbstractJettyTest {
 
     public static final String TRACER_BUILDER_ATTRIBUTE = "tracerBuilder";
     public static final String CLIENT_BUILDER_ATTRIBUTE = "clientBuilder";
-
-    public static int SERVER_PORT = 3000;
 
     protected Server jettyServer;
     protected MockTracer mockTracer;
@@ -52,7 +51,7 @@ public abstract class AbstractJettyTest {
         initServletContext(context);
         initTracing(context);
 
-        jettyServer = new Server(SERVER_PORT);
+        jettyServer = new Server(0);
         jettyServer.setHandler(context);
         jettyServer.start();
     }
@@ -63,6 +62,10 @@ public abstract class AbstractJettyTest {
     }
 
     public String url(String path) {
-        return "http://localhost:" + SERVER_PORT + path;
+        return "http://localhost:" + getPort() + path;
+    }
+
+    public int getPort() {
+        return ((ServerConnector)jettyServer.getConnectors()[0]).getLocalPort();
     }
 }

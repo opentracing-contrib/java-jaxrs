@@ -20,9 +20,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.client.TracingProperties;
-import io.opentracing.contrib.jaxrs2.server.CurrentSpan;
+import io.opentracing.contrib.jaxrs2.server.ServerSpanContext;
 import io.opentracing.contrib.jaxrs2.server.Traced;
 
 /**
@@ -72,11 +73,11 @@ public class TestHandler {
     @GET
     @Path("/clientTracingEnabled")
     public Response clientTracingEnabled(@Context HttpServletRequest request,
-                                         @BeanParam CurrentSpan currentSpan) throws ExecutionException, InterruptedException {
+                                         @BeanParam ServerSpanContext serverSpanContext) throws ExecutionException, InterruptedException {
 
         final int port = request.getServerPort();
         final String contextPath = request.getServletPath();
-        final Span span = currentSpan.get();
+        final SpanContext spanContext = serverSpanContext.get();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Callable<String> callable = new Callable<String>() {
@@ -85,7 +86,7 @@ public class TestHandler {
                 Response response = client.target("http://localhost:" + port +
                         contextPath + "/hello")
                         .request()
-                        .property(TracingProperties.CHILD_OF, span)
+                        .property(TracingProperties.CHILD_OF, spanContext)
                         .get();
 
                 String entity = response.readEntity(String.class);
@@ -125,9 +126,9 @@ public class TestHandler {
     @GET
     @Path("/async")
     public void async(@Suspended AsyncResponse asyncResponse,
-                      @BeanParam CurrentSpan currentSpan) {
+                      @BeanParam ServerSpanContext serverSpanContext) {
 
-        final Span serverSpan = currentSpan.get();
+        final SpanContext serverSpan = serverSpanContext.get();
 
         new Thread(new ExpensiveOperation(serverSpan, asyncResponse))
                 .start();
@@ -135,12 +136,12 @@ public class TestHandler {
 
     private class ExpensiveOperation implements Runnable {
 
-        private Span parentSpan;
+        private SpanContext parentSpan;
         private AsyncResponse asyncResponse;
         private Random random;
 
-        public ExpensiveOperation(Span span, AsyncResponse asyncResponse) {
-            this.parentSpan = span;
+        public ExpensiveOperation(SpanContext parentContext, AsyncResponse asyncResponse) {
+            this.parentSpan = parentContext;
             this.asyncResponse = asyncResponse;
             this.random = new Random();
         }

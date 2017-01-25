@@ -13,7 +13,7 @@ import io.opentracing.tag.Tags;
 public interface ClientSpanDecorator {
 
     /**
-     * Decorate span by incoming object.
+     * Decorate get by incoming object.
      *
      * @param requestContext
      * @param span

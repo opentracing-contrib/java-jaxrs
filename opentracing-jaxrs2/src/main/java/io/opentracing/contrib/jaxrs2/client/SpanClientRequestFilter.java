@@ -10,6 +10,7 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
@@ -23,7 +24,7 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
 
     private static final Logger log = Logger.getLogger(SpanClientRequestFilter.class.getName());
 
-    public static final String SPAN_PROP_ID = "currentClientSpan";
+    protected static final String SPAN_PROP_ID = "activeClientSpan";
 
     private Tracer tracer;
     private List<ClientSpanDecorator> spanDecorators;
@@ -50,9 +51,10 @@ public class SpanClientRequestFilter implements ClientRequestFilter {
         Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getMethod())
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
 
-        Span parentSpan = CastUtils.cast(requestContext.getProperty(TracingProperties.CHILD_OF), Span.class);
-        if (parentSpan != null) {
-            spanBuilder.asChildOf(parentSpan);
+        SpanContext parentSpanContext = CastUtils.cast(requestContext.getProperty(TracingProperties.CHILD_OF),
+                SpanContext.class);
+        if (parentSpanContext != null) {
+            spanBuilder.asChildOf(parentSpanContext);
         }
 
         Span span = spanBuilder.start();
