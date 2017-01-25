@@ -10,12 +10,12 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>opentracing-jaxrs-example-spring-boot</artifactId>
+  <artifactId>opentracing-jaxrs2-example-spring-boot</artifactId>
 
   <properties>
     <finalName>${project.artifactId}</finalName>
     <version.org.springframework.boot>1.4.2.RELEASE</version.org.springframework.boot>
-    <start-class>io.opentracing.contrib.jaxrs.example.spring.boot.App</start-class>
+    <start-class>io.opentracing.contrib.jaxrs2.example.spring.boot.App</start-class>
   </properties>
 
   <dependencyManagement>
@@ -50,7 +50,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>opentracing-jaxrs-itest-common</artifactId>
+      <artifactId>opentracing-jaxrs2-itest-common</artifactId>
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
