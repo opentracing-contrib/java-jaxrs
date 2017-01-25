@@ -9,7 +9,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>opentracing-jaxrs-itest-common</artifactId>
+  <artifactId>opentracing-jaxrs2-itest-common</artifactId>
 
   <dependencies>
     <dependency>
