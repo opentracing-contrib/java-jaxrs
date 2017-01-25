@@ -33,7 +33,7 @@ public class SpanServerResponseFilter implements ContainerResponseFilter {
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
-                    decorator.decorateResponse(responseContext, spanWrapper.span());
+                    decorator.decorateResponse(responseContext, spanWrapper.get());
                 }
             }
 

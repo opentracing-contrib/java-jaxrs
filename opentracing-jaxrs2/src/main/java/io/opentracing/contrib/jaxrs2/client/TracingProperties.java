@@ -10,9 +10,9 @@ public class TracingProperties {
     private TracingProperties() {}
 
     /**
-     * Denotes a "parent" span ({@link io.opentracing.References#CHILD_OF}).
+     * Denotes a "parent" get ({@link io.opentracing.References#CHILD_OF}).
      * If it is not specified a new trace will be started.
-     * Value should be {@link io.opentracing.Span}.
+     * Value should be {@link io.opentracing.SpanContext}.
      * Set on {@link javax.ws.rs.client.Client#property(String, Object)}.
      */
     public static final String CHILD_OF = SpanClientRequestFilter.class.getName() + "." + References.CHILD_OF;

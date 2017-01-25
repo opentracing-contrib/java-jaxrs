@@ -34,7 +34,7 @@ public class SpanClientResponseFilter implements ClientResponseFilter {
 
             if (spanDecorators != null) {
                 for (ClientSpanDecorator decorator: spanDecorators) {
-                    decorator.decorateResponse(responseContext, spanWrapper.span());
+                    decorator.decorateResponse(responseContext, spanWrapper.get());
                 }
             }
 

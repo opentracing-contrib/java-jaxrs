@@ -28,7 +28,7 @@ public class ClientTracingFeature {
     /**
      * Builder for configuring {@link Client} to trace outgoing requests.
      *
-     * By default span's operation name is HTTP method and span is decorated with
+     * By default get's operation name is HTTP method and get is decorated with
      * {@link ClientSpanDecorator#STANDARD_TAGS} which adds set of standard tags.
      */
     public static class Builder {

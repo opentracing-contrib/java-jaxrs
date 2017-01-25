@@ -23,7 +23,7 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
 
     private static final Logger log = Logger.getLogger(SpanServerRequestFilter.class.getName());
 
-    public static final String SPAN_PROP_ID = SpanServerRequestFilter.class.getName() + ".currentServerSpan";
+    protected static final String SPAN_PROP_ID = SpanServerRequestFilter.class.getName() + ".activeServerSpan";
 
     private Tracer tracer;
     private String operationName;
