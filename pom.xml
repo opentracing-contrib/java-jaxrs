@@ -37,8 +37,8 @@
   </developers>
 
   <modules>
-    <module>jaxrs2</module>
-    <module>integration-tests</module>
+    <module>opentracing-jaxrs2</module>
+    <module>opentracing-jaxrs2-itest</module>
     <module>examples/spring-boot</module>
   </modules>
 

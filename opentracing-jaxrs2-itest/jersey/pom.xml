@@ -9,12 +9,12 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>opentracing-jaxrs-itest-jersey</artifactId>
+  <artifactId>opentracing-jaxrs2-itest-jersey</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>opentracing-jaxrs-itest-common</artifactId>
+      <artifactId>opentracing-jaxrs2-itest-common</artifactId>
       <version>${project.version}</version>
     </dependency>
 
