@@ -58,5 +58,5 @@ Follow instructions in [RELEASE](RELEASE.md)
 
    [ci-img]: https://travis-ci.org/opentracing-contrib/java-jaxrs.svg?branch=master
    [ci]: https://travis-ci.org/opentracing-contrib/java-jaxrs
-   [maven-img]: https://img.shields.io/maven-central/v/io.opentracing/opentracing-jaxrs2.svg?maxAge=2592000
+   [maven-img]: https://img.shields.io/maven-central/v/io.opentracing.contrib/opentracing-jaxrs2.svg?maxAge=2592000
    [maven]: http://search.maven.org/#search%7Cga%7C1%7Copentracing-jaxrs2
