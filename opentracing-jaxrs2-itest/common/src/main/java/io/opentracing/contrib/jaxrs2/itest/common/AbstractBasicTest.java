@@ -29,6 +29,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockSpans);
         Assert.assertEquals("GET", mockSpans.get(0).operationName());
     }
 
@@ -42,6 +43,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(2, mockSpans.size());
+        assertOnErrors(mockSpans);
         Assert.assertEquals("GET", mockSpans.get(0).operationName());
         Assert.assertEquals("GET", mockSpans.get(1).operationName());
         Assert.assertNotEquals(mockSpans.get(0).context().traceId(), mockSpans.get(1).context().traceId());
@@ -57,6 +59,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(3, mockSpans.size());
+        assertOnErrors(mockSpans);
         Assert.assertEquals("GET", mockSpans.get(0).operationName());
         Assert.assertEquals("GET", mockSpans.get(1).operationName());
         Assert.assertEquals("GET", mockSpans.get(2).operationName());
@@ -66,6 +69,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
                 mockSpans.get(2).context().traceId())).size());
 
         MockSpan clientSpan = mockSpans.get(1);
+        assertOnErrors(mockSpans);
         Assert.assertEquals(6, clientSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, clientSpan.tags().get(Tags.SPAN_KIND.getKey()));
         Assert.assertEquals("localhost", clientSpan.tags().get(Tags.PEER_HOSTNAME.getKey()));
@@ -85,6 +89,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(2, mockSpans.size());
+        assertOnErrors(mockSpans);
         Assert.assertEquals("expensiveOperation", mockSpans.get(0).operationName());
         Assert.assertEquals("GET", mockSpans.get(1).operationName());
         Assert.assertEquals(1, new HashSet<>(Arrays.asList(
@@ -101,6 +106,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
         response.close();
 
         Assert.assertEquals(1, mockTracer.finishedSpans().size());
+        assertOnErrors(mockTracer.finishedSpans());
 
         MockSpan mockSpan = mockTracer.finishedSpans().get(0);
         Assert.assertEquals(4, mockSpan.tags().size());
@@ -120,6 +126,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockTracer.finishedSpans());
         Assert.assertEquals("renamedOperation", mockSpans.get(0).operationName());
     }
 
@@ -145,6 +152,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockTracer.finishedSpans());
         Assert.assertEquals("GET", mockSpans.get(0).operationName());
     }
 
