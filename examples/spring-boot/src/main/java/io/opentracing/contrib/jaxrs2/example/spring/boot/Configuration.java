@@ -3,7 +3,6 @@ package io.opentracing.contrib.jaxrs2.example.spring.boot;
 import org.springframework.context.annotation.Bean;
 
 import io.opentracing.Tracer;
-import io.opentracing.mock.LoggingTracer;
 
 /**
  * @author Pavol Loffay
