@@ -1,11 +1,11 @@
 package io.opentracing.contrib.jaxrs2.client;
 
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientResponseContext;
-
 import io.opentracing.Span;
 import io.opentracing.contrib.jaxrs2.internal.URIUtils;
 import io.opentracing.tag.Tags;
+
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientResponseContext;
 
 /**
  * @author Pavol Loffay
@@ -38,7 +38,7 @@ public interface ClientSpanDecorator {
         @Override
         public void decorateRequest(ClientRequestContext requestContext, Span span) {
             Tags.PEER_HOSTNAME.set(span, requestContext.getUri().getHost());
-            Tags.PEER_PORT.set(span, (short)requestContext.getUri().getPort());
+            Tags.PEER_PORT.set(span, requestContext.getUri().getPort());
 
             Tags.HTTP_METHOD.set(span, requestContext.getMethod());
 

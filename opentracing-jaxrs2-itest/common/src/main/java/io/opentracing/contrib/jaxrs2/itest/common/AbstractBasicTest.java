@@ -1,18 +1,16 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import io.opentracing.mock.MockSpan;
+import io.opentracing.tag.Tags;
+import org.junit.Assert;
+import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import io.opentracing.mock.MockSpan;
-import io.opentracing.tag.Tags;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Pavol Loffay
@@ -73,7 +71,7 @@ public abstract class AbstractBasicTest extends AbstractJettyTest {
         Assert.assertEquals(6, clientSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, clientSpan.tags().get(Tags.SPAN_KIND.getKey()));
         Assert.assertEquals("localhost", clientSpan.tags().get(Tags.PEER_HOSTNAME.getKey()));
-        Assert.assertEquals((short)getPort(), clientSpan.tags().get(Tags.PEER_PORT.getKey()));
+        Assert.assertEquals(getPort(), clientSpan.tags().get(Tags.PEER_PORT.getKey()));
         Assert.assertEquals("GET", clientSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(url("/hello"), clientSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals(200, clientSpan.tags().get(Tags.HTTP_STATUS.getKey()));
