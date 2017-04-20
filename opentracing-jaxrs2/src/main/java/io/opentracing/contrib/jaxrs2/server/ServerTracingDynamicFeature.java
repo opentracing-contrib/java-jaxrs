@@ -1,10 +1,11 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
@@ -39,8 +40,9 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
                 log.info(msg);
             }
 
-            context.register(new SpanServerRequestFilter(builder.tracer, operationName(resourceInfo), builder.spanDecorators));
-            context.register(new SpanServerResponseFilter(builder.spanDecorators));
+            context.register(new SpanServerRequestFilter(builder.tracer, operationName(resourceInfo), builder
+                    .spanDecorators), builder.priority);
+            context.register(new SpanServerResponseFilter(builder.spanDecorators), builder.priority);
         }
     }
 
@@ -73,10 +75,13 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         private final Tracer tracer;
         private boolean allTraced;
         private List<ServerSpanDecorator> spanDecorators;
+        private int priority;
 
         private Builder(Tracer tracer) {
             this.tracer = tracer;
-            this.spanDecorators = Arrays.asList(ServerSpanDecorator.STANDARD_TAGS);
+            this.spanDecorators = Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS);
+            // by default do not use Priorities.AUTHENTICATION due to security concerns
+            this.priority = Priorities.HEADER_DECORATOR;
         }
 
         /**
@@ -106,6 +111,18 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
          */
         public Builder withDecorators(List<ServerSpanDecorator> spanDecorators) {
             this.spanDecorators = spanDecorators;
+            return this;
+        }
+
+        /**
+         * @param priority the overriding priority for the registered component.
+         *                 Default is {@link Priorities#HEADER_DECORATOR}
+         * @return builder
+         *
+         * @see Priorities
+         */
+        public Builder withPriority(int priority) {
+            this.priority = priority;
             return this;
         }
 
