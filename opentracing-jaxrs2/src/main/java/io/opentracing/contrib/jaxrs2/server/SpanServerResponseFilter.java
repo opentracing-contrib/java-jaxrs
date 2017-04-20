@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -12,6 +14,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 
+@Priority(Priorities.HEADER_DECORATOR)
 public class SpanServerResponseFilter implements ContainerResponseFilter {
 
     private static final Logger log = Logger.getLogger(SpanServerResponseFilter.class.getName());

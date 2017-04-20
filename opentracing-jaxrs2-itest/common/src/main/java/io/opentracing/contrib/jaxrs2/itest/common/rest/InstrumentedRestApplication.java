@@ -27,7 +27,8 @@ public class InstrumentedRestApplication extends Application {
                 AbstractJettyTest.CLIENT_BUILDER_ATTRIBUTE);
 
         if (serverTracingBuilder == null || clientTracingBuilder == null) {
-            throw new IllegalArgumentException("");
+            throw new IllegalArgumentException("Instrumented application is not initialized correctly. serverTracing:"
+                    + serverTracingBuilder + ", clientTracing: " + clientTracingBuilder);
         }
     }
 

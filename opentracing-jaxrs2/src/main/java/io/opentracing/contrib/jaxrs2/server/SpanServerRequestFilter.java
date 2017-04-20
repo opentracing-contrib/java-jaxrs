@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 
@@ -19,6 +21,7 @@ import io.opentracing.tag.Tags;
 /**
  * @author Pavol Loffay
  */
+@Priority(Priorities.HEADER_DECORATOR)
 public class SpanServerRequestFilter implements ContainerRequestFilter {
 
     private static final Logger log = Logger.getLogger(SpanServerRequestFilter.class.getName());
