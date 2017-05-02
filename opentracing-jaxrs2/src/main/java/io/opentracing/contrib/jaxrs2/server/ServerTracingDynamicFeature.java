@@ -1,5 +1,6 @@
 package io.opentracing.contrib.jaxrs2.server;
 
+import io.opentracing.util.GlobalTracer;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -24,6 +25,10 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     private static final Logger log = Logger.getLogger(ServerTracingDynamicFeature.class.getName());
 
     private Builder builder;
+
+    private ServerTracingDynamicFeature() {
+        this(new Builder(GlobalTracer.get()));
+    }
 
     private ServerTracingDynamicFeature(Builder builder) {
         this.builder = builder;
