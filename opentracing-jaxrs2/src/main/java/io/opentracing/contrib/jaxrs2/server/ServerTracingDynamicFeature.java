@@ -26,7 +26,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
 
     private Builder builder;
 
-    private ServerTracingDynamicFeature() {
+    public ServerTracingDynamicFeature() {
         this(new Builder(GlobalTracer.get()));
     }
 
