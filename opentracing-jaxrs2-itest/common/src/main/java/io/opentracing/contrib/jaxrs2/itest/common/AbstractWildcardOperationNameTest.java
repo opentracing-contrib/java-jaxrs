@@ -1,21 +1,17 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
-import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.junit.Assert;
-import org.junit.Test;
-
 import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.mock.MockSpan;
+import java.util.Arrays;
+import java.util.List;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author Pavol Loffay
@@ -24,7 +20,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
 
     @Override
     protected void initTracing(ServletContextHandler context) {
-        client.register(new ClientTracingFeature(new Builder(mockTracer)));
+        client.register(new Builder(mockTracer).build());
 
         ServerTracingDynamicFeature serverTracingBuilder =
             new ServerTracingDynamicFeature.Builder(mockTracer)

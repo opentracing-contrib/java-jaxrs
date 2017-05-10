@@ -28,12 +28,14 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     /**
      * When using this constructor application has to call {@link GlobalTracer#register} to register
      * tracer instance. Ideally it should be called in {@link javax.servlet.ServletContextListener}.
+     *
+     * For a custom configuration use {@link Builder#build()}.
      */
     public ServerTracingDynamicFeature() {
         this(new Builder(GlobalTracer.get()));
     }
 
-    public ServerTracingDynamicFeature(Builder builder) {
+    private ServerTracingDynamicFeature(Builder builder) {
         this.builder = builder;
     }
 

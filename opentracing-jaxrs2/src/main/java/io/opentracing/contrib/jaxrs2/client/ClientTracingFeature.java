@@ -23,12 +23,14 @@ public class ClientTracingFeature implements Feature {
     /**
      * When using this constructor application has to call {@link GlobalTracer#register} to register
      * tracer instance.
+     *
+     * For a custom configuration use {@link Builder#build()}.
      */
     public ClientTracingFeature() {
         this(new Builder(GlobalTracer.get()));
     }
 
-    public ClientTracingFeature(Builder builder) {
+    private ClientTracingFeature(Builder builder) {
         this.builder = builder;
     }
 

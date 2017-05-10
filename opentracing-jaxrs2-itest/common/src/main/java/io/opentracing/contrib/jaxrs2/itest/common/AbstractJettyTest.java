@@ -1,23 +1,19 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 
-import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
+import io.opentracing.mock.MockSpan;
+import io.opentracing.mock.MockTracer;
 import java.util.List;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-
-import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
-import io.opentracing.mock.MockSpan;
-import io.opentracing.mock.MockTracer;
 
 /**
  * @author Pavol Loffay
@@ -35,7 +31,7 @@ public abstract class AbstractJettyTest {
     protected abstract void initServletContext(ServletContextHandler context);
 
     protected void initTracing(ServletContextHandler context) {
-        client.register(new ClientTracingFeature(new Builder(mockTracer)));
+        client.register(new Builder(mockTracer).build());
 
         ServerTracingDynamicFeature serverTracingFeature =
             new ServerTracingDynamicFeature.Builder(mockTracer)
