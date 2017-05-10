@@ -1,7 +1,6 @@
 package io.opentracing.contrib.jaxrs2.example.spring.boot;
 
 import io.opentracing.Tracer;
-import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
 import io.opentracing.contrib.jaxrs2.itest.common.rest.TestHandler;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
@@ -22,7 +21,7 @@ public class JerseyConfig extends ResourceConfig {
     @Inject
     public JerseyConfig(Tracer tracer) {
         Client client = ClientBuilder.newClient();
-        client.register(new ClientTracingFeature(new Builder(tracer)));
+        client.register(new Builder(tracer).build());
 
         register(new ServerTracingDynamicFeature.Builder(tracer)
                 .build());
