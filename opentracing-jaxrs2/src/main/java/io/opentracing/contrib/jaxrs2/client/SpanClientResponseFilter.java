@@ -1,20 +1,21 @@
 package io.opentracing.contrib.jaxrs2.client;
 
+import io.opentracing.contrib.jaxrs2.internal.CastUtils;
+import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientResponseContext;
 import javax.ws.rs.client.ClientResponseFilter;
 
-import io.opentracing.contrib.jaxrs2.internal.CastUtils;
-import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
-
 /**
  * @author Pavol Loffay
  */
+@Priority(Priorities.HEADER_DECORATOR)
 public class SpanClientResponseFilter implements ClientResponseFilter {
 
     private static final Logger log = Logger.getLogger(SpanClientResponseFilter.class.getName());

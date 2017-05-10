@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to explicitly say that tracing is enabled.
+ * Annotation to explicitly say that tracing is enabled. It is also used to override span's
+ * operation name.
  *
  * @author Pavol Loffay
  */

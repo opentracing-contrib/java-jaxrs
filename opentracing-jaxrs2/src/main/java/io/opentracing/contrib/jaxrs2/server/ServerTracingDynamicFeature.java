@@ -21,16 +21,19 @@ import io.opentracing.Tracer;
  */
 @Provider
 public class ServerTracingDynamicFeature implements DynamicFeature {
-
     private static final Logger log = Logger.getLogger(ServerTracingDynamicFeature.class.getName());
 
     private Builder builder;
 
+    /**
+     * When using this constructor application has to call {@link GlobalTracer#register} to register
+     * tracer instance. Ideally it should be called in {@link javax.servlet.ServletContextListener}.
+     */
     public ServerTracingDynamicFeature() {
         this(new Builder(GlobalTracer.get()));
     }
 
-    private ServerTracingDynamicFeature(Builder builder) {
+    public ServerTracingDynamicFeature(Builder builder) {
         this.builder = builder;
     }
 
@@ -82,31 +85,21 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         private List<ServerSpanDecorator> spanDecorators;
         private int priority;
 
-        private Builder(Tracer tracer) {
+        public Builder(Tracer tracer) {
             this.tracer = tracer;
             this.spanDecorators = Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS);
             // by default do not use Priorities.AUTHENTICATION due to security concerns
             this.priority = Priorities.HEADER_DECORATOR;
+            this.allTraced = true;
         }
 
         /**
-         * This enables tracing of all requests.
-         * @param tracer tracer implementation
+         * Only resources annotated with {@link Traced} will be traced.
          * @return builder
          */
-        public static Builder traceAll(Tracer tracer) {
-            Builder builder = new Builder(tracer);
-            builder.allTraced = true;
-            return builder;
-        }
-
-        /**
-         * When constructed with this only resources annotation with {@link Traced} will be traced.
-         * @param tracer tracer implementation
-         * @return builder
-         */
-        public static Builder traceNothing(Tracer tracer) {
-            return new Builder(tracer);
+        public Builder withTraceNothing() {
+            allTraced = false;
+            return this;
         }
 
         /**
@@ -131,12 +124,8 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
             return this;
         }
 
-        public Tracer tracer() {
-            return tracer;
-        }
-
         /**
-         * @return server tracing dynamic feature. This feature should be registered in {@link javax.ws.rs.core.Application}
+         * @return server tracing dynamic feature. This feature should be manually registered to {@link javax.ws.rs.core.Application}
          */
         public ServerTracingDynamicFeature build() {
             return new ServerTracingDynamicFeature(this);

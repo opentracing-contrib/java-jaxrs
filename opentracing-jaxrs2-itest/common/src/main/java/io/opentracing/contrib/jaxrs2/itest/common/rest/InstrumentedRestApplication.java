@@ -5,10 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 
-import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
+import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.itest.common.AbstractJettyTest;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 
@@ -17,18 +18,19 @@ import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
  */
 public class InstrumentedRestApplication extends Application {
 
-    private ClientTracingFeature.Builder clientTracingBuilder;
-    private ServerTracingDynamicFeature.Builder serverTracingBuilder;
+    private Client client;
+    private Tracer tracer;
+    private ServerTracingDynamicFeature serverTracingFeature;
 
     public InstrumentedRestApplication(@Context ServletContext context) {
-        this.serverTracingBuilder = (ServerTracingDynamicFeature.Builder) context.getAttribute(
-                AbstractJettyTest.TRACER_BUILDER_ATTRIBUTE);
-        this.clientTracingBuilder = (ClientTracingFeature.Builder) context.getAttribute(
-                AbstractJettyTest.CLIENT_BUILDER_ATTRIBUTE);
+        this.serverTracingFeature = (ServerTracingDynamicFeature) context.getAttribute(
+                AbstractJettyTest.SERVER_TRACING_FEATURE);
+        this.client = (Client) context.getAttribute(AbstractJettyTest.CLIENT_ATTRIBUTE);
+        this.tracer = (Tracer) context.getAttribute(AbstractJettyTest.TRACER_ATTRIBUTE);
 
-        if (serverTracingBuilder == null || clientTracingBuilder == null) {
+        if (serverTracingFeature == null || client == null || tracer == null) {
             throw new IllegalArgumentException("Instrumented application is not initialized correctly. serverTracing:"
-                    + serverTracingBuilder + ", clientTracing: " + clientTracingBuilder);
+                    + serverTracingFeature + ", clientTracing: " + client);
         }
     }
 
@@ -36,10 +38,8 @@ public class InstrumentedRestApplication extends Application {
     public Set<Object> getSingletons() {
         Set<Object> objects = new HashSet<>();
 
-        clientTracingBuilder.build();
-
-        objects.add(serverTracingBuilder.build());
-        objects.add(new TestHandler(serverTracingBuilder.tracer(), clientTracingBuilder.client()));
+        objects.add(serverTracingFeature);
+        objects.add(new TestHandler(tracer, client));
 
         return Collections.unmodifiableSet(objects);
     }
