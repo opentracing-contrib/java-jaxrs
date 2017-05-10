@@ -1,11 +1,13 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 
+import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
+import io.opentracing.mock.MockSpan;
+import io.opentracing.mock.MockTracer;
 import java.util.List;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -13,18 +15,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
-import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
-import io.opentracing.mock.MockSpan;
-import io.opentracing.mock.MockTracer;
-
 /**
  * @author Pavol Loffay
  */
 public abstract class AbstractJettyTest {
 
-    public static final String TRACER_BUILDER_ATTRIBUTE = "tracerBuilder";
-    public static final String CLIENT_BUILDER_ATTRIBUTE = "clientBuilder";
+    public static final String SERVER_TRACING_FEATURE = "serveTracingFeature";
+    public static final String CLIENT_ATTRIBUTE = "clientBuilder";
+    public static final String TRACER_ATTRIBUTE = "tracer";
 
     protected Server jettyServer;
     protected MockTracer mockTracer;
@@ -33,14 +31,15 @@ public abstract class AbstractJettyTest {
     protected abstract void initServletContext(ServletContextHandler context);
 
     protected void initTracing(ServletContextHandler context) {
-        ClientTracingFeature.Builder clientTracingBuilder = ClientTracingFeature.Builder
-                .traceAll(mockTracer, client);
+        client.register(new Builder(mockTracer).build());
 
-        ServerTracingDynamicFeature.Builder serverTracingBuilder = ServerTracingDynamicFeature.Builder
-                .traceAll(mockTracer);
+        ServerTracingDynamicFeature serverTracingFeature =
+            new ServerTracingDynamicFeature.Builder(mockTracer)
+            .build();
 
-        context.setAttribute(CLIENT_BUILDER_ATTRIBUTE, clientTracingBuilder);
-        context.setAttribute(TRACER_BUILDER_ATTRIBUTE, serverTracingBuilder);
+        context.setAttribute(CLIENT_ATTRIBUTE, client);
+        context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
+        context.setAttribute(SERVER_TRACING_FEATURE, serverTracingFeature);
     }
 
     @Before

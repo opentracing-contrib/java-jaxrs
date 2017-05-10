@@ -2,20 +2,18 @@
 
 # OpenTracing JAX-RS Instrumentation
 
-OpenTracing instrumentation for JAX-RS standard.
-It supports server and client request tracing.
+OpenTracing instrumentation for JAX-RS standard. It supports server and client request tracing.
 
 Instrumentation by default adds set of standard tags and sets span operation name with HTTP method. 
 This can be overridden by span decorators.
 
 ## Tracing Server Requests
 ```java
-// register this in javax.ws.rs.core.Application
-ServerTracingDynamicFeature.Builder
-    .traceAll(yourPreferredTracer)
+DynamicFeature dynamicFeafure = new ServerTracingDynamicFeature.Builder(tracer)
     .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME, 
                                   ServerSpanDecorator.STANDARD_TAGS))
     .build();
+// register this in javax.ws.rs.core.Application
 
 @GET
 @Path("/hello")
@@ -35,10 +33,8 @@ public Response hello(@BeanParam ServerSpanContext serverSpanContext) {
 
 ## Tracing Client Requests
 ```java
-ClientTracingFeature.Builder
-    .traceAll(yourPreferredTracer, jaxRsClient)
-    .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_PATH_OPERATION_NAME))
-    .build();
+Client client = ClientBuilder.newClient();
+client.register(ClientTracingFeature.class);
 
 Response response = jaxRsClient.target("http://localhost/endpoint")
     .request()
