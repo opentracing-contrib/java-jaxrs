@@ -35,7 +35,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         Assert.assertEquals(4, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_SERVER, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
         Assert.assertEquals(url("/hello"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
-        Assert.assertEquals("GET", mockSpan.tags().get("http.method"));
+        Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(200, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
     }
 
