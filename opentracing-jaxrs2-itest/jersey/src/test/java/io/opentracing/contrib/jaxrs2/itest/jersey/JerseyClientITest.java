@@ -2,15 +2,15 @@ package io.opentracing.contrib.jaxrs2.itest.jersey;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
-import io.opentracing.contrib.jaxrs2.itest.common.AbstractServerTest;
+import io.opentracing.contrib.jaxrs2.itest.common.AbstractClientTest;
 
 /**
  * @author Pavol Loffay
  */
-public class JerseyITest extends AbstractServerTest {
+public class JerseyClientITest extends AbstractClientTest {
 
     @Override
-    public void initServletContext(ServletContextHandler context) {
+    protected void initServletContext(ServletContextHandler context) {
         JerseyHelper.initServletContext(context);
     }
 }
