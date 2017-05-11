@@ -2,9 +2,11 @@ package io.opentracing.contrib.jaxrs2.itest.common;
 
 
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
+import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
+import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -35,6 +37,7 @@ public abstract class AbstractJettyTest {
 
         ServerTracingDynamicFeature serverTracingFeature =
             new ServerTracingDynamicFeature.Builder(mockTracer)
+                .withDecorators(Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS))
             .build();
 
         context.setAttribute(CLIENT_ATTRIBUTE, client);
