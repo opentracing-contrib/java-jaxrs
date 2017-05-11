@@ -1,5 +1,6 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
+import java.net.URI;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -54,24 +55,7 @@ public class TestHandler {
     }
 
     @GET
-    @Path("/clientTracingDisabled")
-    public Response clientTracingDisabled(@Context HttpServletRequest request) {
-
-        // NOTE that this client request will be in different trace because parent span is not passed
-        Response response = client.target("http://localhost:" + request.getServerPort() +
-                request.getServletPath() + "/hello")
-                .request()
-                .property(TracingProperties.TRACING_DISABLED, true)
-                .get();
-
-        Object entity = response.getEntity();
-        response.close();
-
-        return Response.ok().entity(entity).build();
-    }
-
-    @GET
-    @Path("/clientTracingEnabled")
+    @Path("/clientTracingChaining")
     public Response clientTracingEnabled(@Context HttpServletRequest request,
                                          @BeanParam ServerSpanContext serverSpanContext) throws ExecutionException, InterruptedException {
 
@@ -132,6 +116,14 @@ public class TestHandler {
 
         new Thread(new ExpensiveOperation(serverSpan, asyncResponse))
                 .start();
+    }
+
+    @GET
+    @Path("/redirect")
+    public Response redirect(@Context HttpServletRequest request) {
+        String url = String.format("localhost:%d/%s/hello", request.getLocalPort(),
+            request.getContextPath()).replace("//", "/");
+        return Response.seeOther(URI.create("http://" + url)).build();
     }
 
     private class ExpensiveOperation implements Runnable {
