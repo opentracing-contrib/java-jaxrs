@@ -1,15 +1,17 @@
 package io.opentracing.contrib.jaxrs2.client;
 
-import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+
 import javax.ws.rs.Priorities;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
+
+import io.opentracing.Tracer;
+import io.opentracing.util.GlobalTracer;
 
 /**
  * @author Pavol Loffay
@@ -37,9 +39,7 @@ public class ClientTracingFeature implements Feature {
     @Override
     public boolean configure(FeatureContext context) {
         log.info("Registering client OpenTracing, with configuration:" + builder.toString());
-        context.register(new SpanClientRequestFilter(builder.tracer, builder.spanDecorators),
-            builder.priority);
-        context.register(new SpanClientResponseFilter(builder.spanDecorators),
+        context.register(new ClientTracingFilter(builder.tracer, builder.spanDecorators),
             builder.priority);
         return true;
     }

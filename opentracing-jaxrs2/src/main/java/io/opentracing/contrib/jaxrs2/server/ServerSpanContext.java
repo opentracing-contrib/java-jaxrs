@@ -24,7 +24,7 @@ public class ServerSpanContext {
      * @return span context of span tracing server request
      */
     public SpanContext get() {
-        SpanWrapper spanWrapper = CastUtils.cast(request.getAttribute(SpanServerRequestFilter.SPAN_PROP_ID), SpanWrapper.class);
+        SpanWrapper spanWrapper = CastUtils.cast(request.getAttribute(ServerTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
         return spanWrapper != null ? spanWrapper.get().context() : null;
     }
 }

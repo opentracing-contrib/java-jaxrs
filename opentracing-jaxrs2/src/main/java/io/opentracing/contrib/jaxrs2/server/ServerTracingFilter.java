@@ -10,10 +10,13 @@ import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
@@ -22,18 +25,17 @@ import io.opentracing.tag.Tags;
  * @author Pavol Loffay
  */
 @Priority(Priorities.HEADER_DECORATOR)
-public class SpanServerRequestFilter implements ContainerRequestFilter {
+public class ServerTracingFilter implements ContainerRequestFilter, ContainerResponseFilter {
+    private static final Logger log = Logger.getLogger(ServerTracingFilter.class.getName());
 
-    private static final Logger log = Logger.getLogger(SpanServerRequestFilter.class.getName());
-
-    protected static final String SPAN_PROP_ID = SpanServerRequestFilter.class.getName() + ".activeServerSpan";
+    protected static final String SPAN_PROP_ID = ServerTracingFilter.class.getName() + ".activeServerSpan";
 
     private Tracer tracer;
     private String operationName;
     private List<ServerSpanDecorator> spanDecorators;
 
-    public SpanServerRequestFilter(Tracer tracer, String operationName,
-                                   List<ServerSpanDecorator> spanDecorators) {
+    protected ServerTracingFilter(Tracer tracer, String operationName,
+                               List<ServerSpanDecorator> spanDecorators) {
         this.tracer = tracer;
         this.operationName = operationName;
         this.spanDecorators = new ArrayList<>(spanDecorators);
@@ -75,6 +77,25 @@ public class SpanServerRequestFilter implements ContainerRequestFilter {
             }
 
             requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));
+        }
+    }
+
+    @Override
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
+            throws IOException {
+        SpanWrapper spanWrapper = CastUtils
+                .cast(requestContext.getProperty(ServerTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
+
+        if (spanWrapper != null && !spanWrapper.isFinished()) {
+            log.finest("Finishing server span");
+
+            if (spanDecorators != null) {
+                for (ServerSpanDecorator decorator: spanDecorators) {
+                    decorator.decorateResponse(responseContext, spanWrapper.get());
+                }
+            }
+
+            spanWrapper.finish();
         }
     }
 }
