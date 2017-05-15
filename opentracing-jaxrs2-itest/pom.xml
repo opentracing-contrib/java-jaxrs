@@ -15,6 +15,7 @@
     <module>jersey</module>
     <module>resteasy</module>
     <module>apache-cxf</module>
+    <module>auto-discovery</module>
   </modules>
 
   <properties>
@@ -22,12 +23,18 @@
     <version.org.eclipse.jetty>9.2.19.v20160908</version.org.eclipse.jetty>
     <version.org.glassfish.jersey>2.25</version.org.glassfish.jersey>
     <version.org.jboss.resteasy>3.0.19.Final</version.org.jboss.resteasy>
+    <version.wildfly-swarm>2017.5.0</version.wildfly-swarm>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.opentracing</groupId>
+      <artifactId>opentracing-mock</artifactId>
     </dependency>
   </dependencies>
 
