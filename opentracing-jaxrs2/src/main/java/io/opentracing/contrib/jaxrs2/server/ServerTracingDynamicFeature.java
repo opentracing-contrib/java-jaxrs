@@ -1,16 +1,18 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
+
+import io.opentracing.Tracer;
+import io.opentracing.util.GlobalTracer;
 
 /**
  * This class has to be registered as JAX-RS provider to enable tracing of server requests.
@@ -48,9 +50,8 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
                 log.info(msg);
             }
 
-            context.register(new SpanServerRequestFilter(builder.tracer, operationName(resourceInfo), builder
+            context.register(new ServerTracingFilter(builder.tracer, operationName(resourceInfo), builder
                     .spanDecorators), builder.priority);
-            context.register(new SpanServerResponseFilter(builder.spanDecorators), builder.priority);
         }
     }
 
