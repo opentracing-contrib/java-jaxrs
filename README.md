@@ -2,23 +2,29 @@
 
 # OpenTracing JAX-RS Instrumentation
 
-OpenTracing instrumentation for JAX-RS standard. It supports server and client request tracing.
+OpenTracing instrumentation for JAX-RS standard. It supports tracing of server and client requests.
 
-Instrumentation by default adds set of standard tags and sets span operation name with HTTP method. 
-This can be overridden by span decorators.
+Instrumentation by default adds a set of standard HTTP tags and as an operation name it uses a string defined in `@Path` annotation. Custom tags or operation name can be defined in span decorators.
 
 ## Tracing Server Requests
-```java
-DynamicFeature dynamicFeafure = new ServerTracingDynamicFeature.Builder(tracer)
-    .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME, 
-                                  ServerSpanDecorator.STANDARD_TAGS))
-    .build();
-// register this in javax.ws.rs.core.Application
+By default OpenTracing provider is automatically discovered and registered. The only configuration that is required is to register a tracer instance: `GlobalTracer.register(tracer)` at application startup.
 
+Custom configuration 
+```java
+// code sample from javax.ws.rs.core.Application#getSingletons();
+DynamicFeature tracing = new ServerTracingDynamicFeature.Builder(tracer)
+    .withDecorators(decorators)
+    .build();
+singletons.add(tracing);
+return singletons;
+```
+            
+An example of traced REST endpoint:
+```java
 @GET
 @Path("/hello")
-@Traced(operationName = "helloRenamed") // optional, by default operation name is provided by ServerSpanDecorator
-public Response hello(@BeanParam ServerSpanContext serverSpanContext) {
+@Traced(operationName = "helloRenamed") // optional, see javadoc
+public Response hello(@BeanParam ServerSpanContext serverSpanContext) { // optional to get server span context
     /**
      * Some business logic
      */
