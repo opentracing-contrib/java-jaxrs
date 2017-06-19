@@ -9,12 +9,14 @@ Custom tags or operation name can be defined in span decorators.
 
 ## Tracing Server Requests
 By default OpenTracing provider is automatically discovered and registered.
-The only configuration that is required is to register a tracer instance: `GlobalTracer.register(tracer)` at application startup.
+The only configuration that is required is to register a tracer instance via `GlobalTracer.register(tracer)` at application startup.
 
-### Custom configuration:
+### Custom configuration
+Custom configuration is only required when using a different set of span decoratos.
+
 ```java
 // code sample from javax.ws.rs.core.Application
-public public Set<Object> getSingletons() {
+public Set<Object> getSingletons() {
   DynamicFeature tracing = new ServerTracingDynamicFeature.Builder(tracer)
       .withDecorators(decorators)
       .build();
