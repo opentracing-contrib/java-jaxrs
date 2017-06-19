@@ -1,20 +1,6 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.InvocationCallback;
-import javax.ws.rs.core.Response;
-
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.junit.Assert;
-import org.junit.Test;
-
+import io.opentracing.Tracer;
 import io.opentracing.NoopTracerFactory;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
@@ -26,6 +12,25 @@ import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
+import io.opentracing.util.ThreadLocalActiveSpanSource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.InvocationCallback;
+import javax.ws.rs.core.Response;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author Pavol Loffay
@@ -36,19 +41,20 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
     protected void initTracing(ServletContextHandler context) {
         client.register(new Builder(mockTracer).build());
 
+        Tracer serverTracer = NoopTracerFactory.create();
         ServerTracingDynamicFeature serverTracingBuilder =
-                new ServerTracingDynamicFeature.Builder(NoopTracerFactory.create())
+                new ServerTracingDynamicFeature.Builder(serverTracer)
                         .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME))
                         .build();
 
-        context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
-        context.setAttribute(CLIENT_ATTRIBUTE, client);
+        context.setAttribute(TRACER_ATTRIBUTE, serverTracer);
+        context.setAttribute(CLIENT_ATTRIBUTE, ClientBuilder.newClient());
         context.setAttribute(SERVER_TRACING_FEATURE, serverTracingBuilder);
     }
 
     @Test
     public void testDefaultConfiguration() {
-        MockTracer mockTracer = new MockTracer(Propagator.TEXT_MAP);
+        MockTracer mockTracer = new MockTracer(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
         GlobalTracer.register(mockTracer);
         Client client = ClientBuilder.newClient()
                 .register(ClientTracingFeature.class);
@@ -63,7 +69,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
     @Test
     public void testStandardTags() {
-        Response response = client.target(url("/hello"))
+        Response response = client.target(url("/hello/1"))
                 .request()
                 .get();
         response.close();
@@ -76,7 +82,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
         Assert.assertEquals("GET", mockSpan.operationName());
         Assert.assertEquals(6, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
-        Assert.assertEquals(url("/hello"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
+        Assert.assertEquals(url("/hello/1"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(200, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
         Assert.assertEquals(getPort(), mockSpan.tags().get(Tags.PEER_PORT.getKey()));
@@ -146,7 +152,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
     @Test
     public void testStandardTagsAsync() throws InterruptedException, ExecutionException {
-        Future<Response> responseFuture = client.target(url("/hello"))
+        Future<Response> responseFuture = client.target(url("/hello/1"))
                 .request()
                 .async()
                 .get(new InvocationCallback<Response>() {
@@ -172,11 +178,130 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
         Assert.assertEquals("GET", mockSpan.operationName());
         Assert.assertEquals(6, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
-        Assert.assertEquals(url("/hello"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
+        Assert.assertEquals(url("/hello/1"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(200, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
         Assert.assertEquals(getPort(), mockSpan.tags().get(Tags.PEER_PORT.getKey()));
         Assert.assertEquals("localhost", mockSpan.tags().get(Tags.PEER_HOSTNAME.getKey()));
+    }
+
+    @Test
+    public void testSyncMultipleRequests() throws ExecutionException, InterruptedException {
+        int numberOfCalls = 100;
+
+        Map<Long, MockSpan> parentSpans = new LinkedHashMap<>(numberOfCalls);
+
+        ExecutorService executorService = Executors.newFixedThreadPool(8);
+        List<Future<?>> futures = new ArrayList<>(numberOfCalls);
+        for (int i = 0; i < numberOfCalls; i++) {
+            final String requestUrl = url("/hello/" + i);
+
+            final MockSpan parentSpan = mockTracer.buildSpan(requestUrl)
+                .ignoreActiveSpan().start();
+            parentSpan.setTag("request-url", requestUrl);
+            parentSpans.put(parentSpan.context().spanId(), parentSpan);
+
+            futures.add(executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    mockTracer.makeActive(parentSpan);
+                        client.target(requestUrl)
+                            .request()
+                            .get();
+                }
+            }));
+        }
+
+        // wait to finish all calls
+        for (Future<?> future: futures) {
+            future.get();
+        }
+
+        executorService.awaitTermination(1, TimeUnit.SECONDS);
+        executorService.shutdown();
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(numberOfCalls, mockSpans.size());
+        assertOnErrors(mockSpans);
+
+        for (MockSpan clientSpan: mockSpans) {
+            MockSpan parentSpan = parentSpans.get(clientSpan.parentId());
+            Assert.assertNotNull(parentSpan);
+            Assert.assertEquals(parentSpan.tags().get("request-url"), clientSpan.tags().get(Tags.HTTP_URL.getKey()));
+
+            Assert.assertEquals(parentSpan.context().traceId(), clientSpan.context().traceId());
+            Assert.assertEquals(parentSpan.context().spanId(), clientSpan.parentId());
+            Assert.assertEquals(0, clientSpan.generatedErrors().size());
+        }
+    }
+
+    @Test
+    public void testAsyncMultipleRequests() throws ExecutionException, InterruptedException {
+        int numberOfCalls = 100;
+
+        Map<Long, MockSpan> parentSpans = new LinkedHashMap<>(numberOfCalls);
+
+        ExecutorService executorService = Executors.newFixedThreadPool(8);
+        List<Future<?>> futures = new ArrayList<>(numberOfCalls);
+        for (int i = 0; i < numberOfCalls; i++) {
+            final String requestUrl = url("/hello/" + i);
+
+            final MockSpan parentSpan = mockTracer.buildSpan(requestUrl)
+                .ignoreActiveSpan().start();
+            parentSpan.setTag("request-url", requestUrl);
+            parentSpans.put(parentSpan.context().spanId(), parentSpan);
+
+            futures.add(executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    mockTracer.makeActive(parentSpan);
+                    try {
+                        Future<Response> responseFuture = client.target(requestUrl)
+                            .request()
+                            .async()
+                            .get(new InvocationCallback<Response>() {
+                                @Override
+                                public void completed(Response response) {
+                                    // when completed span is already finished
+                                }
+                                @Override
+                                public void failed(Throwable throwable) {
+                                    Assert.fail();
+                                }
+                            });
+
+                        Response response = responseFuture.get();
+                        response.close();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }));
+        }
+
+        // wait to finish all calls
+        for (Future<?> future: futures) {
+            future.get();
+        }
+
+        executorService.awaitTermination(1, TimeUnit.SECONDS);
+        executorService.shutdown();
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(numberOfCalls, mockSpans.size());
+        assertOnErrors(mockSpans);
+
+        for (MockSpan clientSpan: mockSpans) {
+            MockSpan parentSpan = parentSpans.get(clientSpan.parentId());
+            Assert.assertNotNull(parentSpan);
+            Assert.assertEquals(parentSpan.tags().get("request-url"), clientSpan.tags().get(Tags.HTTP_URL.getKey()));
+
+            Assert.assertEquals(parentSpan.context().traceId(), clientSpan.context().traceId());
+            Assert.assertEquals(parentSpan.context().spanId(), clientSpan.parentId());
+            Assert.assertEquals(0, clientSpan.generatedErrors().size());
+        }
     }
 
     @Test

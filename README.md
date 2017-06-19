@@ -4,19 +4,24 @@
 
 OpenTracing instrumentation for JAX-RS standard. It supports tracing of server and client requests.
 
-Instrumentation by default adds a set of standard HTTP tags and as an operation name it uses a string defined in `@Path` annotation. Custom tags or operation name can be defined in span decorators.
+Instrumentation by default adds a set of standard HTTP tags and as an operation name it uses a string defined in `@Path` annotation.
+Custom tags or operation name can be defined in span decorators.
 
 ## Tracing Server Requests
-By default OpenTracing provider is automatically discovered and registered. The only configuration that is required is to register a tracer instance: `GlobalTracer.register(tracer)` at application startup.
+By default OpenTracing provider is automatically discovered and registered.
+The only configuration that is required is to register a tracer instance: `GlobalTracer.register(tracer)` at application startup.
 
-Custom configuration 
+### Custom configuration:
 ```java
-// code sample from javax.ws.rs.core.Application#getSingletons();
-DynamicFeature tracing = new ServerTracingDynamicFeature.Builder(tracer)
-    .withDecorators(decorators)
-    .build();
-singletons.add(tracing);
-return singletons;
+// code sample from javax.ws.rs.core.Application
+public public Set<Object> getSingletons() {
+  DynamicFeature tracing = new ServerTracingDynamicFeature.Builder(tracer)
+      .withDecorators(decorators)
+      .build();
+
+  return Collections.singleton(tracing);
+}
+
 ```
             
 An example of traced REST endpoint:
@@ -24,29 +29,69 @@ An example of traced REST endpoint:
 @GET
 @Path("/hello")
 @Traced(operationName = "helloRenamed") // optional, see javadoc
-public Response hello(@BeanParam ServerSpanContext serverSpanContext) { // optional to get server span context
-    /**
-     * Some business logic
-     */
-    Span childSpan = tracer.buildSpan("businessOperation")
-            .asChildOf(serverSpanContext.get())
-            .start())
-    childSpan.finish();
+public Response hello() { // optional to get server span context
 
-    return Response.status(Response.Status.OK).build();
+  // this span will be ChildOf of span representing server request processing
+  Span childSpan = tracer.buildSpan("businessOperation")
+          .start())
+
+   // business logic
+  childSpan.finish();
+
+  return Response.status(Response.Status.OK).build();
 }
 ```
 
 ## Tracing Client Requests
 ```java
-Client client = ClientBuilder.newClient();
-client.register(ClientTracingFeature.class);
+Client client = ClientBuilder.newBuilder()
+  .reqister(ClientTracingFeature.class)
+  .build();
 
-Response response = jaxRsClient.target("http://localhost/endpoint")
-    .request()
-    .property(TracingProperties.CHILD_OF, parentSpanContext) // optional, by default new trace is started
-    .property(TracingProperties.TRACING_DISABLED, false) // optional, by default false
-    .get();
+Response response = client.target("http://localhost/endpoint")
+  .request()
+  .property(TracingProperties.CHILD_OF, parentSpanContext) // optional, by default new parent is inferred from span source
+  .property(TracingProperties.TRACING_DISABLED, false) // optional, by default everything is traced
+  .get();
+```
+
+### Async
+Async requests are executed in a different thread than when the client has been invoked, therefore
+spans representing client requests are not connected to appropriate parent. To fix this JAX-RS client
+has to use OpenTracing-aware `ExecutorService`.
+
+#### Jersey
+```java
+@ClientAsyncExecutor
+public class DelegateExecutorServiceProvider implements ExecutorServiceProvider {
+
+  private final ExecutorService executorService;
+
+  public DelegateExecutorServiceProvider(ExecutorService executorService) {
+    this.executorService = executorService;
+  }
+
+  @Override
+  public ExecutorService getExecutorService() {
+    return executorService;
+  }
+
+  @Override
+  public void dispose(ExecutorService executorService) {
+  }
+}
+
+Client client = ClientBuilder.newBuilder()
+    .register(new DelegateExecutorServiceProvider(
+        new TracedExecutorService(Executors.newFixedThreadPool(8), tracer)))
+    ...
+```
+
+#### RestEasy
+```java
+Client client = new ResteasyClientBuilder()
+    .asyncExecutor(new TracedExecutorService(Executors.newFixedThreadPool(8), tracer))
+    ...
 ```
 
 ## Development
@@ -56,7 +101,6 @@ Response response = jaxRsClient.target("http://localhost/endpoint")
 
 ## Release
 Follow instructions in [RELEASE](RELEASE.md)
-
 
    [ci-img]: https://travis-ci.org/opentracing-contrib/java-jaxrs.svg?branch=master
    [ci]: https://travis-ci.org/opentracing-contrib/java-jaxrs

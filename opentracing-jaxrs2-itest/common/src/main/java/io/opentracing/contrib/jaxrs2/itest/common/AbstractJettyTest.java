@@ -1,6 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 
+import io.opentracing.util.ThreadLocalActiveSpanSource;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +35,12 @@ public abstract class AbstractJettyTest {
     public static final String TRACER_ATTRIBUTE = "tracer";
 
     protected Server jettyServer;
-    protected MockTracer mockTracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-    protected Client client = ClientBuilder.newClient();
+    protected MockTracer mockTracer = new MockTracer(new ThreadLocalActiveSpanSource(), MockTracer.Propagator.TEXT_MAP);
+    protected Client client;
+
+    protected Client getClient() {
+        return ClientBuilder.newClient();
+    }
 
     protected abstract void initServletContext(ServletContextHandler context);
 
@@ -55,6 +60,7 @@ public abstract class AbstractJettyTest {
 
     @Before
     public void before() throws Exception {
+        client = getClient();
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
 

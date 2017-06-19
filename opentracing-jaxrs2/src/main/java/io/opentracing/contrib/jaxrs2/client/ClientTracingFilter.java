@@ -1,18 +1,5 @@
 package io.opentracing.contrib.jaxrs2.client;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.client.ClientResponseContext;
-import javax.ws.rs.client.ClientResponseFilter;
-
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -20,6 +7,17 @@ import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.client.ClientResponseContext;
+import javax.ws.rs.client.ClientResponseFilter;
 
 /**
  * @author Pavol Loffay
@@ -59,10 +57,11 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
         SpanContext parentSpanContext = CastUtils.cast(requestContext.getProperty(TracingProperties.CHILD_OF),
                 SpanContext.class);
         if (parentSpanContext != null) {
-            spanBuilder.asChildOf(parentSpanContext);
+            spanBuilder.ignoreActiveSpan()
+                .asChildOf(parentSpanContext);
         }
 
-        Span span = spanBuilder.start();
+        Span span = spanBuilder.startManual();
 
         if (spanDecorators != null) {
             for (ClientSpanDecorator decorator: spanDecorators) {

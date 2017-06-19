@@ -1,8 +1,7 @@
 package io.opentracing.contrib.jaxrs2.internal;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import io.opentracing.Span;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Wrapper class used for exchanging span between filters.

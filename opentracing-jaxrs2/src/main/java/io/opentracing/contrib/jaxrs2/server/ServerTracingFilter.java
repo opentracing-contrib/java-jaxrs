@@ -1,18 +1,5 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -20,6 +7,17 @@ import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 
 /**
  * @author Pavol Loffay
@@ -59,7 +57,8 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
                 spanBuilder.asChildOf(extractedSpanContext);
             }
 
-            Span span = spanBuilder.start();
+            Span span = spanBuilder.startManual();
+            tracer.makeActive(span);
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
