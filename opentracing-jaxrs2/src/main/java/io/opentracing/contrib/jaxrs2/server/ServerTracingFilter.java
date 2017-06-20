@@ -19,8 +19,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.Context;
 
 /**
  * @author Pavol Loffay
@@ -43,9 +41,6 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
         this.spanDecorators = new ArrayList<>(spanDecorators);
         this.isSyncRequest = isSyncRequest;
     }
-
-    @Context
-    ResourceInfo resourceInfo;
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
