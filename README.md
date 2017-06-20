@@ -7,7 +7,7 @@ OpenTracing instrumentation for JAX-RS standard. It supports tracing of server a
 Instrumentation by default adds a set of standard HTTP tags and as an operation name it uses a string defined in `@Path` annotation.
 Custom tags or operation name can be defined in span decorators.
 
-## Tracing Server Requests
+## Tracing server requests
 By default OpenTracing provider is automatically discovered and registered.
 The only configuration that is required is to register a tracer instance via `GlobalTracer.register(tracer)` at application startup.
 
@@ -31,9 +31,9 @@ An example of traced REST endpoint:
 @GET
 @Path("/hello")
 @Traced(operationName = "helloRenamed") // optional, see javadoc
-public Response hello() { // optional to get server span context
+public Response hello(@BeanParam TracingContext tracingContext) { // optional to get server span context
 
-  // this span will be ChildOf of span representing server request processing
+  // this span will be ChildOf of span representing server request processing, if it is not async, keep reading!
   Span childSpan = tracer.buildSpan("businessOperation")
           .start())
 
@@ -44,7 +44,11 @@ public Response hello() { // optional to get server span context
 }
 ```
 
-## Tracing Client Requests
+#### Async handlers
+In case of async handlers server span is not accessible via `tracer.activeSpan()`, however span context
+can be obtained via `@BeanParam TracingContext tracingContext`. This object is injected as a handler param.
+
+## Tracing client requests
 ```java
 Client client = ClientBuilder.newBuilder()
   .reqister(ClientTracingFeature.class)

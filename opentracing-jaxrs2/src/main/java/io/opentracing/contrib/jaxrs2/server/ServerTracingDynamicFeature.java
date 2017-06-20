@@ -1,18 +1,18 @@
 package io.opentracing.contrib.jaxrs2.server;
 
+import io.opentracing.Tracer;
+import io.opentracing.util.GlobalTracer;
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
-
-import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
 
 /**
  * This class has to be registered as JAX-RS provider to enable tracing of server requests.
@@ -50,8 +50,8 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
                 log.info(msg);
             }
 
-            context.register(new ServerTracingFilter(builder.tracer, operationName(resourceInfo), builder
-                    .spanDecorators), builder.priority);
+            context.register(new ServerTracingFilter(builder.tracer, operationName(resourceInfo),
+                builder.spanDecorators, isSyncRequest(resourceInfo)), builder.priority);
         }
     }
 
@@ -71,6 +71,21 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     protected String operationName(ResourceInfo resourceInfo) {
         Traced traced = closestTracedAnnotation(resourceInfo);
         return traced != null ? traced.operationName() : null;
+    }
+
+    protected boolean isSyncRequest(ResourceInfo resourceInfo) {
+        if (resourceInfo == null) {
+            // we don't know, let's assume is not sync
+            return false;
+        }
+        for (Annotation[] annotations : resourceInfo.getResourceMethod().getParameterAnnotations()) {
+            for (Annotation annotation : annotations) {
+                if (annotation.annotationType().equals(Suspended.class)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**

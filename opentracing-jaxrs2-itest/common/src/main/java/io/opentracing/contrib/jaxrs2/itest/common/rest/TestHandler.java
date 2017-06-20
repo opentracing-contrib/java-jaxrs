@@ -2,13 +2,15 @@ package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.NoopTracerFactory;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.contrib.concurrent.TracedRunnable;
 import io.opentracing.contrib.jaxrs2.server.Traced;
+import io.opentracing.contrib.jaxrs2.server.TracingContext;
 import java.net.URI;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -91,9 +93,9 @@ public class TestHandler {
 
     @GET
     @Path("/async")
-    public void async(@Suspended AsyncResponse asyncResponse) {
-        assertActiveSpan();
-        new Thread(new TracedRunnable(new ExpensiveOperation(asyncResponse), tracer.activeSpan()))
+    public void async(@Suspended AsyncResponse asyncResponse, @BeanParam TracingContext tracingContext) {
+//        assertActiveSpan(); // it's async do not assert here
+        new Thread(new ExpensiveOperation(asyncResponse, tracingContext.spanContext()))
                 .start();
     }
 
@@ -110,16 +112,18 @@ public class TestHandler {
 
         private AsyncResponse asyncResponse;
         private Random random;
+        private SpanContext parentContext;
 
-        public ExpensiveOperation(AsyncResponse asyncResponse) {
+        public ExpensiveOperation(AsyncResponse asyncResponse, SpanContext parentContext) {
             this.asyncResponse = asyncResponse;
             this.random = new Random();
+            this.parentContext = parentContext;
         }
 
         @Override
         public void run() {
             try(ActiveSpan expensiveOpSpan = tracer.buildSpan("expensiveOperation")
-                    .startActive()) {
+                    .asChildOf(parentContext).startActive()) {
                 try {
                     Thread.sleep(random.nextInt(5));
                 } catch (InterruptedException e) {

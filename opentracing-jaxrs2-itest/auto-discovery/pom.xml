@@ -7,7 +7,7 @@
     <version>0.0.7-SNAPSHOT</version>
   </parent>
 
-  <artifactId>auto-discovery</artifactId>
+  <artifactId>opentracing-jaxrs2-itest-auto-discovery</artifactId>
 
   <dependencyManagement>
     <dependencies>

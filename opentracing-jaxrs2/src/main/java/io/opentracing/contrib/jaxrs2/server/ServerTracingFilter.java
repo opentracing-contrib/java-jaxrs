@@ -1,5 +1,6 @@
 package io.opentracing.contrib.jaxrs2.server;
 
+import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -18,6 +19,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 
 /**
  * @author Pavol Loffay
@@ -26,18 +29,23 @@ import javax.ws.rs.container.ContainerResponseFilter;
 public class ServerTracingFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final Logger log = Logger.getLogger(ServerTracingFilter.class.getName());
 
-    protected static final String SPAN_PROP_ID = ServerTracingFilter.class.getName() + ".activeServerSpan";
+    protected static final String SPAN_PROP_ID = ServerTracingFilter.class.getName() + ".activeSpanWrapper";
 
     private Tracer tracer;
     private String operationName;
     private List<ServerSpanDecorator> spanDecorators;
+    private boolean isSyncRequest;
 
     protected ServerTracingFilter(Tracer tracer, String operationName,
-                               List<ServerSpanDecorator> spanDecorators) {
+                               List<ServerSpanDecorator> spanDecorators, boolean isSyncRequest) {
         this.tracer = tracer;
         this.operationName = operationName;
         this.spanDecorators = new ArrayList<>(spanDecorators);
+        this.isSyncRequest = isSyncRequest;
     }
+
+    @Context
+    ResourceInfo resourceInfo;
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -58,7 +66,9 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
             }
 
             Span span = spanBuilder.startManual();
-            tracer.makeActive(span);
+            if (isSyncRequest) {
+                tracer.makeActive(span);
+            }
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
@@ -82,19 +92,21 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
-        SpanWrapper spanWrapper = CastUtils
-                .cast(requestContext.getProperty(ServerTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
+        SpanWrapper spanWrapper = CastUtils.cast(
+            requestContext.getProperty(ServerTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
 
-        if (spanWrapper != null && !spanWrapper.isFinished()) {
-            log.finest("Finishing server span");
-
-            if (spanDecorators != null) {
-                for (ServerSpanDecorator decorator: spanDecorators) {
-                    decorator.decorateResponse(responseContext, spanWrapper.get());
-                }
+        if (spanDecorators != null) {
+            for (ServerSpanDecorator decorator: spanDecorators) {
+                decorator.decorateResponse(responseContext, spanWrapper.get());
             }
+        }
 
+        ActiveSpan activeSpan = tracer.activeSpan();
+        if (activeSpan != null) {
+            activeSpan.deactivate();
+        } else {
             spanWrapper.finish();
         }
     }
+
 }

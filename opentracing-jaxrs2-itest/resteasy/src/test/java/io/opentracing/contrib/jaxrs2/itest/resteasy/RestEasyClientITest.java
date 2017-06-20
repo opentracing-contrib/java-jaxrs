@@ -16,7 +16,7 @@ public class RestEasyClientITest extends AbstractClientTest {
     protected Client getClient() {
         return new ResteasyClientBuilder()
             /**
-             * To awoid  RESTEASY004655 "connection is still allocated" in {@link #testAsyncMultipleRequests()}
+             * To avoid  RESTEASY004655 "connection is still allocated" in {@link #testAsyncMultipleRequests()}
              */
             .connectionPoolSize(150)
             .asyncExecutor(new TracedExecutorService(Executors.newFixedThreadPool(8), mockTracer))
