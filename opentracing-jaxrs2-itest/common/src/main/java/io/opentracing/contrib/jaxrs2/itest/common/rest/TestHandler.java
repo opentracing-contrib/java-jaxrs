@@ -1,13 +1,14 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
+import io.opentracing.ActiveSpan;
+import io.opentracing.NoopTracerFactory;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.jaxrs2.server.Traced;
+import io.opentracing.contrib.jaxrs2.server.TracingContext;
 import java.net.URI;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -19,13 +20,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
-import io.opentracing.contrib.jaxrs2.client.TracingProperties;
-import io.opentracing.contrib.jaxrs2.server.ServerSpanContext;
-import io.opentracing.contrib.jaxrs2.server.Traced;
+import org.junit.Assert;
 
 /**
  * @author Pavol Loffay
@@ -42,8 +37,9 @@ public class TestHandler {
     }
 
     @GET
-    @Path("/hello")
-    public Response helloMethod(@Context HttpHeaders headers) {
+    @Path("/hello/{id}")
+    public Response helloMethod(@Context HttpHeaders headers, @PathParam("id") String id) {
+        assertActiveSpan();
         return Response.status(Response.Status.OK).entity("/hello").build();
     }
 
@@ -51,45 +47,31 @@ public class TestHandler {
     @Path("/operation")
     @Traced(operationName = "renamedOperation")
     public Response operation(@Context HttpHeaders headers) {
+        assertActiveSpan();
         return Response.status(Response.Status.OK).build();
     }
 
     @GET
     @Path("/clientTracingChaining")
-    public Response clientTracingEnabled(@Context HttpServletRequest request,
-                                         @BeanParam ServerSpanContext serverSpanContext) throws ExecutionException, InterruptedException {
+    public Response clientTracingEnabled(@Context HttpServletRequest request) throws ExecutionException, InterruptedException {
+        assertActiveSpan();
 
         final int port = request.getServerPort();
         final String contextPath = request.getServletPath();
-        final SpanContext spanContext = serverSpanContext.get();
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Callable<String> callable = new Callable<String>() {
-            @Override
-            public String call() {
-                Response response = client.target("http://localhost:" + port +
-                        contextPath + "/hello")
-                        .request()
-                        .property(TracingProperties.CHILD_OF, spanContext)
-                        .get();
+        Response response = client.target("http://localhost:" + port +
+            contextPath + "/hello/1")
+            .request()
+            .get();
 
-                String entity = response.readEntity(String.class);
-                response.close();
-                return entity;
-            }
-        };
-
-        Future<String> future = executor.submit(callable);
-
-        String result = future.get();
-        executor.shutdown();
-
-        return Response.ok().entity(result).build();
+        String entity = response.readEntity(String.class);
+        return Response.ok().entity(entity).build();
     }
 
     @GET
     @Path("/path/{pathParam}")
     public Response pathParam(@PathParam("pathParam") String pathParam1) {
+        assertActiveSpan();
         return Response.ok().build();
     }
 
@@ -97,6 +79,7 @@ public class TestHandler {
     @Path("/path/{pathParam}/path2/{pathParam2}")
     public Response pathParam(@PathParam("pathParam") String pathParam1,
                               @PathParam("pathParam2") String pathParam2) {
+        assertActiveSpan();
         return Response.ok().build();
     }
 
@@ -104,45 +87,43 @@ public class TestHandler {
     @Path("/path/{pathParam}/path/{regexParam: \\w+}")
     public Response pathParamRegex(@PathParam("pathParam") String pathParam,
                                    @PathParam("regexParam") String regexParam) {
+        assertActiveSpan();
         return Response.ok().build();
     }
 
     @GET
     @Path("/async")
-    public void async(@Suspended AsyncResponse asyncResponse,
-                      @BeanParam ServerSpanContext serverSpanContext) {
-
-        final SpanContext serverSpan = serverSpanContext.get();
-
-        new Thread(new ExpensiveOperation(serverSpan, asyncResponse))
+    public void async(@Suspended AsyncResponse asyncResponse, @BeanParam TracingContext tracingContext) {
+//        assertActiveSpan(); // it's async do not assert here
+        new Thread(new ExpensiveOperation(asyncResponse, tracingContext.spanContext()))
                 .start();
     }
 
     @GET
     @Path("/redirect")
     public Response redirect(@Context HttpServletRequest request) {
-        String url = String.format("localhost:%d/%s/hello", request.getLocalPort(),
+        assertActiveSpan();
+        String url = String.format("localhost:%d/%s/hello/1", request.getLocalPort(),
             request.getContextPath()).replace("//", "/");
         return Response.seeOther(URI.create("http://" + url)).build();
     }
 
     private class ExpensiveOperation implements Runnable {
 
-        private SpanContext parentSpan;
         private AsyncResponse asyncResponse;
         private Random random;
+        private SpanContext parentContext;
 
-        public ExpensiveOperation(SpanContext parentContext, AsyncResponse asyncResponse) {
-            this.parentSpan = parentContext;
+        public ExpensiveOperation(AsyncResponse asyncResponse, SpanContext parentContext) {
             this.asyncResponse = asyncResponse;
             this.random = new Random();
+            this.parentContext = parentContext;
         }
 
         @Override
         public void run() {
-            try(Span expensiveOpSpan = tracer.buildSpan("expensiveOperation")
-                    .asChildOf(parentSpan)
-                    .start()) {
+            try(ActiveSpan expensiveOpSpan = tracer.buildSpan("expensiveOperation")
+                    .asChildOf(parentContext).startActive()) {
                 try {
                     Thread.sleep(random.nextInt(5));
                 } catch (InterruptedException e) {
@@ -151,6 +132,12 @@ public class TestHandler {
             } finally {
                 asyncResponse.resume("async finished");
             }
+        }
+    }
+
+    private void assertActiveSpan() {
+        if (!(tracer == NoopTracerFactory.create())) {
+            Assert.assertNotNull(tracer.activeSpan());
         }
     }
 }

@@ -23,6 +23,11 @@
       <version>${version.org.glassfish.jersey}</version>
     </dependency>
     <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-client</artifactId>
+      <version>${version.org.glassfish.jersey}</version>
+    </dependency>
+    <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-servlet</artifactId>
       <version>${version.org.glassfish.jersey}</version>

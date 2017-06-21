@@ -1,18 +1,6 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-
+import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -20,6 +8,17 @@ import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 
 /**
  * @author Pavol Loffay
@@ -28,17 +27,19 @@ import io.opentracing.tag.Tags;
 public class ServerTracingFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final Logger log = Logger.getLogger(ServerTracingFilter.class.getName());
 
-    protected static final String SPAN_PROP_ID = ServerTracingFilter.class.getName() + ".activeServerSpan";
+    protected static final String SPAN_PROP_ID = ServerTracingFilter.class.getName() + ".activeSpanWrapper";
 
     private Tracer tracer;
     private String operationName;
     private List<ServerSpanDecorator> spanDecorators;
+    private boolean isSyncRequest;
 
     protected ServerTracingFilter(Tracer tracer, String operationName,
-                               List<ServerSpanDecorator> spanDecorators) {
+                               List<ServerSpanDecorator> spanDecorators, boolean isSyncRequest) {
         this.tracer = tracer;
         this.operationName = operationName;
         this.spanDecorators = new ArrayList<>(spanDecorators);
+        this.isSyncRequest = isSyncRequest;
     }
 
     @Override
@@ -59,7 +60,10 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
                 spanBuilder.asChildOf(extractedSpanContext);
             }
 
-            Span span = spanBuilder.start();
+            Span span = spanBuilder.startManual();
+            if (isSyncRequest) {
+                tracer.makeActive(span);
+            }
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
@@ -83,19 +87,21 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
-        SpanWrapper spanWrapper = CastUtils
-                .cast(requestContext.getProperty(ServerTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
+        SpanWrapper spanWrapper = CastUtils.cast(
+            requestContext.getProperty(ServerTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
 
-        if (spanWrapper != null && !spanWrapper.isFinished()) {
-            log.finest("Finishing server span");
-
-            if (spanDecorators != null) {
-                for (ServerSpanDecorator decorator: spanDecorators) {
-                    decorator.decorateResponse(responseContext, spanWrapper.get());
-                }
+        if (spanDecorators != null) {
+            for (ServerSpanDecorator decorator: spanDecorators) {
+                decorator.decorateResponse(responseContext, spanWrapper.get());
             }
+        }
 
+        ActiveSpan activeSpan = tracer.activeSpan();
+        if (activeSpan != null) {
+            activeSpan.deactivate();
+        } else {
             spanWrapper.finish();
         }
     }
+
 }
