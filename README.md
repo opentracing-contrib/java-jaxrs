@@ -64,7 +64,7 @@ Response response = client.target("http://localhost/endpoint")
 ### Async
 Async requests are executed in a different thread than when the client has been invoked, therefore
 spans representing client requests are not connected to appropriate parent. To fix this JAX-RS client
-has to use OpenTracing-aware `ExecutorService`.
+has to use OpenTracing-aware [`ExecutorService`](https://github.com/opentracing-contrib/java-concurrent).
 
 #### Jersey
 ```java
