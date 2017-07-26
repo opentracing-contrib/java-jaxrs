@@ -36,6 +36,12 @@
       <groupId>io.opentracing</groupId>
       <artifactId>opentracing-mock</artifactId>
     </dependency>
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <version>${version.javax.ws.rs-api}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
