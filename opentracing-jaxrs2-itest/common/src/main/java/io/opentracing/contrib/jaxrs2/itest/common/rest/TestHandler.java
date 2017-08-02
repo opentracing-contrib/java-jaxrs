@@ -108,6 +108,13 @@ public class TestHandler {
         return Response.seeOther(URI.create("http://" + url)).build();
     }
 
+    @GET
+    @Path("/filtered")
+    public Response filtered() {
+        // Should never reach here.
+        return Response.ok().build();
+    }
+
     private class ExpensiveOperation implements Runnable {
 
         private AsyncResponse asyncResponse;
