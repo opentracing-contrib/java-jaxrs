@@ -89,6 +89,9 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
             throws IOException {
         SpanWrapper spanWrapper = CastUtils.cast(
             requestContext.getProperty(ServerTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
+        if (spanWrapper == null) {
+            return;
+        }
 
         if (spanDecorators != null) {
             for (ServerSpanDecorator decorator: spanDecorators) {

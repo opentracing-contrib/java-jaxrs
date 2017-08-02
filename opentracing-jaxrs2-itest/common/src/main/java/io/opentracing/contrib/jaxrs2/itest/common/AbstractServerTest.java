@@ -127,4 +127,17 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         assertOnErrors(mockTracer.finishedSpans());
         Assert.assertEquals("GET", mockSpans.get(0).operationName());
     }
+
+    @Test
+    public void testRequestBlockedByFilter() throws Exception {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/filtered"))
+                .request()
+                .get();
+        response.close();
+        Assert.assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(0, mockSpans.size());
+    }
 }

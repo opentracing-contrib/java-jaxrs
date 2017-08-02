@@ -1,13 +1,21 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.DynamicFeature;
+import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.FeatureContext;
 
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.itest.common.AbstractJettyTest;
@@ -40,7 +48,28 @@ public class InstrumentedRestApplication extends Application {
 
         objects.add(serverTracingFeature);
         objects.add(new TestHandler(tracer, client));
+        objects.add(new DenyFilteredFeature());
 
         return Collections.unmodifiableSet(objects);
+    }
+
+    /**
+     * A dynamic feature that introduces a request filter denying all requests to "filtered"
+     * endpoints.
+     *
+     * @author Maxime Petazzoni
+     */
+    private static final class DenyFilteredFeature implements DynamicFeature {
+        @Override
+        public void configure(ResourceInfo resourceInfo, FeatureContext context) {
+            context.register(new ContainerRequestFilter() {
+                @Override
+                public void filter(ContainerRequestContext requestContext) throws IOException {
+                    if (requestContext.getUriInfo().getPath().endsWith("filtered")) {
+                        throw new ForbiddenException();
+                    }
+                }
+            }, Priorities.AUTHORIZATION);
+        }
     }
 }
