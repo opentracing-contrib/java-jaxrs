@@ -23,7 +23,8 @@ import javax.ws.rs.ext.Provider;
 public class ServerTracingDynamicFeature implements DynamicFeature {
     private static final Logger log = Logger.getLogger(ServerTracingDynamicFeature.class.getName());
 
-    private Builder builder;
+    private final Builder builder;
+    private boolean logged = false;
 
     /**
      * When using this constructor application has to call {@link GlobalTracer#register} to register
@@ -41,18 +42,24 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
 
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
+        // TODO why it is called twice for the same endpoint
         if (builder.allTraced || shouldBeTraced(resourceInfo)) {
-            // TODO why it is called twice for the same endpoint
-            if (log.isLoggable(Level.INFO)) {
-                String msg = String.format("%s registering tracing: %s#%s", this,
-                        resourceInfo.getResourceClass().getCanonicalName(),
-                        resourceInfo.getResourceMethod().getName());
-                log.info(msg);
-            }
-
+            log(resourceInfo);
             context.register(new ServerTracingFilter(builder.tracer, operationName(resourceInfo),
                 builder.spanDecorators, isSyncRequest(resourceInfo)), builder.priority);
         }
+    }
+
+    private void log(ResourceInfo resourceInfo) {
+        if (log.isLoggable(Level.FINE)) {
+            log.fine(String.format("Registering tracing on %s#%s...",
+                    resourceInfo.getResourceClass().getCanonicalName(),
+                    resourceInfo.getResourceMethod().getName()));
+        } else if (!logged) {
+            log.info("Registering tracing on deployed resources...");
+        }
+
+        logged = true;
     }
 
     protected Traced closestTracedAnnotation(ResourceInfo resourceInfo) {
