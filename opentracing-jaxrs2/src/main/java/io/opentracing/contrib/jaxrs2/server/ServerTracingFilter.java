@@ -1,6 +1,6 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -62,7 +62,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
 
             Span span = spanBuilder.startManual();
             if (isSyncRequest) {
-                tracer.makeActive(span);
+                tracer.scopeManager().activate(span);
             }
 
             if (spanDecorators != null) {
@@ -99,9 +99,9 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
             }
         }
 
-        ActiveSpan activeSpan = tracer.activeSpan();
+        Scope activeSpan = tracer.scopeManager().active();
         if (activeSpan != null) {
-            activeSpan.deactivate();
+            activeSpan.close();
         } else {
             spanWrapper.finish();
         }
