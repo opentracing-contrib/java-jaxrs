@@ -1,7 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.NoopTracerFactory;
+import io.opentracing.Scope;
+import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.server.Traced;
@@ -129,7 +129,7 @@ public class TestHandler {
 
         @Override
         public void run() {
-            try(ActiveSpan expensiveOpSpan = tracer.buildSpan("expensiveOperation")
+            try(Scope expensiveOpSpan = tracer.buildSpan("expensiveOperation")
                     .asChildOf(parentContext).startActive()) {
                 try {
                     Thread.sleep(random.nextInt(5));
@@ -144,7 +144,7 @@ public class TestHandler {
 
     private void assertActiveSpan() {
         if (!(tracer == NoopTracerFactory.create())) {
-            Assert.assertNotNull(tracer.activeSpan());
+            Assert.assertNotNull(tracer.scopeManager().active());
         }
     }
 }

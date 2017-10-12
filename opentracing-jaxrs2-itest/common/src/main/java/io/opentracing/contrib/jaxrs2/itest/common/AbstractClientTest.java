@@ -1,7 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 import io.opentracing.Tracer;
-import io.opentracing.NoopTracerFactory;
+import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
 import io.opentracing.contrib.jaxrs2.client.TracingProperties;
@@ -10,9 +10,11 @@ import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
+import io.opentracing.noop.NoopTracer;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -54,7 +56,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
     @Test
     public void testDefaultConfiguration() {
-        MockTracer mockTracer = new MockTracer(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
+        MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
         GlobalTracer.register(mockTracer);
         Client client = ClientBuilder.newClient()
                 .register(ClientTracingFeature.class);
@@ -164,7 +166,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
                     @Override
                     public void failed(Throwable throwable) {
-                        Assert.fail();
+                        Assert.fail(throwable.toString());
                     }
                 });
 
@@ -204,7 +206,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    mockTracer.makeActive(parentSpan);
+                    mockTracer.scopeManager().activate(parentSpan);
                         client.target(requestUrl)
                             .request()
                             .get();
@@ -254,7 +256,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    mockTracer.makeActive(parentSpan);
+                    mockTracer.scopeManager().activate(parentSpan);
                     try {
                         Future<Response> responseFuture = client.target(requestUrl)
                             .request()
