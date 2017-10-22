@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import java.util.Objects;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.junit.Assert;
@@ -139,5 +142,42 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(0, mockSpans.size());
+    }
+
+    @Test
+    public void testSerializationResponseAndRequestWithBody() {
+        String response = ClientBuilder.newClient().target(url("/postWithBody"))
+            .request()
+            .post(Entity.entity("entity", MediaType.TEXT_PLAIN_TYPE), String.class);
+
+        Assert.assertEquals("entity", response);
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(3, mockSpans.size());
+
+        final MockSpan serializationRequestSpan = mockSpans.get(0);
+        final MockSpan parentSpan = mockSpans.get(1);
+        final MockSpan serializationResponseSpan = mockSpans.get(2);
+        assertRequestSerialization(parentSpan, serializationRequestSpan);
+        assertResponseSerialization(parentSpan, serializationResponseSpan);
+    }
+
+    private void assertRequestSerialization(MockSpan parentSpan, MockSpan serializationSpan) {
+        Assert.assertEquals("deserialize", serializationSpan.operationName());
+        assertSerializationSpan(parentSpan, serializationSpan);
+    }
+
+    private void assertResponseSerialization(MockSpan parentSpan, MockSpan serializationSpan) {
+        Assert.assertEquals("serialize", serializationSpan.operationName());
+        assertSerializationSpan(parentSpan, serializationSpan);
+    }
+
+    private void assertSerializationSpan(MockSpan parentSpan, MockSpan serializationSpan) {
+        Assert.assertEquals(2, serializationSpan.tags().size());
+        Assert.assertTrue(Objects.toString(serializationSpan.tags().get("media.type")).contains(MediaType.TEXT_PLAIN));
+        Assert.assertEquals(String.class.getName(), serializationSpan.tags().get("entity.type"));
+
+        Assert.assertEquals(parentSpan.context().spanId(), serializationSpan.parentId());
+        Assert.assertEquals(parentSpan.context().traceId(), serializationSpan.context().traceId());
     }
 }

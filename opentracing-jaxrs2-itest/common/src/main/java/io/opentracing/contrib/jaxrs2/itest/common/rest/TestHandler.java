@@ -11,14 +11,18 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.junit.Assert;
 
@@ -40,7 +44,7 @@ public class TestHandler {
     @Path("/hello/{id}")
     public Response helloMethod(@Context HttpHeaders headers, @PathParam("id") String id) {
         assertActiveSpan();
-        return Response.status(Response.Status.OK).entity("/hello").build();
+        return Response.status(Response.Status.OK).build();
     }
 
     @GET
@@ -59,13 +63,21 @@ public class TestHandler {
         final int port = request.getServerPort();
         final String contextPath = request.getServletPath();
 
-        Response response = client.target("http://localhost:" + port +
+        client.target("http://localhost:" + port +
             contextPath + "/hello/1")
             .request()
             .get();
 
-        String entity = response.readEntity(String.class);
-        return Response.ok().entity(entity).build();
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/postWithBody")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response postWithBody(@Context HttpServletRequest request, String body) throws ExecutionException, InterruptedException {
+        assertActiveSpan();
+        return Response.ok().entity(body).build();
     }
 
     @GET
@@ -137,7 +149,7 @@ public class TestHandler {
                     e.printStackTrace();
                 }
             } finally {
-                asyncResponse.resume("async finished");
+                asyncResponse.resume((Object)null);
             }
         }
     }

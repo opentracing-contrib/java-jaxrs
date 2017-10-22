@@ -6,6 +6,7 @@ OpenTracing instrumentation for JAX-RS standard. It supports tracing of server a
 
 Instrumentation by default adds a set of standard HTTP tags and as an operation name it uses a string defined in `@Path` annotation.
 Custom tags or operation name can be defined in span decorators.
+It also traces writing response and requests bodies.
 
 ## Tracing server requests
 By default OpenTracing provider is automatically discovered and registered.
@@ -19,6 +20,7 @@ Custom configuration is only required when using a different set of span decorat
 public Set<Object> getSingletons() {
   DynamicFeature tracing = new ServerTracingDynamicFeature.Builder(tracer)
       .withDecorators(decorators)
+      .withSerializationDecorators(serializationDecorators)
       .build();
 
   return Collections.singleton(tracing);
