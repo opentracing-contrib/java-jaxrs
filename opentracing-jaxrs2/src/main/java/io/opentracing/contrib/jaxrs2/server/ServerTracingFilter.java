@@ -99,8 +99,11 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
             }
         }
 
-        if (tracer.activeSpan() != null) {
-            tracer.makeActive(null);
+        ActiveSpan activeSpan = tracer.activeSpan();
+        if (activeSpan != null) {
+            // fix capture to prevent finish
+            activeSpan.capture();
+            activeSpan.close();
         }
         spanWrapper.finish();
     }
