@@ -19,6 +19,8 @@ import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.ClientResponseContext;
 import javax.ws.rs.client.ClientResponseFilter;
 
+import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
+
 /**
  * @author Pavol Loffay
  */
@@ -26,8 +28,6 @@ import javax.ws.rs.client.ClientResponseFilter;
 public class ClientTracingFilter implements ClientRequestFilter, ClientResponseFilter {
 
     private static final Logger log = Logger.getLogger(ClientTracingFilter.class.getName());
-
-    protected static final String SPAN_PROP_ID = "activeClientSpan";
 
     private Tracer tracer;
     private List<ClientSpanDecorator> spanDecorators;
@@ -47,7 +47,7 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
         }
 
         // in case filter is registered twice
-        if (requestContext.getProperty(SPAN_PROP_ID) != null) {
+        if (requestContext.getProperty(PROPERTY_NAME) != null) {
             return;
         }
 
@@ -74,13 +74,13 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
         }
 
         tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new ClientHeadersInjectTextMap(requestContext.getHeaders()));
-        requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));
+        requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(span));
     }
 
     @Override
     public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) throws IOException {
         SpanWrapper spanWrapper = CastUtils
-                .cast(requestContext.getProperty(ClientTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
+                .cast(requestContext.getProperty(PROPERTY_NAME), SpanWrapper.class);
         if (spanWrapper != null && !spanWrapper.isFinished()) {
             log.finest("Finishing client span");
 

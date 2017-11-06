@@ -1,6 +1,7 @@
 package io.opentracing.contrib.jaxrs2.server;
 
 import io.opentracing.Tracer;
+import io.opentracing.contrib.jaxrs2.serialization.InterceptorSpanDecorator;
 import io.opentracing.util.GlobalTracer;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
@@ -47,6 +48,8 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
             log(resourceInfo);
             context.register(new ServerTracingFilter(builder.tracer, operationName(resourceInfo),
                 builder.spanDecorators, isSyncRequest(resourceInfo)), builder.priority);
+            context.register(new ServerTracingInterceptor(builder.tracer,
+                builder.serializationSpanDecorators), builder.serializationPriority);
         }
     }
 
@@ -106,15 +109,20 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         private final Tracer tracer;
         private boolean allTraced;
         private List<ServerSpanDecorator> spanDecorators;
+        private List<InterceptorSpanDecorator> serializationSpanDecorators;
         private int priority;
+        private int serializationPriority;
 
         public Builder(Tracer tracer) {
             this.tracer = tracer;
             this.spanDecorators = Arrays.asList(
                 ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME,
                 ServerSpanDecorator.STANDARD_TAGS);
+            this.serializationSpanDecorators = Arrays.asList(
+                InterceptorSpanDecorator.STANDARD_TAGS);
             // by default do not use Priorities.AUTHENTICATION due to security concerns
             this.priority = Priorities.HEADER_DECORATOR;
+            this.serializationPriority = Priorities.ENTITY_CODER;
             this.allTraced = true;
         }
 
@@ -138,6 +146,15 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         }
 
         /**
+         * Set serialization span decorators.
+         * @return builder
+         */
+        public Builder withSerializationDecorators(List<InterceptorSpanDecorator> spanDecorators) {
+            this.serializationSpanDecorators = spanDecorators;
+            return this;
+        }
+
+        /**
          * @param priority the overriding priority for the registered component.
          *                 Default is {@link Priorities#HEADER_DECORATOR}
          * @return builder
@@ -145,6 +162,18 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
          * @see Priorities
          */
         public Builder withPriority(int priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        /**
+         * @param priority the overriding priority for the registered component.
+         *                 Default is {@link Priorities#ENTITY_CODER}
+         * @return builder
+         *
+         * @see Priorities
+         */
+        public Builder withSerializationPriority(int priority) {
             this.priority = priority;
             return this;
         }

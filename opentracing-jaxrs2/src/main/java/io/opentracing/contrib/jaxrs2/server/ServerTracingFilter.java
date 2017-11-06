@@ -20,14 +20,14 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 
+import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
+
 /**
  * @author Pavol Loffay
  */
 @Priority(Priorities.HEADER_DECORATOR)
 public class ServerTracingFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final Logger log = Logger.getLogger(ServerTracingFilter.class.getName());
-
-    protected static final String SPAN_PROP_ID = ServerTracingFilter.class.getName() + ".activeSpanWrapper";
 
     private Tracer tracer;
     private String operationName;
@@ -45,7 +45,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         // return in case filter if registered twice
-        if (requestContext.getProperty(SPAN_PROP_ID) != null) {
+        if (requestContext.getProperty(PROPERTY_NAME) != null) {
             return;
         }
 
@@ -80,7 +80,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
                 log.finest("Creating server span: " + operationName);
             }
 
-            requestContext.setProperty(SPAN_PROP_ID, new SpanWrapper(span));
+            requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(span));
         }
     }
 
@@ -88,7 +88,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
         SpanWrapper spanWrapper = CastUtils.cast(
-            requestContext.getProperty(ServerTracingFilter.SPAN_PROP_ID), SpanWrapper.class);
+            requestContext.getProperty(PROPERTY_NAME), SpanWrapper.class);
         if (spanWrapper == null) {
             return;
         }
