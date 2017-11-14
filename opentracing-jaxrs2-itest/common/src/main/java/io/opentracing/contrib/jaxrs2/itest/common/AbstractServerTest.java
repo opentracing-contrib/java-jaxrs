@@ -113,7 +113,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         response.close();
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
-        // TODO jax-rs interceptors do not trace this
+        // TODO jax-rs interceptors do not trace this https://github.com/opentracing-contrib/java-jaxrs/issues/51
         Assert.assertEquals(0, mockSpans.size());
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         Assert.assertEquals(500, response.getStatus());
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
-        // TODO jax-rs interceptors do not trace this
+        // TODO jax-rs interceptors do not trace this https://github.com/opentracing-contrib/java-jaxrs/issues/51
         Assert.assertEquals(0, mockSpans.size());
     }
 

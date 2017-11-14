@@ -318,7 +318,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
         }
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
-        // TODO currently it is not possible to catch exceptions thrown by jax-rs
+        // TODO currently it is not possible to catch exceptions thrown by jax-rs https://github.com/opentracing-contrib/java-jaxrs/issues/51
         Assert.assertEquals(0, mockSpans.size());
     }
 
