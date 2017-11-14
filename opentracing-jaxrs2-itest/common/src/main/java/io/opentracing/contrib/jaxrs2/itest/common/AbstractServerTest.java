@@ -118,6 +118,20 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
+    public void testExceptionInHandler() throws Exception {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/exception"))
+            .request()
+            .get();
+        response.close();
+        Assert.assertEquals(500, response.getStatus());
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        // TODO jax-rs interceptors do not trace this
+        Assert.assertEquals(0, mockSpans.size());
+    }
+
+    @Test
     public void testPathParam() throws Exception {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/path/foo"))
