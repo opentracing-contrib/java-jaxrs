@@ -121,6 +121,13 @@ public class TestHandler {
     }
 
     @GET
+    @Path("/exception")
+    public Response exception(@Context HttpServletRequest request) throws Exception {
+        assertActiveSpan();
+        throw new IllegalStateException("error");
+    }
+
+    @GET
     @Path("/filtered")
     public Response filtered() {
         // Should never reach here.

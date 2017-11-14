@@ -113,7 +113,21 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         response.close();
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
-        // TODO jax-rs interceptors do not trace this
+        // TODO jax-rs interceptors do not trace this https://github.com/opentracing-contrib/java-jaxrs/issues/51
+        Assert.assertEquals(0, mockSpans.size());
+    }
+
+    @Test
+    public void testExceptionInHandler() throws Exception {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/exception"))
+            .request()
+            .get();
+        response.close();
+        Assert.assertEquals(500, response.getStatus());
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        // TODO jax-rs interceptors do not trace this https://github.com/opentracing-contrib/java-jaxrs/issues/51
         Assert.assertEquals(0, mockSpans.size());
     }
 
