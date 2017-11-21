@@ -45,7 +45,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
         // TODO why it is called twice for the same endpoint
-        if (builder.allTraced || shouldBeTraced(resourceInfo)) {
+        if (!tracingDisabled(resourceInfo) && builder.allTraced) {
             log(resourceInfo);
             context.register(new ServerTracingFilter(builder.tracer, operationName(resourceInfo),
                 builder.spanDecorators, isSyncRequest(resourceInfo)), builder.priority);
@@ -67,21 +67,22 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     }
 
     protected Traced closestTracedAnnotation(ResourceInfo resourceInfo) {
-        Traced tracedAnnotation = resourceInfo.getResourceClass().getAnnotation(Traced.class);
+        Traced tracedAnnotation = resourceInfo.getResourceMethod().getAnnotation(Traced.class);
         if (tracedAnnotation == null) {
-            tracedAnnotation = resourceInfo.getResourceMethod().getAnnotation(Traced.class);
+            tracedAnnotation = resourceInfo.getResourceClass().getAnnotation(Traced.class);
         }
 
         return tracedAnnotation;
     }
 
-    protected boolean shouldBeTraced(ResourceInfo resourceInfo) {
-        return closestTracedAnnotation(resourceInfo) != null;
+    protected boolean tracingDisabled(ResourceInfo resourceInfo) {
+        Traced traced = closestTracedAnnotation(resourceInfo);
+        return traced != null && !traced.value();
     }
 
     protected String operationName(ResourceInfo resourceInfo) {
         Traced traced = closestTracedAnnotation(resourceInfo);
-        return traced != null ? traced.operationName() : null;
+        return traced != null && !traced.operationName().isEmpty()  ? traced.operationName() : null;
     }
 
     protected boolean isSyncRequest(ResourceInfo resourceInfo) {

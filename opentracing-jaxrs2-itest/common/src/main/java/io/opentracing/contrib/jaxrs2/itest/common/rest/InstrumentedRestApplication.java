@@ -48,6 +48,7 @@ public class InstrumentedRestApplication extends Application {
 
         objects.add(serverTracingFeature);
         objects.add(new TestHandler(tracer, client));
+        objects.add(new DisabledTestHandler(tracer));
         objects.add(new DenyFilteredFeature());
 
         return Collections.unmodifiableSet(objects);

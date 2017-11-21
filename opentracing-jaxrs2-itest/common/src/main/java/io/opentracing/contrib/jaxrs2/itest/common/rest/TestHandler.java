@@ -56,6 +56,14 @@ public class TestHandler {
     }
 
     @GET
+    @Path("/tracedFalse")
+    @Traced(operationName = "renamedOperation", value = false)
+    public Response tracedFalse(@Context HttpHeaders headers) {
+        assertActiveSpan();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @GET
     @Path("/clientTracingChaining")
     public Response clientTracingEnabled(@Context HttpServletRequest request) throws ExecutionException, InterruptedException {
         assertActiveSpan();
@@ -106,7 +114,7 @@ public class TestHandler {
     @GET
     @Path("/async")
     public void async(@Suspended AsyncResponse asyncResponse, @BeanParam TracingContext tracingContext) {
-//        assertActiveSpan(); // it's async do not assert here
+//        assertActiveSpan(); // TODO it's async do not assert here
         new Thread(new ExpensiveOperation(asyncResponse, tracingContext.spanContext()))
                 .start();
     }

@@ -105,6 +105,42 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
+    public void testTracedFalseMethod() throws Exception {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/tracedFalse"))
+            .request()
+            .get();
+        response.close();
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(0, mockSpans.size());
+    }
+
+    @Test
+    public void testTracedFalseClass() throws Exception {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/tracedFalse/foo"))
+            .request()
+            .get();
+        response.close();
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(0, mockSpans.size());
+    }
+
+    @Test
+    public void testTracedFalseClassOverriden() throws Exception {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/tracedFalse/enabled"))
+            .request()
+            .get();
+        response.close();
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockTracer.finishedSpans());
+        // operation name is from the closes traced annotation
+        Assert.assertEquals("GET", mockSpans.get(0).operationName());
+    }
+
+    @Test
     public void testNotExistingURL() throws Exception {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/doesNotExist"))
