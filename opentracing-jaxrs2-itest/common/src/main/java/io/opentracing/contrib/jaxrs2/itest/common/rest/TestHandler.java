@@ -4,7 +4,6 @@ import io.opentracing.ActiveSpan;
 import io.opentracing.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.contrib.jaxrs2.server.Traced;
 import io.opentracing.contrib.jaxrs2.server.TracingContext;
 import java.net.URI;
 import java.util.Random;
@@ -24,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.eclipse.microprofile.opentracing.Traced;
 import org.junit.Assert;
 
 /**

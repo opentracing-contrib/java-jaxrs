@@ -14,6 +14,7 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
+import org.eclipse.microprofile.opentracing.Traced;
 
 /**
  * This class has to be registered as JAX-RS provider to enable tracing of server requests.
