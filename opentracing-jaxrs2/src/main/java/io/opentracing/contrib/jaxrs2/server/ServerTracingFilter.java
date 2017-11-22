@@ -29,17 +29,17 @@ import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
 public class ServerTracingFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final Logger log = Logger.getLogger(ServerTracingFilter.class.getName());
 
+    public static final String ACTIVE_SPAN_ID = ServerTracingFilter.class.getName() + ".activeSpan";
+
     private Tracer tracer;
     private String operationName;
     private List<ServerSpanDecorator> spanDecorators;
-    private boolean isSyncRequest;
 
     protected ServerTracingFilter(Tracer tracer, String operationName,
-                               List<ServerSpanDecorator> spanDecorators, boolean isSyncRequest) {
+                               List<ServerSpanDecorator> spanDecorators, boolean isSyncRequest) { //todo remove
         this.tracer = tracer;
         this.operationName = operationName;
         this.spanDecorators = new ArrayList<>(spanDecorators);
-        this.isSyncRequest = isSyncRequest;
     }
 
     @Override
@@ -61,9 +61,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
             }
 
             Span span = spanBuilder.startManual();
-            if (isSyncRequest) {
-                tracer.makeActive(span);
-            }
+            tracer.makeActive(span);
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
@@ -87,8 +85,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
-        SpanWrapper spanWrapper = CastUtils.cast(
-            requestContext.getProperty(PROPERTY_NAME), SpanWrapper.class);
+        SpanWrapper spanWrapper = CastUtils.cast(requestContext.getProperty(PROPERTY_NAME), SpanWrapper.class);
         if (spanWrapper == null) {
             return;
         }
@@ -105,7 +102,5 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
             activeSpan.capture();
             activeSpan.close();
         }
-        spanWrapper.finish();
     }
-
 }

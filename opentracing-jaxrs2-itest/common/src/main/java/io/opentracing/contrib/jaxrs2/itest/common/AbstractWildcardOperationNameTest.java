@@ -1,11 +1,16 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
+import static org.awaitility.Awaitility.await;
+
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
 import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
+import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
 import io.opentracing.mock.MockSpan;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
@@ -26,6 +31,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
             new ServerTracingDynamicFeature.Builder(mockTracer)
                 .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME))
             .build();
+        context.addFilter(SpanFinishingFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
         context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
         context.setAttribute(CLIENT_ATTRIBUTE, client);
@@ -39,6 +45,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
                 .request()
                 .get();
         response.close();
+        await().until(finishedSpansSizeEquals(1));
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
@@ -53,6 +60,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
                 .request()
                 .get();
         response.close();
+        await().until(finishedSpansSizeEquals(1));
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
@@ -67,6 +75,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
                 .request()
                 .get();
         response.close();
+        await().until(finishedSpansSizeEquals(1));
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());

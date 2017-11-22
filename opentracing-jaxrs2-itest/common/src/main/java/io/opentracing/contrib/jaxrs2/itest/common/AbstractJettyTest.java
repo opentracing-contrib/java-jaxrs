@@ -1,11 +1,15 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 
+import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
 import io.opentracing.util.ThreadLocalActiveSpanSource;
 import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
+import java.util.concurrent.Callable;
+import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 
@@ -51,6 +55,15 @@ public abstract class AbstractJettyTest {
             new ServerTracingDynamicFeature.Builder(mockTracer)
                 .withDecorators(Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS))
             .build();
+        // TODO clarify dispatcher types
+        context.addFilter(SpanFinishingFilter.class, "/*",
+            EnumSet.of(
+                DispatcherType.REQUEST,
+                DispatcherType.FORWARD,
+                // TODO CXF does not call AsyncListener#onComplete() without this (it calls only onStartAsync)
+                DispatcherType.ASYNC,
+                DispatcherType.ERROR,
+                DispatcherType.INCLUDE));
 
         context.setAttribute(CLIENT_ATTRIBUTE, client);
         context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
@@ -61,7 +74,7 @@ public abstract class AbstractJettyTest {
     @Before
     public void before() throws Exception {
         client = getClient();
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
 
         initServletContext(context);
@@ -76,6 +89,7 @@ public abstract class AbstractJettyTest {
     @After
     public void after() throws Exception {
         jettyServer.stop();
+        assertOnErrors(mockTracer.finishedSpans());
     }
 
     @AfterClass
@@ -102,5 +116,14 @@ public abstract class AbstractJettyTest {
         for (MockSpan mockSpan: spans) {
             Assert.assertEquals(mockSpan.generatedErrors().toString(), 0, mockSpan.generatedErrors().size());
         }
+    }
+
+    protected Callable<Boolean> finishedSpansSizeEquals(final int size) {
+        return new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mockTracer.finishedSpans().size() == size;
+            }
+        };
     }
 }

@@ -4,12 +4,11 @@ import io.opentracing.ActiveSpan;
 import io.opentracing.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.contrib.jaxrs2.server.TracingContext;
+import io.opentracing.contrib.jaxrs2.itest.common.rest.InstrumentedRestApplication.MappedException;
 import java.net.URI;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -74,8 +73,8 @@ public class TestHandler {
         client.target("http://localhost:" + port +
             contextPath + "/hello/1")
             .request()
-            .get();
-
+            .get()
+            .close();
         return Response.ok().build();
     }
 
@@ -113,10 +112,30 @@ public class TestHandler {
 
     @GET
     @Path("/async")
-    public void async(@Suspended AsyncResponse asyncResponse, @BeanParam TracingContext tracingContext) {
-//        assertActiveSpan(); // TODO it's async do not assert here
-        new Thread(new ExpensiveOperation(asyncResponse, tracingContext.spanContext()))
+    public void async(@Suspended AsyncResponse asyncResponse) {
+        assertActiveSpan();
+        new Thread(new ExpensiveOperation(asyncResponse, tracer.activeSpan().context()))
                 .start();
+    }
+
+    @GET
+    @Path("/asyncError")
+    public void asyncError(@Suspended final AsyncResponse asyncResponse) {
+        assertActiveSpan();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    // this exception is not propagated to AsyncListener
+                    asyncResponse.resume(new RuntimeException("asyncError"));
+                }
+            }
+        }).start();
+        throw new IllegalStateException();
     }
 
     @GET
@@ -133,6 +152,13 @@ public class TestHandler {
     public Response exception(@Context HttpServletRequest request) throws Exception {
         assertActiveSpan();
         throw new IllegalStateException("error");
+    }
+
+    @GET
+    @Path("/mappedException")
+    public Response customException(@Context HttpServletRequest request) throws Exception {
+        assertActiveSpan();
+        throw new MappedException();
     }
 
     @GET
@@ -164,7 +190,7 @@ public class TestHandler {
                     e.printStackTrace();
                 }
             } finally {
-                asyncResponse.resume((Object)null);
+                asyncResponse.resume(Response.ok().build());
             }
         }
     }

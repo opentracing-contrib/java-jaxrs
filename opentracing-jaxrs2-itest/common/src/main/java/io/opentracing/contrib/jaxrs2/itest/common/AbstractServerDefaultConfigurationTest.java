@@ -1,5 +1,10 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
+import static org.awaitility.Awaitility.await;
+
+import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
+import java.util.EnumSet;
+import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
@@ -25,6 +30,7 @@ public abstract class AbstractServerDefaultConfigurationTest extends AbstractJet
         ServerTracingDynamicFeature serverTracingBuilder =
                 new ServerTracingDynamicFeature.Builder(mockTracer)
                         .build();
+        context.addFilter(SpanFinishingFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
         context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
         context.setAttribute(CLIENT_ATTRIBUTE, client);
@@ -38,6 +44,7 @@ public abstract class AbstractServerDefaultConfigurationTest extends AbstractJet
                 .request()
                 .get();
         response.close();
+        await().until(finishedSpansSizeEquals(1));
 
         Assert.assertEquals(1, mockTracer.finishedSpans().size());
         assertOnErrors(mockTracer.finishedSpans());
