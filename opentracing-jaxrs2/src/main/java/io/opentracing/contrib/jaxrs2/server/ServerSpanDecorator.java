@@ -51,34 +51,4 @@ public interface ServerSpanDecorator {
             Tags.HTTP_STATUS.set(span, responseContext.getStatus());
         }
     };
-
-    /**
-     * As operation name provides "wildcard" HTTP path e.g:
-     *
-     * resource method annotated with @Path("/foo/bar/{name: \\w+}") produces "/foo/bar/{name}"
-     *
-     */
-    ServerSpanDecorator HTTP_WILDCARD_PATH_OPERATION_NAME = new ServerSpanDecorator() {
-        @Override
-        public void decorateRequest(ContainerRequestContext requestContext, BaseSpan<?> span) {
-            MultivaluedMap<String, String> pathParameters = requestContext.getUriInfo().getPathParameters();
-
-            String path = URIUtils.path(requestContext.getUriInfo().getRequestUri());
-
-            for (Map.Entry<String, List<String>> entry: pathParameters.entrySet()) {
-                final String originalPathFragment = String.format("{%s}", entry.getKey());
-
-                for (String currentPathFragment: entry.getValue()) {
-                    path = path.replace(currentPathFragment, originalPathFragment);
-                }
-            }
-
-            span.setOperationName(path);
-        }
-
-        @Override
-        public void decorateResponse(ContainerResponseContext responseContext, BaseSpan<?> span) {
-        }
-    };
-
 }

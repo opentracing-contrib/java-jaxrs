@@ -1,6 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 
+import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.MethodOperationName;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
 import io.opentracing.util.ThreadLocalActiveSpanSource;
 import java.lang.reflect.Field;
@@ -53,6 +54,7 @@ public abstract class AbstractJettyTest {
 
         ServerTracingDynamicFeature serverTracingFeature =
             new ServerTracingDynamicFeature.Builder(mockTracer)
+                .withOperationNameProvider(MethodOperationName.newBuilder())
                 .withDecorators(Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS))
             .build();
         // TODO clarify dispatcher types

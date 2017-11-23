@@ -3,6 +3,7 @@ package io.opentracing.contrib.jaxrs2.itest.common;
 import static org.awaitility.Awaitility.await;
 
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
+import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.WildcardOperationName;
 import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
@@ -29,7 +30,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
 
         ServerTracingDynamicFeature serverTracingBuilder =
             new ServerTracingDynamicFeature.Builder(mockTracer)
-                .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME))
+                .withOperationNameProvider(WildcardOperationName.newBuilder())
             .build();
         context.addFilter(SpanFinishingFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 

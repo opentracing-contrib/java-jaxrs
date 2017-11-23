@@ -9,6 +9,7 @@ import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -29,17 +30,20 @@ import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
 public class ServerTracingFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final Logger log = Logger.getLogger(ServerTracingFilter.class.getName());
 
-    public static final String ACTIVE_SPAN_ID = ServerTracingFilter.class.getName() + ".activeSpan";
-
     private Tracer tracer;
-    private String operationName;
     private List<ServerSpanDecorator> spanDecorators;
+    private String operationName;
+    private OperationNameProvider operationNameProvider;
 
-    protected ServerTracingFilter(Tracer tracer, String operationName,
-                               List<ServerSpanDecorator> spanDecorators, boolean isSyncRequest) { //todo remove
+    protected ServerTracingFilter(
+        Tracer tracer,
+        String operationName,
+        List<ServerSpanDecorator> spanDecorators,
+        OperationNameProvider operationNameProvider) {
         this.tracer = tracer;
         this.operationName = operationName;
         this.spanDecorators = new ArrayList<>(spanDecorators);
+        this.operationNameProvider = operationNameProvider;
     }
 
     @Override
@@ -53,7 +57,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
             SpanContext extractedSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS,
                     new ServerHeadersExtractTextMap(requestContext.getHeaders()));
 
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(requestContext.getMethod())
+            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameProvider.operationName(requestContext))
                     .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
 
             if (extractedSpanContext != null) {
@@ -97,10 +101,11 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
         }
 
         ActiveSpan activeSpan = tracer.activeSpan();
+        // for async requests this is executed in a different thread than requestFilter
         if (activeSpan != null) {
-            // fix capture to prevent finish
+            // hack capture to prevent finish - it's finished in filter
             activeSpan.capture();
-            activeSpan.close();
+            activeSpan.deactivate();
         }
     }
 }

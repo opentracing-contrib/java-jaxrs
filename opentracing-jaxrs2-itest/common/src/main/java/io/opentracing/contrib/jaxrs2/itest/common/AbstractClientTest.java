@@ -47,7 +47,6 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
         Tracer serverTracer = NoopTracerFactory.create();
         ServerTracingDynamicFeature serverTracingBuilder =
                 new ServerTracingDynamicFeature.Builder(serverTracer)
-                        .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME))
                         .build();
 
         context.setAttribute(TRACER_ATTRIBUTE, serverTracer);
