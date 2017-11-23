@@ -57,7 +57,6 @@ public class SpanFinishingFilter implements Filter {
         System.out.println("exception");
         Tags.HTTP_STATUS.set(spanWrapper.get(), httpResponse.getStatus());
         addExceptionLogs(spanWrapper.get(), ex);
-        // TODO exception logs
         throw ex;
       }
     } finally {
