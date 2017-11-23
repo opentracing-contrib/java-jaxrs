@@ -1,9 +1,12 @@
 package io.opentracing.contrib.jaxrs2.server;
 
+import io.opentracing.ActiveSpan;
 import io.opentracing.BaseSpan;
+import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.tag.Tags;
+import io.opentracing.util.GlobalTracer;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,9 +27,16 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebFilter(urlPatterns = "/*", asyncSupported = true)
 public class SpanFinishingFilter implements Filter {
-  private static final String PROP_FILTER_CALLED = SpanFinishingFilter.class + ".filterCalled";
 
-  public SpanFinishingFilter(){}
+  private final Tracer tracer;
+
+  public SpanFinishingFilter() {
+    this(GlobalTracer.get());
+  }
+
+  public SpanFinishingFilter(Tracer tracer){
+    this.tracer = tracer;
+  }
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
@@ -51,6 +61,7 @@ public class SpanFinishingFilter implements Filter {
         throw ex;
       }
     } finally {
+      deactivateWithoutFinish();
       SpanWrapper spanWrapper = getSpanWrapper(httpRequest);
       System.out.println("filter finally");
       if (spanWrapper == null) {
@@ -68,6 +79,16 @@ public class SpanFinishingFilter implements Filter {
       // onComplete is called only with the second filter call
       // It also seems that WF swarm run this filter in a different thread
       // so this does not finish the span on ActiveSpan.deactivate()
+    }
+  }
+
+  private void deactivateWithoutFinish() {
+    ActiveSpan activeSpan = tracer.activeSpan();
+    // for async requests this is executed in a different thread than requestFilter
+    if (activeSpan != null) {
+      // hack capture to prevent finish - it's finished in filter
+      activeSpan.capture();
+      activeSpan.deactivate();
     }
   }
 

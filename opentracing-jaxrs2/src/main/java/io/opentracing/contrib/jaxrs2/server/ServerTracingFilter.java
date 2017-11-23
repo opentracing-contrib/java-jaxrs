@@ -99,13 +99,5 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
                 decorator.decorateResponse(responseContext, spanWrapper.get());
             }
         }
-
-        ActiveSpan activeSpan = tracer.activeSpan();
-        // for async requests this is executed in a different thread than requestFilter
-        if (activeSpan != null) {
-            // hack capture to prevent finish - it's finished in filter
-            activeSpan.capture();
-            activeSpan.deactivate();
-        }
     }
 }

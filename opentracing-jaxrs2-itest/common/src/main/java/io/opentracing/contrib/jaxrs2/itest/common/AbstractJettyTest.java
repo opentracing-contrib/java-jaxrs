@@ -16,6 +16,7 @@ import javax.ws.rs.client.ClientBuilder;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -58,7 +59,7 @@ public abstract class AbstractJettyTest {
                 .withDecorators(Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS))
             .build();
         // TODO clarify dispatcher types
-        context.addFilter(SpanFinishingFilter.class, "/*",
+        context.addFilter(new FilterHolder(new SpanFinishingFilter(mockTracer)), "/*",
             EnumSet.of(
                 DispatcherType.REQUEST,
                 DispatcherType.FORWARD,

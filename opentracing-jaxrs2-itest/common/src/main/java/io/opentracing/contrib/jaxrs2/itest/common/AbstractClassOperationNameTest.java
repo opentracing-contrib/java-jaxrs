@@ -15,6 +15,7 @@ import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +32,8 @@ public abstract class AbstractClassOperationNameTest extends AbstractJettyTest {
         new ServerTracingDynamicFeature.Builder(mockTracer)
             .withOperationNameProvider(ClassNameOperationName.newBuilder())
             .build();
-    context.addFilter(SpanFinishingFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+    context.addFilter(new FilterHolder(new SpanFinishingFilter(mockTracer)),
+        "/*", EnumSet.of(DispatcherType.REQUEST));
 
     context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
     context.setAttribute(CLIENT_ATTRIBUTE, client);
