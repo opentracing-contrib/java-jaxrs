@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
@@ -50,7 +51,8 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
                 builder.tracer,
                 operationName(resourceInfo),
                 builder.spanDecorators,
-                builder.operationNameBuilder.build(resourceInfo.getResourceClass(), resourceInfo.getResourceMethod())),
+                builder.operationNameBuilder.build(resourceInfo.getResourceClass(), resourceInfo.getResourceMethod()),
+                builder.skipPattern != null ? Pattern.compile(builder.skipPattern) : null),
                 builder.priority);
 
             if (builder.traceSerialization) {
@@ -107,6 +109,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         private int serializationPriority;
         private OperationNameProvider.Builder operationNameBuilder;
         private boolean traceSerialization;
+        private String skipPattern;
 
         public Builder(Tracer tracer) {
             this.tracer = tracer;
@@ -117,7 +120,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
             this.serializationPriority = Priorities.ENTITY_CODER;
             this.allTraced = true;
             this.operationNameBuilder = WildcardOperationName.newBuilder();
-            this.traceSerialization = false;
+            this.traceSerialization = true;
         }
 
         /**
@@ -187,6 +190,15 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
          */
         public Builder withTraceSerialization(boolean traceSerialization){
             this.traceSerialization = traceSerialization;
+            return this;
+        }
+
+        /**
+         * @param skipPattern skip pattern e.g. /health|/status
+         * @return builder
+         */
+        public Builder withSkipPattern(String skipPattern) {
+            this.skipPattern = skipPattern;
             return this;
         }
 

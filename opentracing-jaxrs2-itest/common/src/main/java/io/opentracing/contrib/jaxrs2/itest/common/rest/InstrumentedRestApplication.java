@@ -84,7 +84,6 @@ public class InstrumentedRestApplication extends Application {
     private static class MappedExceptionMapper implements ExceptionMapper<MappedException> {
         @Override
         public Response toResponse(MappedException exception) {
-            System.out.println("custom ex mapper");
             return Response.status(405).build();
         }
     }

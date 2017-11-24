@@ -86,7 +86,10 @@ public interface OperationNameProvider {
     @Override
     public String operationName(ContainerRequestContext requestContext) {
       MultivaluedMap<String, String> pathParameters = requestContext.getUriInfo().getPathParameters();
-      String path = URIUtils.path(requestContext.getUriInfo().getRequestUri());
+      String path = requestContext.getUriInfo().getPath();
+      if (path.charAt(0) == '/') {
+        path = path.substring(1);
+      }
       for (Map.Entry<String, List<String>> entry: pathParameters.entrySet()) {
         final String originalPathFragment = String.format("{%s}", entry.getKey());
 

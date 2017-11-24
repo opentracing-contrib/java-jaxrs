@@ -68,7 +68,7 @@ public class TestHandler {
         assertActiveSpan();
 
         final int port = request.getServerPort();
-        final String contextPath = request.getServletPath();
+        final String contextPath = request.getContextPath();
 
         client.target("http://localhost:" + port +
             contextPath + "/hello/1")
@@ -165,6 +165,12 @@ public class TestHandler {
     @Path("/filtered")
     public Response filtered() {
         // Should never reach here.
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/health")
+    public Response health() {
         return Response.ok().build();
     }
 

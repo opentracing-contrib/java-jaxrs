@@ -22,7 +22,7 @@
     <version.org.apache.cxf>3.1.14</version.org.apache.cxf>
     <version.org.eclipse.jetty>9.4.7.v20170914</version.org.eclipse.jetty>
     <version.org.glassfish.jersey>2.25</version.org.glassfish.jersey>
-    <version.org.jboss.resteasy>4.0.0.Beta1</version.org.jboss.resteasy>
+    <version.org.jboss.resteasy>3.1.4.Final</version.org.jboss.resteasy>
     <version.wildfly-swarm>2017.10.1</version.wildfly-swarm>
   </properties>
 

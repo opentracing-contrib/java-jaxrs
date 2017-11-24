@@ -73,7 +73,7 @@ public class ClientTracingFeature implements Feature {
             // by default do not use Priorities.AUTHENTICATION due to security concerns
             this.priority = Priorities.HEADER_DECORATOR;
             this.serializationPriority = Priorities.ENTITY_CODER;
-            this.traceSerialization = false;
+            this.traceSerialization = true;
         }
 
         /**

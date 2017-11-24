@@ -248,6 +248,18 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
+    public void testSkipPattern() throws Exception {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/health"))
+            .request()
+            .get();
+        response.close();
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(0, mockSpans.size());
+    }
+
+    @Test
     public void testSerializationResponseAndRequestWithBody() throws InterruptedException {
         Response response = ClientBuilder.newClient()
             .target(url("/postWithBody"))

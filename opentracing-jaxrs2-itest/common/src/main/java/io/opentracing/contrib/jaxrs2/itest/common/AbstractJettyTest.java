@@ -41,6 +41,7 @@ public abstract class AbstractJettyTest {
     public static final String TRACER_ATTRIBUTE = "tracer";
 
     protected Server jettyServer;
+    protected final String contextPath = "/context";
     protected MockTracer mockTracer = new MockTracer(new ThreadLocalActiveSpanSource(), MockTracer.Propagator.TEXT_MAP);
     protected Client client;
 
@@ -57,6 +58,7 @@ public abstract class AbstractJettyTest {
             new ServerTracingDynamicFeature.Builder(mockTracer)
                 .withOperationNameProvider(MethodOperationName.newBuilder())
                 .withDecorators(Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS))
+                .withSkipPattern("/health")
             .build();
         // TODO clarify dispatcher types
         context.addFilter(new FilterHolder(new SpanFinishingFilter(mockTracer)), "/*",
@@ -78,7 +80,7 @@ public abstract class AbstractJettyTest {
     public void before() throws Exception {
         client = getClient();
         ServletContextHandler context = new ServletContextHandler();
-        context.setContextPath("/");
+        context.setContextPath(contextPath);
 
         initServletContext(context);
         initTracing(context);
@@ -108,7 +110,7 @@ public abstract class AbstractJettyTest {
     }
 
     public String url(String path) {
-        return "http://localhost:" + getPort() + path;
+        return String.format("http://localhost:%d%s%s", getPort(), contextPath == "/" ? "" : contextPath, path);
     }
 
     public int getPort() {
