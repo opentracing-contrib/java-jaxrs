@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Priorities;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.container.DynamicFeature;
+import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
@@ -43,8 +45,12 @@ public class ClientTracingFeature implements Feature {
         log.info("Registering client OpenTracing, with configuration:" + builder.toString());
         context.register(new ClientTracingFilter(builder.tracer, builder.spanDecorators),
             builder.priority);
-        context.register(new ClientTracingInterceptor(builder.tracer, builder.serializationSpanDecorators),
-            builder.serializationPriority);
+
+        if (builder.traceSerialization) {
+            context.register(
+                new ClientTracingInterceptor(builder.tracer, builder.serializationSpanDecorators),
+                builder.serializationPriority);
+        }
         return true;
     }
 
@@ -60,6 +66,7 @@ public class ClientTracingFeature implements Feature {
         private List<InterceptorSpanDecorator> serializationSpanDecorators;
         private int priority;
         private int serializationPriority;
+        private boolean traceSerialization;
 
         public Builder(Tracer tracer) {
             this.tracer = tracer;
@@ -68,6 +75,7 @@ public class ClientTracingFeature implements Feature {
             // by default do not use Priorities.AUTHENTICATION due to security concerns
             this.priority = Priorities.HEADER_DECORATOR;
             this.serializationPriority = Priorities.ENTITY_CODER;
+            this.traceSerialization = true;
         }
 
         /**
@@ -109,6 +117,15 @@ public class ClientTracingFeature implements Feature {
          */
         public Builder withSerializationPriority(int priority) {
             this.priority = priority;
+            return this;
+        }
+
+        /**
+         * @param traceSerialization whether to trace serialization
+         * @return builder
+         */
+        public Builder withTraceSerialization(boolean traceSerialization) {
+            this.traceSerialization = traceSerialization;
             return this;
         }
 
