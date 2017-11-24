@@ -8,8 +8,6 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Priorities;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.container.DynamicFeature;
-import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
@@ -75,7 +73,7 @@ public class ClientTracingFeature implements Feature {
             // by default do not use Priorities.AUTHENTICATION due to security concerns
             this.priority = Priorities.HEADER_DECORATOR;
             this.serializationPriority = Priorities.ENTITY_CODER;
-            this.traceSerialization = true;
+            this.traceSerialization = false;
         }
 
         /**

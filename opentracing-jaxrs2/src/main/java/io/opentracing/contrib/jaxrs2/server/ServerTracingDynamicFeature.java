@@ -2,7 +2,6 @@ package io.opentracing.contrib.jaxrs2.server;
 
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.serialization.InterceptorSpanDecorator;
-import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.Builder;
 import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.WildcardOperationName;
 import io.opentracing.util.GlobalTracer;
 import java.util.Collections;
@@ -118,7 +117,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
             this.serializationPriority = Priorities.ENTITY_CODER;
             this.allTraced = true;
             this.operationNameBuilder = WildcardOperationName.newBuilder();
-            this.traceSerialization = true;
+            this.traceSerialization = false;
         }
 
         /**
