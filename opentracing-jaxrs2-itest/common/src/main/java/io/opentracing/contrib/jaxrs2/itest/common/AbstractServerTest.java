@@ -88,7 +88,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockSpans);
-//        TODO resteasy and CXF do not propagate exception to the filter
+//        TODO resteasy and CXF do not propagate exception to the filter, https://issues.jboss.org/browse/RESTEASY-1758
 //        MockSpan mockSpan = mockSpans.get(0);
 //        Assert.assertEquals(5, mockSpan.tags().size());
 //        Assert.assertEquals(true, mockSpan.tags().get(Tags.ERROR.getKey()));

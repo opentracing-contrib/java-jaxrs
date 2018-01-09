@@ -14,13 +14,13 @@ public class RestEasyClientITest extends AbstractClientTest {
 
     @Override
     protected Client getClient() {
-        ResteasyClientBuilder clientBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
-        /**
-         * To avoid  RESTEASY004655 "connection is still allocated" in {@link #testAsyncMultipleRequests()}
-         */
-        clientBuilder.connectionPoolSize(150);
-        clientBuilder.asyncExecutor(new TracedExecutorService(Executors.newFixedThreadPool(8), mockTracer));
-        return clientBuilder.build();
+        return new ResteasyClientBuilder()
+            /**
+             * To avoid  RESTEASY004655 "connection is still allocated" in {@link #testAsyncMultipleRequests()}
+             */
+            .connectionPoolSize(150)
+            .asyncExecutor(new TracedExecutorService(Executors.newFixedThreadPool(8), mockTracer))
+            .build();
     }
 
     @Override
