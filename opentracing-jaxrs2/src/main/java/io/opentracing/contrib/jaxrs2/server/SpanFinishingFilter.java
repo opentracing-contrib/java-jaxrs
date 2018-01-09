@@ -54,7 +54,6 @@ public class SpanFinishingFilter implements Filter {
     } catch (Exception ex) {
       SpanWrapper spanWrapper = getSpanWrapper(httpRequest);
       if (spanWrapper != null) {
-        System.out.println("exception");
         Tags.HTTP_STATUS.set(spanWrapper.get(), httpResponse.getStatus());
         addExceptionLogs(spanWrapper.get(), ex);
         throw ex;
@@ -62,13 +61,10 @@ public class SpanFinishingFilter implements Filter {
     } finally {
       deactivateWithoutFinish();
       SpanWrapper spanWrapper = getSpanWrapper(httpRequest);
-      System.out.println("filter finally");
       if (spanWrapper == null) {
-        System.out.println("\n\nSpan is null\n\n");
         return;
       }
       if (request.isAsyncStarted()) {
-        System.out.println("is async");
         request.getAsyncContext().addListener(new SpanFinisher(spanWrapper), request, response);
       } else {
         spanWrapper.finish();
@@ -108,21 +104,17 @@ public class SpanFinishingFilter implements Filter {
     @Override
     public void onComplete(AsyncEvent event) throws IOException {
       spanWrapper.finish();
-      System.out.println("Async onComplete");
     }
     @Override
     public void onTimeout(AsyncEvent event) throws IOException {
-      System.out.println("Async onTimeout");
     }
     @Override
     public void onError(AsyncEvent event) throws IOException {
       // this handler is called when exception is thrown in async handler
       // note that exception logs are added in filter not here
-      System.out.println("Async onError");
     }
     @Override
     public void onStartAsync(AsyncEvent event) throws IOException {
-      System.out.println("Async onStart");
     }
   }
 
