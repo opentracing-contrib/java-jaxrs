@@ -163,7 +163,6 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        // operation name is from the closes traced annotation
         Assert.assertEquals("GET", mockSpans.get(0).operationName());
     }
 
