@@ -28,16 +28,23 @@ public class DisabledTestHandler {
     return Response.status(Response.Status.OK).build();
   }
 
-  @Traced(value = true)
+  @Traced
   @GET
   @Path("/enabled")
   public Response helloMethod() {
+    assertActiveSpan();
     return Response.status(Response.Status.OK).build();
   }
 
   private void assertNoActiveSpan() {
     if (!(tracer == NoopTracerFactory.create())) {
       Assert.assertNull(tracer.activeSpan());
+    }
+  }
+
+  private void assertActiveSpan() {
+    if (!(tracer == NoopTracerFactory.create())) {
+      Assert.assertNotNull(tracer.activeSpan());
     }
   }
 }

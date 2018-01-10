@@ -19,14 +19,14 @@ public interface OperationNameProvider {
   /**
    * Returns HTTP method as operation name
    */
-  class MethodOperationName implements OperationNameProvider {
+  class HTTPMethodOperationName implements OperationNameProvider {
     static class Builder implements OperationNameProvider.Builder {
       @Override
       public OperationNameProvider build(Class<?> clazz, Method method) {
-        return new MethodOperationName();
+        return new HTTPMethodOperationName();
       }
     }
-    MethodOperationName() {
+    HTTPMethodOperationName() {
     }
 
     @Override

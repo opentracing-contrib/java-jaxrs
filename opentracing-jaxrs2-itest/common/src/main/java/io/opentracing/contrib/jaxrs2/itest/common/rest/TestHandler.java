@@ -1,6 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
 import io.opentracing.ActiveSpan;
+import io.opentracing.NoopTracer;
 import io.opentracing.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -55,10 +56,10 @@ public class TestHandler {
     }
 
     @GET
-    @Path("/tracedFalse")
+    @Path("/tracedFalseIn")
     @Traced(operationName = "renamedOperation", value = false)
-    public Response tracedFalse(@Context HttpHeaders headers) {
-        assertActiveSpan();
+    public Response tracedFalse() {
+        assertNoActiveSpan();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -201,8 +202,14 @@ public class TestHandler {
         }
     }
 
+    private void assertNoActiveSpan() {
+        if (!(tracer instanceof NoopTracer)) {
+            Assert.assertNull(tracer.activeSpan());
+        }
+    }
+
     private void assertActiveSpan() {
-        if (!(tracer == NoopTracerFactory.create())) {
+        if (!(tracer instanceof NoopTracer)) {
             Assert.assertNotNull(tracer.activeSpan());
         }
     }

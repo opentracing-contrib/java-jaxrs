@@ -132,7 +132,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     @Test
     public void testTracedFalseMethod() throws Exception {
         Client client = ClientBuilder.newClient();
-        Response response = client.target(url("/tracedFalse"))
+        Response response = client.target(url("/tracedFalseIn"))
             .request()
             .get();
         response.close();

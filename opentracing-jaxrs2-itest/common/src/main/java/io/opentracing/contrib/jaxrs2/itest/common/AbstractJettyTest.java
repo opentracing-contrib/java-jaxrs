@@ -3,7 +3,7 @@ package io.opentracing.contrib.jaxrs2.itest.common;
 
 import io.opentracing.NoopTracerFactory;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
-import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.MethodOperationName;
+import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.HTTPMethodOperationName;
 import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
@@ -53,7 +53,7 @@ public abstract class AbstractJettyTest {
 
         ServerTracingDynamicFeature serverTracingFeature =
             new ServerTracingDynamicFeature.Builder(mockTracer)
-                .withOperationNameProvider(MethodOperationName.newBuilder())
+                .withOperationNameProvider(HTTPMethodOperationName.newBuilder())
                 .withDecorators(Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS))
                 .withSkipPattern("/health")
             .build();
