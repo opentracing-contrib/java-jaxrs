@@ -2,22 +2,20 @@ package io.opentracing.contrib.jaxrs2.itest.common;
 
 import static org.awaitility.Awaitility.await;
 
+import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
+import io.opentracing.mock.MockSpan;
+import io.opentracing.tag.Tags;
 import java.util.EnumSet;
 import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
-
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.Assert;
 import org.junit.Test;
-
-import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
-import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
-import io.opentracing.mock.MockSpan;
-import io.opentracing.tag.Tags;
 
 /**
  * @author Pavol Loffay

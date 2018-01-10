@@ -1,19 +1,24 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 
+import io.opentracing.NoopTracerFactory;
+import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
 import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.MethodOperationName;
+import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
+import io.opentracing.mock.MockSpan;
+import io.opentracing.mock.MockTracer;
+import io.opentracing.util.GlobalTracer;
 import io.opentracing.util.ThreadLocalActiveSpanSource;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-
 import java.util.concurrent.Callable;
 import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -22,14 +27,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-
-import io.opentracing.NoopTracerFactory;
-import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
-import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
-import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
-import io.opentracing.mock.MockSpan;
-import io.opentracing.mock.MockTracer;
-import io.opentracing.util.GlobalTracer;
 
 /**
  * @author Pavol Loffay

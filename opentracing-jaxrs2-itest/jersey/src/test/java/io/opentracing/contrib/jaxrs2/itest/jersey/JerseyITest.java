@@ -1,8 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.jersey;
 
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
 import io.opentracing.contrib.jaxrs2.itest.common.AbstractServerTest;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 /**
  * @author Pavol Loffay

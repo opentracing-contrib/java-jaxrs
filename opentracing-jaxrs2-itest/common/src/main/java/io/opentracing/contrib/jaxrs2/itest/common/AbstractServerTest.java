@@ -2,22 +2,19 @@ package io.opentracing.contrib.jaxrs2.itest.common;
 
 import static org.awaitility.Awaitility.await;
 
+import io.opentracing.mock.MockSpan;
+import io.opentracing.tag.Tags;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-
 import java.util.Objects;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.junit.Assert;
 import org.junit.Test;
-
-import io.opentracing.mock.MockSpan;
-import io.opentracing.tag.Tags;
 
 /**
  * @author Pavol Loffay

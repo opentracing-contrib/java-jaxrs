@@ -1,8 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.resteasy;
 
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
 import io.opentracing.contrib.jaxrs2.itest.common.AbstractServerDefaultConfigurationTest;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 /**
  * @author Pavol Loffay

@@ -4,7 +4,6 @@ import static org.awaitility.Awaitility.await;
 
 import io.opentracing.contrib.jaxrs2.itest.common.rest.TestHandler;
 import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.ClassNameOperationName;
-import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.WildcardOperationName;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature.Builder;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;

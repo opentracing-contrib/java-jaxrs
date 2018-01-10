@@ -1,6 +1,5 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import io.opentracing.contrib.jaxrs2.internal.URIUtils;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;

@@ -3,11 +3,8 @@ package io.opentracing.contrib.jaxrs2.server;
 import io.opentracing.BaseSpan;
 import io.opentracing.contrib.jaxrs2.internal.URIUtils;
 import io.opentracing.tag.Tags;
-import java.util.List;
-import java.util.Map;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.core.MultivaluedMap;
 
 /**
  * @author Pavol Loffay

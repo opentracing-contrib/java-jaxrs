@@ -1,10 +1,12 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
+import io.opentracing.Tracer;
+import io.opentracing.contrib.jaxrs2.itest.common.AbstractJettyTest;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.servlet.ServletContext;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.Priorities;
@@ -17,10 +19,6 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.FeatureContext;
-
-import io.opentracing.Tracer;
-import io.opentracing.contrib.jaxrs2.itest.common.AbstractJettyTest;
-import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
