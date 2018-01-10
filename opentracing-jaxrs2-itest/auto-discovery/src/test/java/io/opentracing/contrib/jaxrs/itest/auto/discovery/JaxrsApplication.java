@@ -1,11 +1,10 @@
 package io.opentracing.contrib.jaxrs.itest.auto.discovery;
 
+import io.opentracing.mock.MockTracer;
+import io.opentracing.util.GlobalTracer;
 import javax.naming.NamingException;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
-
-import io.opentracing.mock.MockTracer;
-import io.opentracing.util.GlobalTracer;
 
 /**
  * @author Pavol Loffay
