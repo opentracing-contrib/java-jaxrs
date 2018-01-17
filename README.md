@@ -1,7 +1,6 @@
 [![Build Status][ci-img]][ci] [![Released Version][maven-img]][maven]
 
 # OpenTracing JAX-RS Instrumentation
-
 OpenTracing instrumentation for JAX-RS standard. It supports tracing of server and client requests.
 
 Instrumentation by default adds a set of standard HTTP tags and as an operation name it uses a string defined in `@Path` annotation.
