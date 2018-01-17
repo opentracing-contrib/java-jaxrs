@@ -32,7 +32,7 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
     private Tracer tracer;
     private List<ClientSpanDecorator> spanDecorators;
 
-    protected ClientTracingFilter(Tracer tracer, List<ClientSpanDecorator> spanDecorators) {
+    public ClientTracingFilter(Tracer tracer, List<ClientSpanDecorator> spanDecorators) {
         this.tracer = tracer;
         this.spanDecorators = new ArrayList<>(spanDecorators);
     }

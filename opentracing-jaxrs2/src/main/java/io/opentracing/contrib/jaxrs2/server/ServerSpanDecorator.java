@@ -37,7 +37,7 @@ public interface ServerSpanDecorator {
         public void decorateRequest(ContainerRequestContext requestContext, BaseSpan<?> span) {
             Tags.HTTP_METHOD.set(span, requestContext.getMethod());
 
-            String url = URIUtils.url(requestContext.getUriInfo().getAbsolutePath());
+            String url = URIUtils.url(requestContext.getUriInfo().getRequestUri());
             if (url != null) {
                 Tags.HTTP_URL.set(span, url);
             }

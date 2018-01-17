@@ -24,7 +24,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     @Test
     public void testServerStandardTags() throws Exception {
         Client client = ClientBuilder.newClient();
-        Response response = client.target(url("/hello/1"))
+        Response response = client.target(url("/hello/1?q=a"))
             .request()
             .get();
         response.close();
@@ -37,7 +37,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         Assert.assertEquals("GET", mockSpan.operationName());
         Assert.assertEquals(4, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_SERVER, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
-        Assert.assertEquals(url("/hello/1"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
+        Assert.assertEquals(url("/hello/1?q=a"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(200, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
     }
