@@ -1,6 +1,6 @@
 [![Build Status][ci-img]][ci] [![Released Version][maven-img]][maven]
 
-# OpenTracing JAX-RS Instrumentation
+# OpenTracing JAX-RS Instrumentation TEST
 
 OpenTracing instrumentation for JAX-RS standard. It supports tracing of server and client requests.
 
