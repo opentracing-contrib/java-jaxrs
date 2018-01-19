@@ -85,8 +85,7 @@ public abstract class TracingInterceptor implements WriterInterceptor, ReaderInt
         } else {
             spanBuilder.asChildOf(spanWrapper.get());
         }
-
-        return spanBuilder.startActive();
+        return spanBuilder.startActive(true);
     }
 
     protected abstract SpanWrapper findSpan(InterceptorContext context);
