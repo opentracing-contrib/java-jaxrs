@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SpanWrapper {
 
+    public static final String PROPERTY_NAME = SpanWrapper.class.getName() + ".activeSpanWrapper";
+
     private Span span;
     private AtomicBoolean finished = new AtomicBoolean();
 

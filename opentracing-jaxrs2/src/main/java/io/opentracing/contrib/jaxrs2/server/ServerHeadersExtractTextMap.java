@@ -1,12 +1,10 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.ws.rs.core.MultivaluedMap;
-
 import io.opentracing.contrib.web.servlet.filter.HttpServletRequestExtractAdapter;
 import io.opentracing.propagation.TextMap;
+import java.util.Iterator;
+import java.util.Map;
+import javax.ws.rs.core.MultivaluedMap;
 
 /**
  * Helper class used to iterate over HTTP headers.

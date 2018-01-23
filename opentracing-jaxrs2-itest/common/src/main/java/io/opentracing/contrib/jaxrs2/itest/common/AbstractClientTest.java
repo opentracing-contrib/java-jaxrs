@@ -5,21 +5,19 @@ import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
 import io.opentracing.contrib.jaxrs2.client.TracingProperties;
-import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
-import io.opentracing.noop.NoopTracer;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
 import io.opentracing.util.ThreadLocalScopeManager;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +26,9 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.InvocationCallback;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.Assert;
@@ -46,7 +46,6 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
         Tracer serverTracer = NoopTracerFactory.create();
         ServerTracingDynamicFeature serverTracingBuilder =
                 new ServerTracingDynamicFeature.Builder(serverTracer)
-                        .withDecorators(Arrays.asList(ServerSpanDecorator.HTTP_WILDCARD_PATH_OPERATION_NAME))
                         .build();
 
         context.setAttribute(TRACER_ATTRIBUTE, serverTracer);
@@ -317,7 +316,46 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
         }
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
-        // TODO currently it is not possible to catch exceptions thrown by jax-rs
+        // TODO currently it is not possible to catch exceptions thrown by jax-rs https://github.com/opentracing-contrib/java-jaxrs/issues/51
         Assert.assertEquals(0, mockSpans.size());
+    }
+
+    @Test
+    public void testSerializationResponseAndRequestWithBody() {
+        String response = client.target(url("/postWithBody"))
+            .request()
+            .post(Entity.entity("entity", MediaType.TEXT_PLAIN_TYPE), String.class);
+
+        Assert.assertEquals("entity", response);
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(3, mockSpans.size());
+
+        final MockSpan serializationRequestSpan = mockSpans.get(0);
+        final MockSpan parentSpan = mockSpans.get(1);
+        final MockSpan serializationResponseSpan = mockSpans.get(2);
+        assertRequestSerialization(parentSpan, serializationRequestSpan);
+        assertResponseSerialization(parentSpan, serializationResponseSpan);
+    }
+
+    private void assertRequestSerialization(MockSpan parentSpan, MockSpan serializationSpan) {
+        Assert.assertEquals("serialize", serializationSpan.operationName());
+        assertSerializationSpan(parentSpan, serializationSpan);
+    }
+
+    private void assertResponseSerialization(MockSpan parentSpan, MockSpan serializationSpan) {
+        Assert.assertEquals("deserialize", serializationSpan.operationName());
+        assertSerializationSpan(parentSpan, serializationSpan);
+    }
+
+    private void assertSerializationSpan(MockSpan parentSpan, MockSpan serializationSpan) {
+        /* Resteasy client adds the charset. Remove it for assertion. */
+        final MediaType mediaType =
+            MediaType.valueOf(Objects.toString(serializationSpan.tags().get("media.type")));
+        Assert.assertEquals(MediaType.TEXT_PLAIN_TYPE, new MediaType(mediaType.getType(), mediaType.getSubtype()));
+        Assert.assertEquals(String.class.getName(), serializationSpan.tags().get("entity.type"));
+
+        Assert.assertEquals(parentSpan.context().spanId(), serializationSpan.parentId());
+        Assert.assertEquals(parentSpan.context().traceId(), serializationSpan.context().traceId());
     }
 }

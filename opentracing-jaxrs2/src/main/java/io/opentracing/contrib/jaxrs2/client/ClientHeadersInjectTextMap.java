@@ -1,11 +1,9 @@
 package io.opentracing.contrib.jaxrs2.client;
 
+import io.opentracing.propagation.TextMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.ws.rs.core.MultivaluedMap;
-
-import io.opentracing.propagation.TextMap;
 
 /**
  * Helper class used to add carrier data to HTTP headers.

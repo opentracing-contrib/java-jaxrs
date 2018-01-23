@@ -1,8 +1,7 @@
 package io.opentracing.contrib.jaxrs2.example.spring.boot;
 
-import org.springframework.context.annotation.Bean;
-
 import io.opentracing.Tracer;
+import org.springframework.context.annotation.Bean;
 
 /**
  * @author Pavol Loffay
