@@ -1,7 +1,8 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 
-import io.opentracing.NoopTracerFactory;
+import io.opentracing.util.ThreadLocalScopeManager;
+
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
 import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.HTTPMethodOperationName;
 import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
@@ -10,7 +11,6 @@ import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.util.GlobalTracer;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -28,6 +28,14 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 
+import io.opentracing.noop.NoopTracerFactory;
+import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
+import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
+import io.opentracing.mock.MockSpan;
+import io.opentracing.mock.MockTracer;
+import io.opentracing.util.GlobalTracer;
+
 /**
  * @author Pavol Loffay
  */
@@ -38,8 +46,8 @@ public abstract class AbstractJettyTest {
     public static final String TRACER_ATTRIBUTE = "tracer";
 
     protected Server jettyServer;
+    protected MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(), MockTracer.Propagator.TEXT_MAP);
     protected final String contextPath = "/context";
-    protected MockTracer mockTracer = new MockTracer(new ThreadLocalActiveSpanSource(), MockTracer.Propagator.TEXT_MAP);
     protected Client client;
 
     protected Client getClient() {

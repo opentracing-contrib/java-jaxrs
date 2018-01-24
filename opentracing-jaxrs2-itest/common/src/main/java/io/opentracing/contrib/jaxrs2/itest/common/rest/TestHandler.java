@@ -1,8 +1,8 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.NoopTracer;
-import io.opentracing.NoopTracerFactory;
+import io.opentracing.Scope;
+import io.opentracing.noop.NoopTracer;
+import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.itest.common.rest.InstrumentedRestApplication.MappedException;
@@ -115,7 +115,7 @@ public class TestHandler {
     @Path("/async")
     public void async(@Suspended AsyncResponse asyncResponse) {
         assertActiveSpan();
-        new Thread(new ExpensiveOperation(asyncResponse, tracer.activeSpan().context()))
+        new Thread(new ExpensiveOperation(asyncResponse, tracer.scopeManager().active().span().context()))
                 .start();
     }
 
@@ -189,7 +189,7 @@ public class TestHandler {
 
         @Override
         public void run() {
-            try(ActiveSpan expensiveOpSpan = tracer.buildSpan("expensiveOperation")
+            try(Scope expensiveOpSpan = tracer.buildSpan("expensiveOperation")
                     .asChildOf(parentContext).startActive()) {
                 try {
                     Thread.sleep(random.nextInt(5));
@@ -204,13 +204,13 @@ public class TestHandler {
 
     private void assertNoActiveSpan() {
         if (!(tracer instanceof NoopTracer)) {
-            Assert.assertNull(tracer.activeSpan());
+            Assert.assertNull(tracer.scopeManager().active());
         }
     }
 
     private void assertActiveSpan() {
         if (!(tracer instanceof NoopTracer)) {
-            Assert.assertNotNull(tracer.activeSpan());
+            Assert.assertNotNull(tracer.scopeManager().active());
         }
     }
 }

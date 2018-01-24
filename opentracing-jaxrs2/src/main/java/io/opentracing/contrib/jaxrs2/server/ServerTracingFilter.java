@@ -72,7 +72,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
             }
 
             Span span = spanBuilder.startManual();
-            tracer.makeActive(span);
+            tracer.scopeManager().activate(span, false);
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
@@ -112,7 +112,6 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
         // skip URLs matching skip pattern
         // e.g. pattern is defined as '/health|/status' then URL 'http://localhost:5000/context/health' won't be traced
         if (skipPattern != null) {
-
             String path = requestContext.getUriInfo().getPath();
             if (path.charAt(0) != '/') {
                 path = "/" + path;

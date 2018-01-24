@@ -1,6 +1,6 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import io.opentracing.BaseSpan;
+import io.opentracing.Span;
 import io.opentracing.contrib.jaxrs2.internal.URIUtils;
 import io.opentracing.tag.Tags;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -17,7 +17,7 @@ public interface ServerSpanDecorator {
      * @param requestContext
      * @param span
      */
-    void decorateRequest(ContainerRequestContext requestContext, BaseSpan<?> span);
+    void decorateRequest(ContainerRequestContext requestContext, Span span);
 
     /**
      * Decorate spans by outgoing object.
@@ -25,7 +25,7 @@ public interface ServerSpanDecorator {
      * @param responseContext
      * @param span
      */
-    void decorateResponse(ContainerResponseContext responseContext, BaseSpan<?> span);
+    void decorateResponse(ContainerResponseContext responseContext, Span span);
 
     /**
      * Adds standard tags: {@link io.opentracing.tag.Tags#SPAN_KIND},
@@ -34,7 +34,7 @@ public interface ServerSpanDecorator {
      */
     ServerSpanDecorator STANDARD_TAGS = new ServerSpanDecorator() {
         @Override
-        public void decorateRequest(ContainerRequestContext requestContext, BaseSpan<?> span) {
+        public void decorateRequest(ContainerRequestContext requestContext, Span span) {
             Tags.HTTP_METHOD.set(span, requestContext.getMethod());
 
             String url = URIUtils.url(requestContext.getUriInfo().getRequestUri());
@@ -44,7 +44,7 @@ public interface ServerSpanDecorator {
         }
 
         @Override
-        public void decorateResponse(ContainerResponseContext responseContext, BaseSpan<?> span) {
+        public void decorateResponse(ContainerResponseContext responseContext, Span span) {
             Tags.HTTP_STATUS.set(span, responseContext.getStatus());
         }
     };

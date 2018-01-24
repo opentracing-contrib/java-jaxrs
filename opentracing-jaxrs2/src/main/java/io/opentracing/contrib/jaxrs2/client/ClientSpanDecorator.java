@@ -1,6 +1,6 @@
 package io.opentracing.contrib.jaxrs2.client;
 
-import io.opentracing.BaseSpan;
+import io.opentracing.Span;
 import io.opentracing.contrib.jaxrs2.internal.URIUtils;
 import io.opentracing.tag.Tags;
 import javax.ws.rs.client.ClientRequestContext;
@@ -17,7 +17,7 @@ public interface ClientSpanDecorator {
      * @param requestContext
      * @param span
      */
-    void decorateRequest(ClientRequestContext requestContext, BaseSpan<?> span);
+    void decorateRequest(ClientRequestContext requestContext, Span span);
 
     /**
      * Decorate spans by outgoing object.
@@ -25,7 +25,7 @@ public interface ClientSpanDecorator {
      * @param responseContext
      * @param span
      */
-    void decorateResponse(ClientResponseContext responseContext, BaseSpan<?> span);
+    void decorateResponse(ClientResponseContext responseContext, Span span);
 
     /**
      * Adds standard tags: {@link io.opentracing.tag.Tags#SPAN_KIND},
@@ -35,7 +35,7 @@ public interface ClientSpanDecorator {
      */
     ClientSpanDecorator STANDARD_TAGS = new ClientSpanDecorator() {
         @Override
-        public void decorateRequest(ClientRequestContext requestContext, BaseSpan<?> span) {
+        public void decorateRequest(ClientRequestContext requestContext, Span span) {
             Tags.PEER_HOSTNAME.set(span, requestContext.getUri().getHost());
             Tags.PEER_PORT.set(span, requestContext.getUri().getPort());
 
@@ -48,7 +48,7 @@ public interface ClientSpanDecorator {
         }
 
         @Override
-        public void decorateResponse(ClientResponseContext responseContext, BaseSpan<?> span) {
+        public void decorateResponse(ClientResponseContext responseContext, Span span) {
             Tags.HTTP_STATUS.set(span, responseContext.getStatus());
         }
     };
@@ -59,12 +59,12 @@ public interface ClientSpanDecorator {
      */
     ClientSpanDecorator HTTP_PATH_OPERATION_NAME = new ClientSpanDecorator() {
         @Override
-        public void decorateRequest(ClientRequestContext clientRequestContext, BaseSpan<?> span) {
+        public void decorateRequest(ClientRequestContext clientRequestContext, Span span) {
             span.setOperationName(URIUtils.path(clientRequestContext.getUri()));
         }
 
         @Override
-        public void decorateResponse(ClientResponseContext response, BaseSpan<?> span) {
+        public void decorateResponse(ClientResponseContext response, Span span) {
         }
     };
 }
