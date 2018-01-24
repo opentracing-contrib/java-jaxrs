@@ -1,16 +1,14 @@
 package io.opentracing.contrib.jaxrs.itest.auto.discovery;
 
+import io.opentracing.mock.MockTracer;
 import javax.naming.NamingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.wildfly.swarm.arquillian.DefaultDeployment;
-
-import io.opentracing.mock.MockTracer;
 
 /**
  * @author Pavol Loffay

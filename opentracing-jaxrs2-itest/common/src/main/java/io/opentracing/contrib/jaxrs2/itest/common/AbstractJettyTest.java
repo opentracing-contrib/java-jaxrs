@@ -3,15 +3,25 @@ package io.opentracing.contrib.jaxrs2.itest.common;
 
 import io.opentracing.util.ThreadLocalScopeManager;
 
+import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
+import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.HTTPMethodOperationName;
+import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
+import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
+import io.opentracing.mock.MockSpan;
+import io.opentracing.mock.MockTracer;
+import io.opentracing.util.GlobalTracer;
 import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
-
+import java.util.concurrent.Callable;
+import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -37,6 +47,7 @@ public abstract class AbstractJettyTest {
 
     protected Server jettyServer;
     protected MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(), MockTracer.Propagator.TEXT_MAP);
+    protected final String contextPath = "/context";
     protected Client client;
 
     protected Client getClient() {
@@ -50,8 +61,19 @@ public abstract class AbstractJettyTest {
 
         ServerTracingDynamicFeature serverTracingFeature =
             new ServerTracingDynamicFeature.Builder(mockTracer)
+                .withOperationNameProvider(HTTPMethodOperationName.newBuilder())
                 .withDecorators(Collections.singletonList(ServerSpanDecorator.STANDARD_TAGS))
+                .withSkipPattern("/health")
             .build();
+        // TODO clarify dispatcher types
+        context.addFilter(new FilterHolder(new SpanFinishingFilter(mockTracer)), "/*",
+            EnumSet.of(
+                DispatcherType.REQUEST,
+                DispatcherType.FORWARD,
+                // TODO CXF does not call AsyncListener#onComplete() without this (it calls only onStartAsync)
+                DispatcherType.ASYNC,
+                DispatcherType.ERROR,
+                DispatcherType.INCLUDE));
 
         context.setAttribute(CLIENT_ATTRIBUTE, client);
         context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
@@ -62,8 +84,8 @@ public abstract class AbstractJettyTest {
     @Before
     public void before() throws Exception {
         client = getClient();
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
+        ServletContextHandler context = new ServletContextHandler();
+        context.setContextPath(contextPath);
 
         initServletContext(context);
         initTracing(context);
@@ -77,6 +99,7 @@ public abstract class AbstractJettyTest {
     @After
     public void after() throws Exception {
         jettyServer.stop();
+        assertOnErrors(mockTracer.finishedSpans());
     }
 
     @AfterClass
@@ -92,7 +115,7 @@ public abstract class AbstractJettyTest {
     }
 
     public String url(String path) {
-        return "http://localhost:" + getPort() + path;
+        return String.format("http://localhost:%d%s%s", getPort(), contextPath == "/" ? "" : contextPath, path);
     }
 
     public int getPort() {
@@ -103,5 +126,14 @@ public abstract class AbstractJettyTest {
         for (MockSpan mockSpan: spans) {
             Assert.assertEquals(mockSpan.generatedErrors().toString(), 0, mockSpan.generatedErrors().size());
         }
+    }
+
+    protected Callable<Boolean> finishedSpansSizeEquals(final int size) {
+        return new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mockTracer.finishedSpans().size() == size;
+            }
+        };
     }
 }

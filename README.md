@@ -5,7 +5,14 @@
 OpenTracing instrumentation for JAX-RS standard. It supports tracing of server and client requests.
 
 Instrumentation by default adds a set of standard HTTP tags and as an operation name it uses a string defined in `@Path` annotation.
-Custom tags or operation name can be defined in span decorators.
+Custom tags or operation name can be added in span decorators.
+It also traces writing response and requests bodies.
+
+## Microprofile-OpenTracing
+This implementation is also compatible with [Microprofile-OpenTracing](https://github.com/eclipse/microprofile-opentracing).
+It can be used as a component inside Microprofile compatible application server. Note that
+application servers have to add a few thing which are not provided by this component: CDI interceptor, 
+automatically register tracing filters into client...
 
 ## Tracing server requests
 By default OpenTracing provider is automatically discovered and registered.
@@ -19,6 +26,7 @@ Custom configuration is only required when using a different set of span decorat
 public Set<Object> getSingletons() {
   DynamicFeature tracing = new ServerTracingDynamicFeature.Builder(tracer)
       .withDecorators(decorators)
+      .withSerializationDecorators(serializationDecorators)
       .build();
 
   return Collections.singleton(tracing);
@@ -31,9 +39,9 @@ An example of traced REST endpoint:
 @GET
 @Path("/hello")
 @Traced(operationName = "helloRenamed") // optional, see javadoc
-public Response hello(@BeanParam TracingContext tracingContext) { // optional to get server span context
+public Response hello() { // optional to get server span context
 
-  // this span will be ChildOf of span representing server request processing, if it is not async, keep reading!
+  // this span will be ChildOf of span representing server request processing
   Span childSpan = tracer.buildSpan("businessOperation")
           .start())
 
@@ -43,10 +51,6 @@ public Response hello(@BeanParam TracingContext tracingContext) { // optional to
   return Response.status(Response.Status.OK).build();
 }
 ```
-
-#### Async handlers
-In case of async handlers server span is not accessible via `tracer.activeSpan()`, however span context
-can be obtained via `@BeanParam TracingContext tracingContext`. This object is injected as a handler param.
 
 ## Tracing client requests
 ```java

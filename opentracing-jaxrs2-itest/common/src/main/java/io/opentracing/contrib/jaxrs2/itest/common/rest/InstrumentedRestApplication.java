@@ -1,13 +1,16 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
+import io.opentracing.Tracer;
+import io.opentracing.contrib.jaxrs2.itest.common.AbstractJettyTest;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.servlet.ServletContext;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.Priorities;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -16,10 +19,8 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.FeatureContext;
-
-import io.opentracing.Tracer;
-import io.opentracing.contrib.jaxrs2.itest.common.AbstractJettyTest;
-import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 
 /**
  * @author Pavol Loffay
@@ -48,7 +49,9 @@ public class InstrumentedRestApplication extends Application {
 
         objects.add(serverTracingFeature);
         objects.add(new TestHandler(tracer, client));
+        objects.add(new DisabledTestHandler(tracer));
         objects.add(new DenyFilteredFeature());
+        objects.add(new MappedExceptionMapper());
 
         return Collections.unmodifiableSet(objects);
     }
@@ -70,6 +73,16 @@ public class InstrumentedRestApplication extends Application {
                     }
                 }
             }, Priorities.AUTHORIZATION);
+        }
+    }
+
+    public static class MappedException extends WebApplicationException {
+    }
+
+    private static class MappedExceptionMapper implements ExceptionMapper<MappedException> {
+        @Override
+        public Response toResponse(MappedException exception) {
+            return Response.status(405).build();
         }
     }
 }
