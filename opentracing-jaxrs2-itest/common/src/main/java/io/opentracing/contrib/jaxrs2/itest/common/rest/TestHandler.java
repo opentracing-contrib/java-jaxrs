@@ -190,7 +190,7 @@ public class TestHandler {
         @Override
         public void run() {
             try(Scope expensiveOpSpan = tracer.buildSpan("expensiveOperation")
-                    .asChildOf(parentContext).startActive()) {
+                    .asChildOf(parentContext).startActive(true)) {
                 try {
                     Thread.sleep(random.nextInt(5));
                 } catch (InterruptedException e) {

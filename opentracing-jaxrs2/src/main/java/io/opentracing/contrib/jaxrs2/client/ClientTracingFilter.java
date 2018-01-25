@@ -61,7 +61,7 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
                 .asChildOf(parentSpanContext);
         }
 
-        Span span = spanBuilder.startManual();
+        Span span = spanBuilder.startActive(false).span();
 
         if (spanDecorators != null) {
             for (ClientSpanDecorator decorator: spanDecorators) {

@@ -1,5 +1,7 @@
 package io.opentracing.contrib.jaxrs.itest.auto.discovery;
 
+import io.opentracing.Span;
+import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import javax.naming.NamingException;
 import javax.ws.rs.client.Client;
@@ -9,6 +11,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.wildfly.swarm.arquillian.DefaultDeployment;
+
+import java.util.List;
 
 /**
  * @author Pavol Loffay
@@ -29,6 +33,8 @@ public class SwarmAutoDiscoveryITest {
 
         client.close();
 
-        Assert.assertEquals(1, mockTracer.finishedSpans().size());
+        List<MockSpan> spans = mockTracer.finishedSpans();
+        Assert.assertEquals(3, spans.size());
+        Assert.assertEquals("hello", spans.get(spans.size() - 1).operationName());
     }
 }

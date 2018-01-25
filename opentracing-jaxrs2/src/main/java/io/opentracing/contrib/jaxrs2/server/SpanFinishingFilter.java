@@ -64,13 +64,12 @@ public class SpanFinishingFilter implements Filter {
       }
     } finally {
       SpanWrapper spanWrapper = getSpanWrapper(httpRequest);
-      if (spanWrapper == null) {
-        return;
-      }
-      if (request.isAsyncStarted()) {
-        request.getAsyncContext().addListener(new SpanFinisher(spanWrapper), request, response);
-      } else {
-        spanWrapper.finish();
+      if (spanWrapper != null) {
+        if (request.isAsyncStarted()) {
+          request.getAsyncContext().addListener(new SpanFinisher(spanWrapper), request, response);
+        } else {
+          spanWrapper.finish();
+        }
       }
       // apache cxf: filter is being called twice for async requests
       // so if we capture in SpanFinisher prevent finishing

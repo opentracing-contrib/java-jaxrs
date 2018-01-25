@@ -71,8 +71,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
                 spanBuilder.asChildOf(extractedSpanContext);
             }
 
-            Span span = spanBuilder.startManual();
-            tracer.scopeManager().activate(span, false);
+            Span span = spanBuilder.startActive(false).span();
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
