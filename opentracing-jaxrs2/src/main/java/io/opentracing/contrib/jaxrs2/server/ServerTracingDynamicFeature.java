@@ -164,14 +164,14 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         }
 
         /**
-         * @param priority the overriding priority for the registered component.
-         *                 Default is {@link Priorities#ENTITY_CODER}
+         * @param serializationPriority the overriding priority for the registered component.
+         *                              Default is {@link Priorities#ENTITY_CODER}
          * @return builder
          *
          * @see Priorities
          */
-        public Builder withSerializationPriority(int priority) {
-            this.priority = priority;
+        public Builder withSerializationPriority(int serializationPriority) {
+            this.serializationPriority = serializationPriority;
             return this;
         }
 
