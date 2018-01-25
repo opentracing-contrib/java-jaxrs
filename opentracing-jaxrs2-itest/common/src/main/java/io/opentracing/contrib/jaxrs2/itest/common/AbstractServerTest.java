@@ -4,6 +4,7 @@ import static org.awaitility.Awaitility.await;
 
 import io.opentracing.mock.MockSpan;
 import io.opentracing.tag.Tags;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -62,7 +63,8 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
                 mockSpans.get(1).context().traceId(),
                 mockSpans.get(2).context().traceId())).size());
 
-        MockSpan clientSpan = mockSpans.get(1);
+        MockSpan clientSpan = getSpanWithTag(mockSpans, new ImmutableTag(Tags.SPAN_KIND, Tags.SPAN_KIND_CLIENT),
+            new ImmutableTag(Tags.HTTP_URL, url("/hello/1")));
         assertOnErrors(mockSpans);
         Assert.assertEquals(6, clientSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, clientSpan.tags().get(Tags.SPAN_KIND.getKey()));
