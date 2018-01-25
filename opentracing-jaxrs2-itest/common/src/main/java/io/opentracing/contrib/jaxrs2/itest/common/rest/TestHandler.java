@@ -1,14 +1,12 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
 import io.opentracing.Scope;
-import io.opentracing.noop.NoopTracer;
-import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.itest.common.rest.InstrumentedRestApplication.MappedException;
+import io.opentracing.noop.NoopTracer;
 import java.net.URI;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -65,7 +63,7 @@ public class TestHandler {
 
     @GET
     @Path("/clientTracingChaining")
-    public Response clientTracingEnabled(@Context HttpServletRequest request) throws ExecutionException, InterruptedException {
+    public Response clientTracingEnabled(@Context HttpServletRequest request) {
         assertActiveSpan();
 
         final int port = request.getServerPort();
@@ -83,7 +81,7 @@ public class TestHandler {
     @Path("/postWithBody")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response postWithBody(@Context HttpServletRequest request, String body) throws ExecutionException, InterruptedException {
+    public Response postWithBody(@Context HttpServletRequest request, String body) {
         assertActiveSpan();
         return Response.ok().entity(body).build();
     }
@@ -150,14 +148,14 @@ public class TestHandler {
 
     @GET
     @Path("/exception")
-    public Response exception(@Context HttpServletRequest request) throws Exception {
+    public Response exception(@Context HttpServletRequest request) {
         assertActiveSpan();
         throw new IllegalStateException("error");
     }
 
     @GET
     @Path("/mappedException")
-    public Response customException(@Context HttpServletRequest request) throws Exception {
+    public Response customException(@Context HttpServletRequest request) {
         assertActiveSpan();
         throw new MappedException();
     }

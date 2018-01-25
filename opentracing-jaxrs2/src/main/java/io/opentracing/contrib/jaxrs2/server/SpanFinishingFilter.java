@@ -71,11 +71,6 @@ public class SpanFinishingFilter implements Filter {
           spanWrapper.finish();
         }
       }
-      // apache cxf: filter is being called twice for async requests
-      // so if we capture in SpanFinisher prevent finishing
-      // onComplete is called only with the second filter call
-      // It also seems that WF swarm run this filter in a different thread
-      // so this does not finish the span on ActiveSpan.deactivate()
     }
   }
 

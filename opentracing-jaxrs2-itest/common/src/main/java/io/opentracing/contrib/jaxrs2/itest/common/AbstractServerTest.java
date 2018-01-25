@@ -22,7 +22,7 @@ import org.junit.Test;
 public abstract class AbstractServerTest extends AbstractJettyTest {
 
     @Test
-    public void testServerStandardTags() throws Exception {
+    public void testServerStandardTags() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/hello/1?q=a"))
             .request()
@@ -43,7 +43,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testServerAndClientTracingChaining() throws Exception {
+    public void testServerAndClientTracingChaining() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/clientTracingChaining"))
                 .request()
@@ -74,7 +74,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testAsyncError() throws Exception {
+    public void testAsyncError() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/asyncError"))
             .request()
@@ -96,7 +96,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testAsyncSever() throws Exception {
+    public void testAsyncSever() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/async"))
                 .request()
@@ -115,7 +115,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testTracedCustomOperationName() throws Exception {
+    public void testTracedCustomOperationName() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/operation"))
                 .request()
@@ -130,7 +130,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testTracedFalseMethod() throws Exception {
+    public void testTracedFalseMethod() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/tracedFalseIn"))
             .request()
@@ -141,7 +141,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testTracedFalseClass() throws Exception {
+    public void testTracedFalseClass() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/tracedFalse/foo"))
             .request()
@@ -152,7 +152,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testTracedFalseClassOverride() throws Exception {
+    public void testTracedFalseClassOverride() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/tracedFalse/enabled"))
             .request()
@@ -167,7 +167,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testNotExistingURL() throws Exception {
+    public void testNotExistingURL() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/doesNotExist"))
                 .request()
@@ -180,7 +180,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testExceptionInHandler() throws Exception {
+    public void testExceptionInHandler() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/exception"))
             .request()
@@ -199,7 +199,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testMappedExceptionInHandler() throws Exception {
+    public void testMappedExceptionInHandler() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/mappedException"))
             .request()
@@ -216,7 +216,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testPathParam() throws Exception {
+    public void testPathParam() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/path/foo"))
                 .request()
@@ -231,7 +231,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testRequestBlockedByFilter() throws Exception {
+    public void testRequestBlockedByFilter() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/filtered"))
                 .request()
@@ -244,7 +244,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testSkipPattern() throws Exception {
+    public void testSkipPattern() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/health"))
             .request()
@@ -256,7 +256,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testSerializationResponseAndRequestWithBody() throws InterruptedException {
+    public void testSerializationResponseAndRequestWithBody() {
         Response response = ClientBuilder.newClient()
             .target(url("/postWithBody"))
             .request()

@@ -1,7 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopTracerFactory;
+import io.opentracing.noop.NoopTracer;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -37,13 +37,13 @@ public class DisabledTestHandler {
   }
 
   private void assertNoActiveSpan() {
-    if (!(tracer == NoopTracerFactory.create())) {
+    if (!(tracer instanceof NoopTracer)) {
       Assert.assertNull(tracer.scopeManager().active());
     }
   }
 
   private void assertActiveSpan() {
-    if (!(tracer == NoopTracerFactory.create())) {
+    if (!(tracer instanceof NoopTracer)) {
       Assert.assertNotNull(tracer.scopeManager().active());
     }
   }
