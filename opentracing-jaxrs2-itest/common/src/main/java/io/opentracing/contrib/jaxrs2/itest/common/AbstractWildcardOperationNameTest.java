@@ -70,7 +70,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
     }
 
     @Test
-    public void testRegexParam() throws Exception {
+    public void testRegexParam() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/path/param/path/word1"))
                 .request()

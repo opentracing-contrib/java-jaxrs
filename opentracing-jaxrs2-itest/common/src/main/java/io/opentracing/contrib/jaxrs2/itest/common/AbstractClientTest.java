@@ -1,7 +1,6 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
 import io.opentracing.contrib.jaxrs2.client.TracingProperties;
@@ -9,10 +8,10 @@ import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
+import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
 import io.opentracing.util.ThreadLocalScopeManager;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -140,7 +139,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
     }
 
     @Test
-    public void testClientTracingDisabled() throws Exception {
+    public void testClientTracingDisabled() {
         Response response = client.target(url("/hello"))
                 .request()
                 .property(TracingProperties.TRACING_DISABLED, true)

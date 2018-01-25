@@ -1,8 +1,6 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 
-import io.opentracing.util.ThreadLocalScopeManager;
-
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
 import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.HTTPMethodOperationName;
 import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
@@ -10,13 +8,22 @@ import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
+import io.opentracing.noop.NoopTracerFactory;
+import io.opentracing.tag.AbstractTag;
 import io.opentracing.util.GlobalTracer;
+import io.opentracing.util.ThreadLocalScopeManager;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.servlet.DispatcherType;
+import javax.swing.plaf.PanelUI;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import org.eclipse.jetty.server.Server;
@@ -27,14 +34,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-
-import io.opentracing.noop.NoopTracerFactory;
-import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
-import io.opentracing.contrib.jaxrs2.server.ServerSpanDecorator;
-import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
-import io.opentracing.mock.MockSpan;
-import io.opentracing.mock.MockTracer;
-import io.opentracing.util.GlobalTracer;
 
 /**
  * @author Pavol Loffay
@@ -135,5 +134,61 @@ public abstract class AbstractJettyTest {
                 return mockTracer.finishedSpans().size() == size;
             }
         };
+    }
+
+    public MockSpan getSpanWithTag(List<MockSpan> spans, ImmutableTag... expected) {
+        Set<ImmutableTag> expectedSet = new HashSet<>();
+        if (expected != null) {
+            expectedSet.addAll(Arrays.asList(expected));
+        }
+
+        MockSpan found = null;
+        for (MockSpan mockSpan: spans) {
+            Set<ImmutableTag> actual = new HashSet<>();
+            for (Map.Entry<String, Object> tagEntry: mockSpan.tags().entrySet()) {
+                actual.add(new ImmutableTag(tagEntry.getKey(), tagEntry.getValue()));
+            }
+
+            if (actual.containsAll(expectedSet)) {
+                if (found != null) {
+                    throw new IllegalStateException(
+                        String.format("There are >=  twos pans containing the same tags %s", expectedSet.toString()));
+                }
+                found = mockSpan;
+            }
+        }
+        return found;
+    }
+
+    public static class ImmutableTag {
+        private String key;
+        private Object value;
+
+        public ImmutableTag(AbstractTag<?> tag, Object value) {
+            this(tag.getKey(), value);
+        }
+
+        public ImmutableTag(String key, Object value) {
+            this.key = key;
+            this.value =value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ImmutableTag that = (ImmutableTag) o;
+            return Objects.equals(key, that.key) &&
+                Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(key, value);
+        }
     }
 }

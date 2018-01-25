@@ -19,7 +19,7 @@ By default OpenTracing provider is automatically discovered and registered.
 The only configuration that is required is to register a tracer instance via `GlobalTracer.register(tracer)` at application startup.
 
 ### Custom configuration
-Custom configuration is only required when using a different set of span decoratos.
+Custom configuration is only required when using a different set of span decorators.
 
 ```java
 // code sample from javax.ws.rs.core.Application

@@ -2,10 +2,8 @@ package io.opentracing.contrib.jaxrs2.serialization;
 
 import io.opentracing.References;
 import io.opentracing.Scope;
-import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
-import io.opentracing.noop.NoopScopeManager;
 import io.opentracing.noop.NoopScopeManager.NoopScope;
 import io.opentracing.tag.Tags;
 import java.io.IOException;
@@ -49,11 +47,11 @@ public abstract class TracingInterceptor implements WriterInterceptor, ReaderInt
     @Override
     public void aroundWriteTo(WriterInterceptorContext context)
         throws IOException, WebApplicationException {
-        try (Scope activeSpan = decorateWrite(context, buildSpan(context, "serialize"))) {
+        try (Scope scope = decorateWrite(context, buildSpan(context, "serialize"))) {
             try {
                 context.proceed();
             } catch (Exception e) {
-                Tags.ERROR.set(activeSpan.span(), true);
+                Tags.ERROR.set(scope.span(), true);
                 throw e;
             }
         }
