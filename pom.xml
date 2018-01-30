@@ -38,6 +38,7 @@
     <module>opentracing-jaxrs2</module>
     <module>opentracing-jaxrs2-itest</module>
     <module>examples/spring-boot</module>
+    <module>examples/java-ee</module>
   </modules>
 
   <properties>
