@@ -295,7 +295,8 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
                         ClientBuilder.newClient()
                             .target(url("/hello/" + j))
                             .request()
-                            .get();
+                            .get()
+                            .close();
                     }
                 }
             }));
@@ -305,8 +306,8 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
             future.get();
         }
 
-        executorService.awaitTermination(2, TimeUnit.SECONDS);
-        executorService.shutdownNow();
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.SECONDS);
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         assertOnErrors(mockSpans);
