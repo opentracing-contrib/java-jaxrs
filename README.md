@@ -15,24 +15,46 @@ application servers have to add a few thing which are not provided by this compo
 automatically register tracing filters into client...
 
 ## Tracing server requests
-By default OpenTracing provider is automatically discovered and registered.
-The only configuration that is required is to register a tracer instance via `GlobalTracer.register(tracer)` at application startup.
+Tracing server requests requires two components: JAX-RS dynamic feature and servlet filter.
+Span is started in JAX-RS filter and finished in servlet filter.
+
+By default OpenTracing provider and servlet filter can be automatically discovered and registered.
+The only configuration that is required is to register a tracer instance via `GlobalTracer.register(tracer)`.
+It can be done in `ServletContextListener`.
 
 ### Custom configuration
-Custom configuration is only required when using a different set of span decorators.
+Custom configuration is supported:
 
 ```java
-// code sample from javax.ws.rs.core.Application
-public Set<Object> getSingletons() {
-  DynamicFeature tracing = new ServerTracingDynamicFeature.Builder(tracer)
-      .withDecorators(decorators)
-      .withSerializationDecorators(serializationDecorators)
-      .build();
+public class JaxRsApp extends javax.ws.rs.core.Application {
 
-  return Collections.singleton(tracing);
+  @Override
+  public Set<Object> getSingletons() {
+    DynamicFeature tracing = new ServerTracingDynamicFeature.Builder(tracer)
+        .withDecorators(decorators)
+        .withSerializationDecorators(serializationDecorators)
+        .build();
+
+    return Collections.singleton(tracing);
+  }
 }
-
 ```
+
+```java
+@WebListener
+public class OpenTracingContextInitializer implements javax.servlet.ServletContextListener {
+
+  @Override
+  public void contextInitialized(ServletContextEvent servletContextEvent) {
+    ServletContext servletContext = servletContextEvent.getServletContext();
+    Dynamic filterRegistration = servletContext
+        .addFilter("tracingFilter", new SpanFinishingFilter(tracer));
+    filterRegistration.setAsyncSupported(true);
+    filterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "*");
+  }
+}
+```
+
             
 An example of traced REST endpoint:
 ```java
