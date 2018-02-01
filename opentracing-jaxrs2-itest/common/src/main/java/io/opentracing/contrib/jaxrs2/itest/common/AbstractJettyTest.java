@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.servlet.DispatcherType;
-import javax.swing.plaf.PanelUI;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import org.eclipse.jetty.server.Server;
@@ -33,7 +32,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 
 /**
  * @author Pavol Loffay
@@ -44,10 +42,29 @@ public abstract class AbstractJettyTest {
     public static final String CLIENT_ATTRIBUTE = "clientBuilder";
     public static final String TRACER_ATTRIBUTE = "tracer";
 
-    protected Server jettyServer;
-    protected MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(), MockTracer.Propagator.TEXT_MAP);
+    // static to close it at the end
+    static Server jettyServer;
+    protected final MockTracer mockTracer = new MockTracer();
     protected final String contextPath = "/context";
-    protected Client client;
+    protected final Client client;
+
+    public AbstractJettyTest() {
+        this.client = getClient();
+
+        ServletContextHandler context = new ServletContextHandler();
+        context.setContextPath(contextPath);
+
+        initServletContext(context);
+        initTracing(context);
+
+        this.jettyServer = new Server(0);
+        this.jettyServer.setHandler(context);
+        try {
+            this.jettyServer.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     protected Client getClient() {
         return ClientBuilder.newClient();
@@ -79,26 +96,17 @@ public abstract class AbstractJettyTest {
         context.setAttribute(SERVER_TRACING_FEATURE, serverTracingFeature);
     }
 
-
-    @Before
-    public void before() throws Exception {
-        client = getClient();
-        ServletContextHandler context = new ServletContextHandler();
-        context.setContextPath(contextPath);
-
-        initServletContext(context);
-        initTracing(context);
-
-        mockTracer.reset();
-        jettyServer = new Server(0);
-        jettyServer.setHandler(context);
-        jettyServer.start();
+    @AfterClass
+    public static void afterClass() throws Exception {
+        if (jettyServer != null) {
+            jettyServer.stop();
+        }
     }
 
     @After
-    public void after() throws Exception {
-        jettyServer.stop();
+    public void after() {
         assertOnErrors(mockTracer.finishedSpans());
+        mockTracer.reset();
     }
 
     @AfterClass

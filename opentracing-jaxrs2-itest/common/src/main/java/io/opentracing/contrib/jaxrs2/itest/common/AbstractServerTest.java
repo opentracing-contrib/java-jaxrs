@@ -4,11 +4,16 @@ import static org.awaitility.Awaitility.await;
 
 import io.opentracing.mock.MockSpan;
 import io.opentracing.tag.Tags;
-import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -275,6 +280,41 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         final MockSpan parentSpan = mockSpans.get(2);
         assertRequestSerialization(parentSpan, serializationRequestSpan);
         assertResponseSerialization(parentSpan, serializationResponseSpan);
+    }
+
+    @Test
+    public void testMultipleServerRequests() throws ExecutionException, InterruptedException {
+        int numberOfThreads = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+        List<Future<?>> futures = new ArrayList<>(numberOfThreads);
+        for (int i = 0; i < numberOfThreads; i++) {
+            futures.add(executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    for (int j = 0; j < 10; j++) {
+                        ClientBuilder.newClient()
+                            .target(url("/hello/" + j))
+                            .request()
+                            .get()
+                            .close();
+                    }
+                }
+            }));
+        }
+
+        for (Future<?> future: futures) {
+            future.get();
+        }
+
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.SECONDS);
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        assertOnErrors(mockSpans);
+        Assert.assertEquals(numberOfThreads*10, mockSpans.size());
+        for (MockSpan mockSpan: mockSpans) {
+            Assert.assertEquals(0, mockSpan.parentId());
+        }
     }
 
     private void assertRequestSerialization(MockSpan parentSpan, MockSpan serializationSpan) {

@@ -53,16 +53,16 @@ public class SpanFinishingFilter implements Filter {
       chain.doFilter(request, response);
     } catch (Exception ex) {
       SpanWrapper spanWrapper = getSpanWrapper(httpRequest);
-      Scope scope = tracer.scopeManager().active();
-      if (scope != null) {
-        scope.close();
-      }
       if (spanWrapper != null) {
         Tags.HTTP_STATUS.set(spanWrapper.get(), httpResponse.getStatus());
         addExceptionLogs(spanWrapper.get(), ex);
         throw ex;
       }
     } finally {
+      Scope scope = tracer.scopeManager().active();
+      if (scope != null) {
+        scope.close();
+      }
       SpanWrapper spanWrapper = getSpanWrapper(httpRequest);
       if (spanWrapper != null) {
         if (request.isAsyncStarted()) {
