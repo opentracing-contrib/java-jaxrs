@@ -32,8 +32,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 
 /**
  * @author Pavol Loffay
@@ -44,6 +42,7 @@ public abstract class AbstractJettyTest {
     public static final String CLIENT_ATTRIBUTE = "clientBuilder";
     public static final String TRACER_ATTRIBUTE = "tracer";
 
+    // static to close it at the end
     static Server jettyServer;
     protected final MockTracer mockTracer = new MockTracer();
     protected final String contextPath = "/context";
