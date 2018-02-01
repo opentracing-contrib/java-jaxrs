@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * Filter which finishes span after server processing. It is required to be registered.
+ *
  * @author Pavol Loffay
  */
 @WebFilter(urlPatterns = "/*", asyncSupported = true)

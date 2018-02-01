@@ -17,7 +17,9 @@ import javax.ws.rs.ext.Provider;
 import org.eclipse.microprofile.opentracing.Traced;
 
 /**
- * This class has to be registered as JAX-RS provider to enable tracing of server requests.
+ * This class has to be registered as JAX-RS provider to enable tracing of server requests. It also
+ * requires {@link SpanFinishingFilter} for correct functionality. Spans are created in JAX-RS filter
+ * and finished in servlet filter.
  *
  * @author Pavol Loffay
  */
