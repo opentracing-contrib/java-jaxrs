@@ -1,7 +1,5 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
-
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -10,17 +8,21 @@ import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 
+import javax.annotation.Priority;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.Context;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.annotation.Priority;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.*;
-import javax.ws.rs.core.Context;
+import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
 
 /**
  * @author Pavol Loffay
@@ -90,21 +92,15 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     }
 
     private SpanContext parentSpanContext(ContainerRequestContext requestContext) {
-        SpanContext parentSpanContext = null;
-
         Span activeSpan = tracer.activeSpan();
         if (activeSpan != null) {
-            parentSpanContext = activeSpan.context();
+            return activeSpan.context();
         } else {
-            SpanContext extractedSpanContext = tracer.extract(
-                Format.Builtin.HTTP_HEADERS,
-                new ServerHeadersExtractTextMap(requestContext.getHeaders())
+            return tracer.extract(
+                    Format.Builtin.HTTP_HEADERS,
+                    new ServerHeadersExtractTextMap(requestContext.getHeaders())
             );
-            if (extractedSpanContext != null) {
-                parentSpanContext = extractedSpanContext;
-            }
         }
-        return parentSpanContext;
     }
 
     @Override
