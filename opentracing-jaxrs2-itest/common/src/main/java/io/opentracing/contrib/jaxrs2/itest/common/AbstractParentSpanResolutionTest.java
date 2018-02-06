@@ -1,5 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
+import static org.awaitility.Awaitility.await;
+
 import io.opentracing.Scope;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.tag.Tags;
@@ -8,15 +10,14 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.servlet.*;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 
-import static org.awaitility.Awaitility.await;
+import javax.servlet.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
 
 public abstract class AbstractParentSpanResolutionTest extends AbstractJettyTest {
 
@@ -35,7 +36,7 @@ public abstract class AbstractParentSpanResolutionTest extends AbstractJettyTest
     }
 
     @Test
-    public void test() {
+    public void testUseActiveSpanIfSet() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/hello/1"))
                 .request()
