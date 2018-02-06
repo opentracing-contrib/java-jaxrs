@@ -1,7 +1,5 @@
 package io.opentracing.contrib.jaxrs2.server;
 
-import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
-
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -9,12 +7,7 @@ import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
+
 import javax.annotation.Priority;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Priorities;
@@ -23,6 +16,13 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Context;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
 
 /**
  * @author Pavol Loffay
@@ -54,21 +54,20 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     private HttpServletRequest httpServletRequest;
 
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext) {
         // return in case filter if registered twice
         if (requestContext.getProperty(PROPERTY_NAME) != null || matchesSkipPattern(requestContext)) {
             return;
         }
 
         if (tracer != null) {
-            SpanContext extractedSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS,
-                    new ServerHeadersExtractTextMap(requestContext.getHeaders()));
 
             Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameProvider.operationName(requestContext))
                     .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
 
-            if (extractedSpanContext != null) {
-                spanBuilder.asChildOf(extractedSpanContext);
+            SpanContext parentSpanContext = parentSpanContext(requestContext);
+            if (parentSpanContext != null) {
+                spanBuilder.asChildOf(parentSpanContext);
             }
 
             Span span = spanBuilder.startActive(false).span();
@@ -92,9 +91,21 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
         }
     }
 
+    private SpanContext parentSpanContext(ContainerRequestContext requestContext) {
+        Span activeSpan = tracer.activeSpan();
+        if (activeSpan != null) {
+            return activeSpan.context();
+        } else {
+            return tracer.extract(
+                    Format.Builtin.HTTP_HEADERS,
+                    new ServerHeadersExtractTextMap(requestContext.getHeaders())
+            );
+        }
+    }
+
     @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
-            throws IOException {
+    public void filter(ContainerRequestContext requestContext,
+                       ContainerResponseContext responseContext) {
         SpanWrapper spanWrapper = CastUtils.cast(requestContext.getProperty(PROPERTY_NAME), SpanWrapper.class);
         if (spanWrapper == null) {
             return;
