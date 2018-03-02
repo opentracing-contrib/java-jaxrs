@@ -58,8 +58,8 @@ public class SpanFinishingFilter implements Filter {
       if (spanWrapper != null) {
         Tags.HTTP_STATUS.set(spanWrapper.get(), httpResponse.getStatus());
         addExceptionLogs(spanWrapper.get(), ex);
-        throw ex;
       }
+      throw ex;
     } finally {
       Scope scope = tracer.scopeManager().active();
       if (scope != null) {
