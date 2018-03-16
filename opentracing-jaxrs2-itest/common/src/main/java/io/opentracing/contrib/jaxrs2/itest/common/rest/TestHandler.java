@@ -39,6 +39,13 @@ public class TestHandler {
     }
 
     @GET
+    @Path("/")
+    public Response root() {
+        assertActiveSpan();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @GET
     @Path("/hello/{id}")
     public Response helloMethod(@Context HttpHeaders headers, @PathParam("id") String id) {
         assertActiveSpan();

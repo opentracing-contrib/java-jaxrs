@@ -40,6 +40,21 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
     }
 
     @Test
+    public void testRoot() {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/"))
+            .request()
+            .get();
+        response.close();
+        await().until(finishedSpansSizeEquals(1));
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockTracer.finishedSpans());
+        Assert.assertEquals("/", mockSpans.get(0).operationName());
+    }
+
+    @Test
     public void testOnePathParam() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/path/foo"))
@@ -51,7 +66,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        Assert.assertEquals("path/{pathParam}", mockSpans.get(0).operationName());
+        Assert.assertEquals("/path/{pathParam}", mockSpans.get(0).operationName());
     }
 
     @Test
@@ -66,7 +81,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        Assert.assertEquals("path/{pathParam}/path2/{pathParam2}", mockSpans.get(0).operationName());
+        Assert.assertEquals("/path/{pathParam}/path2/{pathParam2}", mockSpans.get(0).operationName());
     }
 
     @Test
@@ -81,6 +96,6 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        Assert.assertEquals("path/{pathParam}/path/{regexParam}", mockSpans.get(0).operationName());
+        Assert.assertEquals("/path/{pathParam}/path/{regexParam}", mockSpans.get(0).operationName());
     }
 }
