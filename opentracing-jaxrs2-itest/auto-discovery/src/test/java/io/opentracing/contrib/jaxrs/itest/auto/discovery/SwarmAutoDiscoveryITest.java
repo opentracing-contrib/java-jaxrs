@@ -33,6 +33,6 @@ public class SwarmAutoDiscoveryITest {
 
         List<MockSpan> spans = mockTracer.finishedSpans();
         Assert.assertEquals(3, spans.size());
-        Assert.assertEquals("hello", spans.get(spans.size() - 1).operationName());
+        Assert.assertEquals("/hello", spans.get(spans.size() - 1).operationName());
     }
 }
