@@ -11,7 +11,6 @@ import io.opentracing.mock.MockTracer;
 import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.tag.AbstractTag;
 import io.opentracing.util.GlobalTracer;
-import io.opentracing.util.ThreadLocalScopeManager;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;

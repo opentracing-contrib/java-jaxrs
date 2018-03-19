@@ -1,5 +1,10 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
+
+import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature.Builder;
@@ -25,6 +30,10 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.client.ClientResponseContext;
+import javax.ws.rs.client.ClientResponseFilter;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.MediaType;
@@ -56,6 +65,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
     public void testDefaultConfiguration() {
         MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
         GlobalTracer.register(mockTracer);
+
         Client client = ClientBuilder.newClient()
                 .register(ClientTracingFeature.class);
 
@@ -63,7 +73,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
                 .request()
                 .get();
         response.close();
-
+        assertNoActiveSpan();
         Assert.assertEquals(1, mockTracer.finishedSpans().size());
     }
 
@@ -73,6 +83,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
                 .request()
                 .get();
         response.close();
+        assertNoActiveSpan();
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
@@ -101,6 +112,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
                 .property("jersey.config.client.followRedirects", false)
                 .get();
         response.close();
+        assertNoActiveSpan();
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
@@ -126,6 +138,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
                 .property(TracingProperties.CHILD_OF, parentSpan.context())
                 .get();
         response.close();
+        assertNoActiveSpan();
 
         parentSpan.finish();
 
@@ -145,6 +158,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
                 .property(TracingProperties.TRACING_DISABLED, true)
                 .get();
         response.close();
+        assertNoActiveSpan();
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(0, mockSpans.size());
@@ -169,6 +183,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
                 });
 
         responseFuture.get();
+        assertNoActiveSpan();
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         assertOnErrors(mockSpans);
@@ -204,10 +219,12 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    mockTracer.scopeManager().activate(parentSpan, true);
-                    client.target(requestUrl)
+                    Scope parentScope = mockTracer.scopeManager().activate(parentSpan, true);
+                    Response response = client.target(requestUrl)
                         .request()
                         .get();
+                    response.close();
+                    assertEquals(parentScope, mockTracer.scopeManager().active());
                 }
             }));
         }
@@ -254,7 +271,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    mockTracer.scopeManager().activate(parentSpan, true);
+                    Scope parentScope = mockTracer.scopeManager().activate(parentSpan, true);
                     try {
                         Future<Response> responseFuture = client.target(requestUrl)
                             .request()
@@ -272,6 +289,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
                         Response response = responseFuture.get();
                         response.close();
+                        assertEquals(parentScope, mockTracer.scopeManager().active());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (ExecutionException e) {
@@ -314,6 +332,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
         } catch (ProcessingException ex) {
         }
 
+        assertNoActiveSpan();
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         // TODO currently it is not possible to catch exceptions thrown by jax-rs https://github.com/opentracing-contrib/java-jaxrs/issues/51
         Assert.assertEquals(0, mockSpans.size());
@@ -324,6 +343,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
         String response = client.target(url("/postWithBody"))
             .request()
             .post(Entity.entity("entity", MediaType.TEXT_PLAIN_TYPE), String.class);
+        assertNoActiveSpan();
 
         Assert.assertEquals("entity", response);
 
@@ -356,5 +376,9 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
         Assert.assertEquals(parentSpan.context().spanId(), serializationSpan.parentId());
         Assert.assertEquals(parentSpan.context().traceId(), serializationSpan.context().traceId());
+    }
+
+    private void assertNoActiveSpan() {
+        assertNull(mockTracer.activeSpan());
     }
 }
