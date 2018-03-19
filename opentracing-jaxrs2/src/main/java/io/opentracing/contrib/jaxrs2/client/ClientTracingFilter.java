@@ -2,7 +2,6 @@ package io.opentracing.contrib.jaxrs2.client;
 
 import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
 
-import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
