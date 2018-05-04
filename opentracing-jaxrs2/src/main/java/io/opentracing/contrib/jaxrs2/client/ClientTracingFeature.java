@@ -6,6 +6,7 @@ import io.opentracing.util.GlobalTracer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.client.Client;
@@ -38,7 +39,9 @@ public class ClientTracingFeature implements Feature {
 
     @Override
     public boolean configure(FeatureContext context) {
-        log.info("Registering client OpenTracing, with configuration:" + builder.toString());
+        if (log.isLoggable(Level.FINE)) {
+            log.fine("Registering client OpenTracing, with configuration:" + builder.toString());
+        }
         context.register(new ClientTracingFilter(builder.tracer, builder.spanDecorators),
             builder.priority);
 
