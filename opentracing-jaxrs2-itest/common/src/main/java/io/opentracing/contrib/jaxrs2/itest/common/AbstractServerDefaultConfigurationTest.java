@@ -51,8 +51,9 @@ public abstract class AbstractServerDefaultConfigurationTest extends AbstractJet
 
         MockSpan mockSpan = mockTracer.finishedSpans().get(0);
         Assert.assertEquals("/hello/{id}", mockSpan.operationName());
-        Assert.assertEquals(4, mockSpan.tags().size());
+        Assert.assertEquals(5, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_SERVER, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
+        Assert.assertEquals("jaxrs", mockSpan.tags().get(Tags.COMPONENT.getKey()));
         Assert.assertEquals(url("/hello/1"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(200, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));

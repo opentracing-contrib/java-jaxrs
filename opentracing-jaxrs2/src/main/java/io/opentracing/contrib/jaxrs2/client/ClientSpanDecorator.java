@@ -36,6 +36,7 @@ public interface ClientSpanDecorator {
     ClientSpanDecorator STANDARD_TAGS = new ClientSpanDecorator() {
         @Override
         public void decorateRequest(ClientRequestContext requestContext, Span span) {
+            Tags.COMPONENT.set(span, "jaxrs");
             Tags.PEER_HOSTNAME.set(span, requestContext.getUri().getHost());
             Tags.PEER_PORT.set(span, requestContext.getUri().getPort());
 

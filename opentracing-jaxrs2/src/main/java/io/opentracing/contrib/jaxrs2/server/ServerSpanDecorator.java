@@ -35,6 +35,7 @@ public interface ServerSpanDecorator {
     ServerSpanDecorator STANDARD_TAGS = new ServerSpanDecorator() {
         @Override
         public void decorateRequest(ContainerRequestContext requestContext, Span span) {
+            Tags.COMPONENT.set(span, "jaxrs");
             Tags.HTTP_METHOD.set(span, requestContext.getMethod());
 
             String url = URIUtils.url(requestContext.getUriInfo().getRequestUri());

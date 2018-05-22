@@ -91,8 +91,9 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
         MockSpan mockSpan = mockSpans.get(0);
         Assert.assertEquals("GET", mockSpan.operationName());
-        Assert.assertEquals(6, mockSpan.tags().size());
+        Assert.assertEquals(7, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
+        Assert.assertEquals("jaxrs", mockSpan.tags().get(Tags.COMPONENT.getKey()));
         Assert.assertEquals(url("/hello/1"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(200, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
@@ -120,8 +121,9 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
         MockSpan mockSpan = mockSpans.get(0);
         Assert.assertEquals("GET", mockSpan.operationName());
-        Assert.assertEquals(6, mockSpan.tags().size());
+        Assert.assertEquals(7, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
+        Assert.assertEquals("jaxrs", mockSpan.tags().get(Tags.COMPONENT.getKey()));
         Assert.assertEquals(url("/redirect"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(303, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
@@ -191,8 +193,9 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
         MockSpan mockSpan = mockSpans.get(0);
         Assert.assertEquals("GET", mockSpan.operationName());
-        Assert.assertEquals(6, mockSpan.tags().size());
+        Assert.assertEquals(7, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
+        Assert.assertEquals("jaxrs", mockSpan.tags().get(Tags.COMPONENT.getKey()));
         Assert.assertEquals(url("/hello/1"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(200, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));

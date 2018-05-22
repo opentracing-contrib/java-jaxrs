@@ -41,8 +41,9 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
 
         MockSpan mockSpan = mockTracer.finishedSpans().get(0);
         Assert.assertEquals("GET", mockSpan.operationName());
-        Assert.assertEquals(4, mockSpan.tags().size());
+        Assert.assertEquals(5, mockSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_SERVER, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
+        Assert.assertEquals("jaxrs", mockSpan.tags().get(Tags.COMPONENT.getKey()));
         Assert.assertEquals(url("/hello/1?q=a"), mockSpan.tags().get(Tags.HTTP_URL.getKey()));
         Assert.assertEquals("GET", mockSpan.tags().get(Tags.HTTP_METHOD.getKey()));
         Assert.assertEquals(200, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
@@ -71,8 +72,9 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         MockSpan clientSpan = getSpanWithTag(mockSpans, new ImmutableTag(Tags.SPAN_KIND, Tags.SPAN_KIND_CLIENT),
             new ImmutableTag(Tags.HTTP_URL, url("/hello/1")));
         assertOnErrors(mockSpans);
-        Assert.assertEquals(6, clientSpan.tags().size());
+        Assert.assertEquals(7, clientSpan.tags().size());
         Assert.assertEquals(Tags.SPAN_KIND_CLIENT, clientSpan.tags().get(Tags.SPAN_KIND.getKey()));
+        Assert.assertEquals("jaxrs", clientSpan.tags().get(Tags.COMPONENT.getKey()));
         Assert.assertEquals("localhost", clientSpan.tags().get(Tags.PEER_HOSTNAME.getKey()));
         Assert.assertEquals(getPort(), clientSpan.tags().get(Tags.PEER_PORT.getKey()));
         Assert.assertEquals("GET", clientSpan.tags().get(Tags.HTTP_METHOD.getKey()));
@@ -199,7 +201,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         MockSpan mockSpan = mockSpans.get(0);
-        Assert.assertEquals(5, mockSpan.tags().size());
+        Assert.assertEquals(6, mockSpan.tags().size());
         Assert.assertEquals(true, mockSpan.tags().get(Tags.ERROR.getKey()));
         // TODO resteasy and CXF returns 200
 //        Assert.assertEquals(500, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
@@ -218,7 +220,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         MockSpan mockSpan = mockSpans.get(0);
-        Assert.assertEquals(4, mockSpan.tags().size());
+        Assert.assertEquals(5, mockSpan.tags().size());
         Assert.assertNull(mockSpan.tags().get(Tags.ERROR.getKey()));
     }
 
