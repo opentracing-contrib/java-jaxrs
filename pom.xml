@@ -110,14 +110,6 @@
     </dependencies>
   </dependencyManagement>
 
-  <!-- TODO REMOVE, only for testing MP RC -->
-  <repositories>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/orgeclipsemicroprofile-1084</url>
-    </repository>
-  </repositories>
-
   <distributionManagement>
     <repository>
       <id>bintray</id>
