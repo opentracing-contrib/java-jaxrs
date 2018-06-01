@@ -61,12 +61,9 @@ public class SpanFinishingFilter implements Filter {
       }
       throw ex;
     } finally {
-      Scope scope = tracer.scopeManager().active();
-      if (scope != null) {
-        scope.close();
-      }
       SpanWrapper spanWrapper = getSpanWrapper(httpRequest);
       if (spanWrapper != null) {
+        spanWrapper.getScope().close();
         if (request.isAsyncStarted()) {
           request.getAsyncContext().addListener(new SpanFinisher(spanWrapper), request, response);
         } else {

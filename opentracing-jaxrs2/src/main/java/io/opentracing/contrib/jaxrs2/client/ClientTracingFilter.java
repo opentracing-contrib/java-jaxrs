@@ -7,6 +7,7 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
+import io.opentracing.noop.NoopScopeManager.NoopScope;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import java.io.IOException;
@@ -61,7 +62,10 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
                 .asChildOf(parentSpanContext);
         }
 
-        Span span = spanBuilder.start();
+        /**
+         * Do not create Scope - there is no way to deactivate it on UnknownHostException
+         */
+        final Span span = spanBuilder.start();
 
         if (spanDecorators != null) {
             for (ClientSpanDecorator decorator: spanDecorators) {
@@ -74,7 +78,16 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
         }
 
         tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new ClientHeadersInjectTextMap(requestContext.getHeaders()));
-        requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(span));
+        requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(new NoopScope() {
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public Span span() {
+                return span;
+            }
+        }));
     }
 
     @Override
