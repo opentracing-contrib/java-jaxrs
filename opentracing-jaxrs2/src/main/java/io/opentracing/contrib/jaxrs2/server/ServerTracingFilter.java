@@ -1,5 +1,6 @@
 package io.opentracing.contrib.jaxrs2.server;
 
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -70,27 +71,33 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
                 spanBuilder.asChildOf(parentSpanContext);
             }
 
-            Span span = spanBuilder.startActive(false).span();
+            Scope scope = spanBuilder.startActive(false);
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
-                    decorator.decorateRequest(requestContext, span);
+                    decorator.decorateRequest(requestContext, scope.span());
                 }
             }
 
             // override operation name set by @Traced
             if (this.operationName != null) {
-                span.setOperationName(operationName);
+                scope.span().setOperationName(operationName);
             }
 
             if (log.isLoggable(Level.FINEST)) {
                 log.finest("Creating server span: " + operationName);
             }
 
-            requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(span));
+            requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(scope));
         }
     }
 
+    /**
+     * Returns a parent for a span created by this filter (jax-rs span).
+     * The context from the active span takes precedence over context in the request.
+     * The current active span should be child-of extracted context and for example
+     * created at a lower level e.g. jersey filter.
+     */
     private SpanContext parentSpanContext(ContainerRequestContext requestContext) {
         Span activeSpan = tracer.activeSpan();
         if (activeSpan != null) {
