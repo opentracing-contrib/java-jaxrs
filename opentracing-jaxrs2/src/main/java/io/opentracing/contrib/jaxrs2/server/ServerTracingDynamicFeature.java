@@ -28,7 +28,6 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     private static final Logger log = Logger.getLogger(ServerTracingDynamicFeature.class.getName());
 
     private final Builder builder;
-    private boolean logged = false;
 
     /**
      * When using this constructor application has to call {@link GlobalTracer#register} to register
@@ -69,11 +68,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
             log.fine(String.format("Registering tracing on %s#%s...",
                     resourceInfo.getResourceClass().getCanonicalName(),
                     resourceInfo.getResourceMethod().getName()));
-        } else if (!logged) {
-            log.info("Registering tracing on deployed resources...");
         }
-
-        logged = true;
     }
 
     protected Traced closestTracedAnnotation(ResourceInfo resourceInfo) {
