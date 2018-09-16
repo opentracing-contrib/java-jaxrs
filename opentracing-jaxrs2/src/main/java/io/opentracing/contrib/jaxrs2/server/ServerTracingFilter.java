@@ -31,7 +31,12 @@ import static io.opentracing.contrib.jaxrs2.internal.SpanWrapper.PROPERTY_NAME;
 @Priority(Priorities.HEADER_DECORATOR)
 public class ServerTracingFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final Logger log = Logger.getLogger(ServerTracingFilter.class.getName());
-
+    
+    /**
+     * Use as a key of {@link ServletContext#setAttribute(String, Object)} to skip pattern
+     */
+    public static final String SKIP_PATTERN = ServerTracingFilter.class.getName() + ".skipPattern";
+    
     private Tracer tracer;
     private List<ServerSpanDecorator> spanDecorators;
     private String operationName;
@@ -128,6 +133,13 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     private boolean matchesSkipPattern(ContainerRequestContext requestContext) {
         // skip URLs matching skip pattern
         // e.g. pattern is defined as '/health|/status' then URL 'http://localhost:5000/context/health' won't be traced
+        if (skipPattern == null && httpServletRequest.getServletContext() != null) {
+            Object contextAttribute = httpServletRequest.getServletContext().getAttribute(SKIP_PATTERN);
+            if (contextAttribute instanceof Pattern) {
+                skipPattern = (Pattern) contextAttribute;
+            }
+        }
+        
         if (skipPattern != null) {
             String path = requestContext.getUriInfo().getPath();
             if (path.charAt(0) != '/') {
