@@ -133,7 +133,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     private boolean matchesSkipPattern(ContainerRequestContext requestContext) {
         // skip URLs matching skip pattern
         // e.g. pattern is defined as '/health|/status' then URL 'http://localhost:5000/context/health' won't be traced
-        if (skipPattern == null && httpServletRequest.getServletContext() != null) {
+        if (skipPattern == null && httpServletRequest != null && httpServletRequest.getServletContext() != null) {
             Object contextAttribute = httpServletRequest.getServletContext().getAttribute(SKIP_PATTERN);
             if (contextAttribute instanceof Pattern) {
                 skipPattern = (Pattern) contextAttribute;
