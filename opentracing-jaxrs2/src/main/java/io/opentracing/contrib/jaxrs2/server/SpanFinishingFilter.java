@@ -104,7 +104,6 @@ public class SpanFinishingFilter implements Filter {
     public void onError(AsyncEvent event) throws IOException {
       // this handler is called when exception is thrown in async handler
       // note that exception logs are added in filter not here
-      event.getThrowable();
     }
     @Override
     public void onStartAsync(AsyncEvent event) throws IOException {
