@@ -141,7 +141,6 @@ public class TestHandler {
                 }
             }
         }).start();
-        throw new IllegalStateException();
     }
 
     @GET
