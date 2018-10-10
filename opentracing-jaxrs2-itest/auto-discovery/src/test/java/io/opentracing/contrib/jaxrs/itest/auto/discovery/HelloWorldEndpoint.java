@@ -1,6 +1,7 @@
 package io.opentracing.contrib.jaxrs.itest.auto.discovery;
 
 
+import io.opentracing.util.GlobalTracer;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -12,6 +13,6 @@ public class HelloWorldEndpoint {
     @GET
     @Produces("text/plain")
     public Response doGet() {
-        return Response.ok("Hello from WildFly Swarm!").build();
+        return Response.ok(GlobalTracer.get().activeSpan().getClass().getName()).build();
     }
 }
