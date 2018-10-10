@@ -50,7 +50,7 @@ public class OpenTracingContextInitializer implements javax.servlet.ServletConte
     Dynamic filterRegistration = servletContext
         .addFilter("tracingFilter", new SpanFinishingFilter(tracer));
     filterRegistration.setAsyncSupported(true);
-    filterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "*");
+    filterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), false, "*");
   }
 }
 ```
