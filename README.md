@@ -5,26 +5,45 @@
 OpenTracing instrumentation for JAX-RS standard. It supports tracing of server and client requests.
 
 Instrumentation by default adds a set of standard HTTP tags and as an operation name it uses a string defined in `@Path` annotation.
-Custom tags or operation name can be added in span decorators.
-It also traces writing response and requests bodies.
+Custom tags or operation name can be added via span decorators.
+This instrumentation also supports tracing of (de)serialization of response and requests bodies.
 
 ## Microprofile-OpenTracing
-This implementation is also compatible with [Microprofile-OpenTracing](https://github.com/eclipse/microprofile-opentracing).
-It can be used as a component inside Microprofile compatible application server. Note that
-application servers have to add a few thing which are not provided by this component: CDI interceptor, 
+This implementation is compatible with [Microprofile-OpenTracing](https://github.com/eclipse/microprofile-opentracing).
+It can be used as a building block of MicroProfile compatible application server. Note that
+application servers have to add a few things which are not provided by this project: CDI interceptor, 
 automatically register tracing filters into client...
 
 ## Tracing server requests
 Tracing server requests requires two components: JAX-RS dynamic feature and servlet filter.
 Span is started in JAX-RS filter and finished in servlet filter.
 
-By default OpenTracing provider and servlet filter can be automatically discovered and registered.
+By default JAX-RS server dynamic feature and servlet filter can be automatically discovered and registered.
 The only configuration that is required is to register a tracer instance via `GlobalTracer.register(tracer)`.
-It can be done in `ServletContextListener`.
+Which can be done in `ServletContextListener`.
 
 ### Custom configuration
-Custom configuration is supported:
+Custom configuration can be achieved by adding `ServerTracingDynamicFeature` to `Application.singletons` or create a wrapper class `TracingInitializer` whith custom configuration. This approach does not require adding all classes to singletons set.
 
+Dynamic feature registration via custom provider:
+```java
+@Provider
+public class TracingInitializer implements DynamicFeature {
+
+  private final ServerTracingDynamicFeature serverTracingDynamicFeature =
+      new ServerTracingDynamicFeature.Builder(GlobalTracer.get())
+          .withOperationNameProvider(ClassNameOperationName.newBuilder())
+      .build();
+
+  @Override
+  public void configure(ResourceInfo resourceInfo, FeatureContext context) {
+    serverTracingDynamicFeature.configure(resourceInfo, context);
+  }
+}
+
+```
+
+Dynamic feature registration via singletons:
 ```java
 public class JaxRsApp extends javax.ws.rs.core.Application {
 
@@ -40,6 +59,7 @@ public class JaxRsApp extends javax.ws.rs.core.Application {
 }
 ```
 
+Filter registration:
 ```java
 @WebListener
 public class OpenTracingContextInitializer implements javax.servlet.ServletContextListener {
