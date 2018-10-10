@@ -84,11 +84,8 @@ public abstract class AbstractJettyTest {
         context.addFilter(new FilterHolder(new SpanFinishingFilter(mockTracer)), "/*",
             EnumSet.of(
                 DispatcherType.REQUEST,
-                DispatcherType.FORWARD,
                 // TODO CXF does not call AsyncListener#onComplete() without this (it calls only onStartAsync)
-                DispatcherType.ASYNC,
-                DispatcherType.ERROR,
-                DispatcherType.INCLUDE));
+                DispatcherType.ASYNC));
 
         context.setAttribute(CLIENT_ATTRIBUTE, client);
         context.setAttribute(TRACER_ATTRIBUTE, mockTracer);

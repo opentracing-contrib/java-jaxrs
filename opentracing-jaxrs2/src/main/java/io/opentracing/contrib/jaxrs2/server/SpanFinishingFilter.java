@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -27,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Pavol Loffay
  */
-@WebFilter(urlPatterns = "/*", asyncSupported = true)
+@WebFilter(urlPatterns = "/*", asyncSupported = true, dispatcherTypes = {DispatcherType.REQUEST, DispatcherType.ASYNC})
 public class SpanFinishingFilter implements Filter {
 
   private final Tracer tracer;
