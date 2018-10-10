@@ -19,10 +19,10 @@
   </modules>
 
   <properties>
-    <version.org.apache.cxf>3.1.14</version.org.apache.cxf>
-    <version.org.eclipse.jetty>9.4.7.v20170914</version.org.eclipse.jetty>
-    <version.org.glassfish.jersey>2.25</version.org.glassfish.jersey>
-    <version.org.jboss.resteasy>3.1.4.Final</version.org.jboss.resteasy>
+    <version.org.apache.cxf>3.2.6</version.org.apache.cxf>
+    <version.org.eclipse.jetty>9.4.12.v20180830</version.org.eclipse.jetty>
+    <version.org.glassfish.jersey>2.27</version.org.glassfish.jersey>
+    <version.org.jboss.resteasy>3.6.1.Final</version.org.jboss.resteasy>
     <version.wildfly>13.0.0.Final</version.wildfly>
     <version.org.jboss.arquillian>1.4.0.Final</version.org.jboss.arquillian>
     <version.org.wildfly.arquillian.wildfly-managed>2.1.1.Final</version.org.wildfly.arquillian.wildfly-managed>
