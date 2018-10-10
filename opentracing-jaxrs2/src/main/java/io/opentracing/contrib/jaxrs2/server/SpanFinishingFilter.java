@@ -90,6 +90,11 @@ public class SpanFinishingFilter implements Filter {
 
     @Override
     public void onComplete(AsyncEvent event) throws IOException {
+      HttpServletResponse httpResponse = (HttpServletResponse)event.getSuppliedResponse();
+      if (httpResponse.getStatus() >= 500) {
+        addExceptionLogs(spanWrapper.get(), event.getThrowable());
+      }
+      Tags.HTTP_STATUS.set(spanWrapper.get(), httpResponse.getStatus());
       spanWrapper.finish();
     }
     @Override
@@ -107,9 +112,11 @@ public class SpanFinishingFilter implements Filter {
 
   private static void addExceptionLogs(Span span, Throwable throwable) {
     Tags.ERROR.set(span, true);
-    Map<String, Object> errorLogs = new HashMap<>(2);
-    errorLogs.put("event", Tags.ERROR.getKey());
-    errorLogs.put("error.object", throwable);
-    span.log(errorLogs);
+    if (throwable != null) {
+      Map<String, Object> errorLogs = new HashMap<>(2);
+      errorLogs.put("event", Tags.ERROR.getKey());
+      errorLogs.put("error.object", throwable);
+      span.log(errorLogs);
+    }
   }
 }

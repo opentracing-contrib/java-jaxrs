@@ -82,6 +82,9 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         Assert.assertEquals(200, clientSpan.tags().get(Tags.HTTP_STATUS.getKey()));
     }
 
+    /**
+     * The exception added to AsyncResponse#resume() is not propagated to onComplete or error async listener
+     */
     @Test
     public void testAsyncError() {
         Client client = ClientBuilder.newClient();
@@ -94,14 +97,11 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockSpans);
-//        TODO resteasy and CXF do not propagate exception to the filter, https://issues.jboss.org/browse/RESTEASY-1758
-//        MockSpan mockSpan = mockSpans.get(0);
-//        Assert.assertEquals(5, mockSpan.tags().size());
-//        Assert.assertEquals(true, mockSpan.tags().get(Tags.ERROR.getKey()));
-//        Assert.assertEquals(1, mockSpan.logEntries().size());
-//        Assert.assertEquals(2, mockSpan.logEntries().get(0).fields().size());
-//        Assert.assertEquals(Tags.ERROR.getKey(), mockSpan.logEntries().get(0).fields().get("event"));
-//        Assert.assertTrue(mockSpan.logEntries().get(0).fields().get("error.object") instanceof Throwable);
+
+        MockSpan mockSpan = mockSpans.get(0);
+        Assert.assertEquals(true, mockSpan.tags().get(Tags.ERROR.getKey()));
+        Assert.assertEquals(500, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
+        Assert.assertEquals(0, mockSpan.logEntries().size());
     }
 
     @Test
@@ -204,6 +204,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         Assert.assertEquals(6, mockSpan.tags().size());
         Assert.assertEquals(true, mockSpan.tags().get(Tags.ERROR.getKey()));
         // TODO resteasy and CXF returns 200
+        // Resteasy filter https://issues.jboss.org/browse/RESTEASY-1758
 //        Assert.assertEquals(500, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
     }
 
