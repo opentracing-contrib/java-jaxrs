@@ -2,7 +2,6 @@ package io.opentracing.contrib.jaxrs.itest.auto.discovery;
 
 import io.opentracing.mock.MockSpan;
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -11,14 +10,11 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,13 +41,8 @@ public class AutoDiscoveryITest {
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
-    @BeforeClass
-    public static void initResteasyClient() {
-        RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
-    }
-
     @Test
-    public void testRequestIsTraced() throws URISyntaxException {
+    public void testRequestIsTraced() {
         Client client = ClientBuilder.newClient();
 
         String url = deploymentURL.toString() + "hello";
