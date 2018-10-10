@@ -23,7 +23,9 @@
     <version.org.eclipse.jetty>9.4.7.v20170914</version.org.eclipse.jetty>
     <version.org.glassfish.jersey>2.25</version.org.glassfish.jersey>
     <version.org.jboss.resteasy>3.1.4.Final</version.org.jboss.resteasy>
-    <version.wildfly-swarm>2017.10.1</version.wildfly-swarm>
+    <version.wildfly>13.0.0.Final</version.wildfly>
+    <version.org.jboss.arquillian>1.4.0.Final</version.org.jboss.arquillian>
+    <version.org.wildfly.arquillian.wildfly-managed>2.1.1.Final</version.org.wildfly.arquillian.wildfly-managed>
   </properties>
 
   <dependencies>

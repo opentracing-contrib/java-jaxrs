@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arquillian xmlns="http://www.jboss.org/arquillian-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.jboss.org/arquillian-1.0 http://www.jboss.org/schema/arquillian/arquillian-1.0.xsd">
+
+  <container qualifier="default" default="true">
+    <configuration>
+      <!-- uncomment to enable debug of the deployment -->
+      <!--<property name="javaVmArguments">-Xmx512m -XX:MaxPermSize=128m -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y</property>-->
+    </configuration>
+  </container>
+</arquillian>
