@@ -27,18 +27,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SpanFinishingFilter implements Filter {
 
-  private final Tracer tracer;
-
-  public SpanFinishingFilter() {
-    this(GlobalTracer.get());
-  }
-
-  public SpanFinishingFilter(Tracer tracer){
-    this.tracer = tracer;
-  }
-
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init(FilterConfig filterConfig) {
   }
 
   @Override

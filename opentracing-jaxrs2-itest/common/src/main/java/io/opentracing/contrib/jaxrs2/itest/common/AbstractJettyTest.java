@@ -81,7 +81,7 @@ public abstract class AbstractJettyTest {
                 .withSkipPattern("/health")
             .build();
         // TODO clarify dispatcher types
-        context.addFilter(new FilterHolder(new SpanFinishingFilter(mockTracer)), "/*",
+        context.addFilter(new FilterHolder(new SpanFinishingFilter()), "/*",
             EnumSet.of(
                 DispatcherType.REQUEST,
                 // TODO CXF does not call AsyncListener#onComplete() without this (it calls only onStartAsync)

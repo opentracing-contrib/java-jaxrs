@@ -29,7 +29,7 @@ public abstract class AbstractServerDefaultConfigurationTest extends AbstractJet
         ServerTracingDynamicFeature serverTracingBuilder =
                 new ServerTracingDynamicFeature.Builder(mockTracer)
                         .build();
-        context.addFilter(new FilterHolder(new SpanFinishingFilter(mockTracer)),
+        context.addFilter(new FilterHolder(new SpanFinishingFilter()),
             "/*", EnumSet.of(DispatcherType.REQUEST));
 
         context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
