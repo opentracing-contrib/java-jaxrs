@@ -51,7 +51,6 @@ public class RestEasyITest extends AbstractServerTest {
             .request()
             .get()) {
             response.readEntity(String.class);
-            client.close();
         } catch (Exception ex) {
             // client throws an exception if async request fails
         } finally {
