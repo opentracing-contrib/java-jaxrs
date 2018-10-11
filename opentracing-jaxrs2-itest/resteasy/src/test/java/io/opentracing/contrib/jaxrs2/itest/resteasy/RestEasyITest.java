@@ -5,10 +5,17 @@ import static org.awaitility.Awaitility.await;
 import io.opentracing.contrib.jaxrs2.itest.common.AbstractServerTest;
 import io.opentracing.mock.MockSpan;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.BasicHttpContext;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
+import org.jboss.resteasy.client.jaxrs.engines.URLConnectionEngine;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,11 +44,18 @@ public class RestEasyITest extends AbstractServerTest {
      */
     @Test
     public void testAsyncErrorTestSpanReported() {
-        Client client = ClientBuilder.newClient();
-        Response response = client.target(url("/asyncError"))
+        // disable retry otherwise there can be 2 spans
+        CloseableHttpClient build = HttpClientBuilder.create().disableAutomaticRetries().build();
+        Client client = new ResteasyClientBuilder().httpEngine(new ApacheHttpClient4Engine(build)).build();
+        try (Response response = client.target(url("/asyncError"))
             .request()
-            .get();
-        response.close();
+            .get()) {
+            response.readEntity(String.class);
+        } catch (Exception ex) {
+            // client throws an exception if async request fails
+        } finally {
+              client.close();
+        }
         await().until(finishedSpansSizeEquals(1));
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
