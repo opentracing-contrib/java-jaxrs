@@ -13,7 +13,6 @@ import javax.ws.rs.Priorities;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.Provider;
 import org.eclipse.microprofile.opentracing.Traced;
 
 /**
@@ -23,7 +22,6 @@ import org.eclipse.microprofile.opentracing.Traced;
  *
  * @author Pavol Loffay
  */
-@Provider
 public class ServerTracingDynamicFeature implements DynamicFeature {
     private static final Logger log = Logger.getLogger(ServerTracingDynamicFeature.class.getName());
 
