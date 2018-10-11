@@ -12,12 +12,10 @@ import javax.ws.rs.Priorities;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.Provider;
 
 /**
  * @author Pavol Loffay
  */
-@Provider
 public class ClientTracingFeature implements Feature {
     private static final Logger log = Logger.getLogger(ClientTracingFeature.class.getName());
 
