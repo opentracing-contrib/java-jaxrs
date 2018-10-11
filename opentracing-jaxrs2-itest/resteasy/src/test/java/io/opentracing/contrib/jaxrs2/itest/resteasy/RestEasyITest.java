@@ -44,18 +44,18 @@ public class RestEasyITest extends AbstractServerTest {
      */
     @Test
     public void testAsyncErrorTestSpanReported() {
-        try {
-            // disable retry otherwise there can be 2 spans
-            CloseableHttpClient build = HttpClientBuilder.create().disableAutomaticRetries().build();
-            Client client = new ResteasyClientBuilder().httpEngine(new ApacheHttpClient4Engine(build)).build();
-            Response response = client.target(url("/asyncError"))
-                .request()
-                .get();
-            response.close();
+        // disable retry otherwise there can be 2 spans
+        CloseableHttpClient build = HttpClientBuilder.create().disableAutomaticRetries().build();
+        Client client = new ResteasyClientBuilder().httpEngine(new ApacheHttpClient4Engine(build)).build();
+        try (Response response = client.target(url("/asyncError"))
+            .request()
+            .get()) {
             response.readEntity(String.class);
             client.close();
         } catch (Exception ex) {
             // client throws an exception if async request fails
+        } finally {
+              client.close();
         }
         await().until(finishedSpansSizeEquals(1));
 
