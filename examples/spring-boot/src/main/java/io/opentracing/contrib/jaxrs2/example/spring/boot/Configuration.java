@@ -18,9 +18,9 @@ public class Configuration {
     }
 
     @Bean
-    public FilterRegistrationBean spanFinishingFilter(Tracer tracer) {
+    public FilterRegistrationBean spanFinishingFilter() {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(new SpanFinishingFilter(tracer));
+        filterRegistrationBean.setFilter(new SpanFinishingFilter());
         filterRegistrationBean.setAsyncSupported(true);
         filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
         filterRegistrationBean.addUrlPatterns("*");

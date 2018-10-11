@@ -31,7 +31,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
             new ServerTracingDynamicFeature.Builder(mockTracer)
                 .withOperationNameProvider(WildcardOperationName.newBuilder())
             .build();
-        context.addFilter(new FilterHolder(new SpanFinishingFilter(mockTracer)),
+        context.addFilter(new FilterHolder(new SpanFinishingFilter()),
             "/*", EnumSet.of(DispatcherType.REQUEST));
 
         context.setAttribute(TRACER_ATTRIBUTE, mockTracer);

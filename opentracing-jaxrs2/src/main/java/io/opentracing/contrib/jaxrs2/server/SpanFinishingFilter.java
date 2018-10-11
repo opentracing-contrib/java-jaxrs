@@ -5,7 +5,6 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.internal.CastUtils;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.GlobalTracer;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,18 +26,19 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SpanFinishingFilter implements Filter {
 
-  private final Tracer tracer;
-
   public SpanFinishingFilter() {
-    this(GlobalTracer.get());
   }
 
+  /**
+   * @param tracer
+   * @deprecated use no-args constructor
+   */
+  @Deprecated
   public SpanFinishingFilter(Tracer tracer){
-    this.tracer = tracer;
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init(FilterConfig filterConfig) {
   }
 
   @Override
