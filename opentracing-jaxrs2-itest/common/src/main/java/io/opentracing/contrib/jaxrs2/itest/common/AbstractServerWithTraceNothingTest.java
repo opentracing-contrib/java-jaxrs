@@ -60,7 +60,7 @@ public abstract class AbstractServerWithTraceNothingTest extends AbstractJettyTe
     @Test
     public void testTracedFalseMethod() {
         Client client = ClientBuilder.newClient();
-        Response response = client.target(url("/hello/1?q=a"))
+        Response response = client.target(url("/tracedFalseIn"))
                 .request()
                 .get();
         response.close();
