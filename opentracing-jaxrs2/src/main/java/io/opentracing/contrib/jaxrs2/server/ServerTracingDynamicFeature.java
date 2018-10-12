@@ -44,7 +44,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
         // TODO why it is called twice for the same endpoint
-        if (!tracingDisabled(resourceInfo) && builder.allTraced) {
+        if (builder.allTraced || !tracingDisabled(resourceInfo)) {
             log(resourceInfo);
             context.register(new ServerTracingFilter(
                 builder.tracer,
