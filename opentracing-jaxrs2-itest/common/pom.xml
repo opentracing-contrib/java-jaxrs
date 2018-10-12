@@ -14,6 +14,12 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>opentracing-jaxrs2</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.opentracing</groupId>
+      <artifactId>opentracing-util</artifactId>
+      <version>${version.io.opentracing-opentracing}</version>
+      <type>test-jar</type>
+    </dependency>
 
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
