@@ -93,17 +93,4 @@ public abstract class AbstractServerWithTraceNothingTest extends AbstractJettyTe
         assertOnErrors(mockTracer.finishedSpans());
     }
 
-    @Test
-    public void testNotExistingURL() {
-        Client client = ClientBuilder.newClient();
-        Response response = client.target(url("/doesNotExist"))
-                .request()
-                .get();
-        response.close();
-
-        List<MockSpan> mockSpans = mockTracer.finishedSpans();
-        // TODO jax-rs interceptors do not trace this https://github.com/opentracing-contrib/java-jaxrs/issues/51
-        Assert.assertEquals(0, mockSpans.size());
-    }
-
 }
