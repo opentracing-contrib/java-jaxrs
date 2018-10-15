@@ -8,10 +8,7 @@ import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
-import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.tag.AbstractTag;
-import io.opentracing.util.GlobalTracer;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -24,6 +21,8 @@ import java.util.concurrent.Callable;
 import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+
+import io.opentracing.util.GlobalTracerTestUtil;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -107,14 +106,7 @@ public abstract class AbstractJettyTest {
 
     @AfterClass
     public static void resetGlobalTracer() {
-        try {
-            Field globalTracerField = GlobalTracer.class.getDeclaredField("tracer");
-            globalTracerField.setAccessible(true);
-            globalTracerField.set(null, NoopTracerFactory.create());
-            globalTracerField.setAccessible(false);
-        } catch (Exception e) {
-            throw new RuntimeException("Error resetting " + GlobalTracer.class, e);
-        }
+        GlobalTracerTestUtil.resetGlobalTracer();
     }
 
     public String url(String path) {
