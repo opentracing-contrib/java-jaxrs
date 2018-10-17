@@ -3,11 +3,11 @@ package io.opentracing.contrib.jaxrs2.itest.cxf;
 import io.opentracing.contrib.jaxrs2.itest.common.AbstractParentSpanResolutionTest;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
-public class ApacheCXFParentSpanResolutionTest extends AbstractParentSpanResolutionTest {
+public class ApacheCXFParentSpanIgnoredByDefaultTest extends AbstractParentSpanResolutionTest {
 
   @Override
   protected boolean shouldUseParentSpan() {
-    return true;
+    return false;
   }
 
   @Override

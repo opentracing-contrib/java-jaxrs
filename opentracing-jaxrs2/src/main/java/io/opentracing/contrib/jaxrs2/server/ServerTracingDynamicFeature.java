@@ -4,16 +4,17 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.serialization.InterceptorSpanDecorator;
 import io.opentracing.contrib.jaxrs2.server.OperationNameProvider.WildcardOperationName;
 import io.opentracing.util.GlobalTracer;
+import org.eclipse.microprofile.opentracing.Traced;
+
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.DynamicFeature;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.FeatureContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.DynamicFeature;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.FeatureContext;
-import org.eclipse.microprofile.opentracing.Traced;
 
 /**
  * This class has to be registered as JAX-RS provider to enable tracing of server requests. It also
@@ -51,7 +52,8 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
                 operationName(resourceInfo),
                 builder.spanDecorators,
                 builder.operationNameBuilder.build(resourceInfo.getResourceClass(), resourceInfo.getResourceMethod()),
-                builder.skipPattern != null ? Pattern.compile(builder.skipPattern) : null),
+                builder.skipPattern != null ? Pattern.compile(builder.skipPattern) : null,
+                builder.joinExistingActiveSpan),
                 builder.priority);
 
             if (builder.traceSerialization) {
@@ -105,6 +107,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         private OperationNameProvider.Builder operationNameBuilder;
         private boolean traceSerialization;
         private String skipPattern;
+        private boolean joinExistingActiveSpan;
 
         public Builder(Tracer tracer) {
             this.tracer = tracer;
@@ -116,6 +119,7 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
             this.allTraced = true;
             this.operationNameBuilder = WildcardOperationName.newBuilder();
             this.traceSerialization = true;
+            this.joinExistingActiveSpan = false;
         }
 
         /**
@@ -194,6 +198,18 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
          */
         public Builder withSkipPattern(String skipPattern) {
             this.skipPattern = skipPattern;
+            return this;
+        }
+
+        /**
+         * @param joinExistingActiveSpan If true, any active span on the current scope will be used as the parent span.
+         *                               If false, and a parent span can be extracted from the HTTP request, that span
+         *                               will be used as the parent span instead.
+         *                               Default is false.
+         * @return builder
+         */
+        public Builder withJoinExistingActiveSpan(boolean joinExistingActiveSpan) {
+            this.joinExistingActiveSpan = joinExistingActiveSpan;
             return this;
         }
 
