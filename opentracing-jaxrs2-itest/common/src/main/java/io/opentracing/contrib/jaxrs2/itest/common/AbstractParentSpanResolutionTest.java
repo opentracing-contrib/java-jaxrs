@@ -77,7 +77,7 @@ public abstract class AbstractParentSpanResolutionTest extends AbstractJettyTest
         if (shouldUseParentSpan()) {
             Assert.assertEquals(preceding.context().spanId(), original.parentId());
         } else {
-            Assert.assertNotEquals(preceding.context().spanId(), original.parentId());
+            Assert.assertEquals(0, original.parentId());
         }
     }
 

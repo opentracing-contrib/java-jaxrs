@@ -202,9 +202,9 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         }
 
         /**
-         * @param joinExistingActiveSpan If true, any active span on the current scope will be used as the parent span.
-         *                               If false, and a parent span can be extracted from the HTTP request, that span
-         *                               will be used as the parent span instead.
+         * @param joinExistingActiveSpan If true, any active span on the on the current thread.
+         *                               This can be used when combining with servlet instrumentation.
+         *                               If false, parent span will be extracted from HTTP headers.
          *                               Default is false.
          * @return builder
          */
