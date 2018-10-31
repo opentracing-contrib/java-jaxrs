@@ -202,9 +202,11 @@ public class ServerTracingDynamicFeature implements DynamicFeature {
         }
 
         /**
-         * @param joinExistingActiveSpan If true, any active span on the on the current thread.
-         *                               This can be used when combining with servlet instrumentation.
-         *                               If false, parent span will be extracted from HTTP headers.
+         * @param joinExistingActiveSpan If true, any active span on the on the current thread will
+         *                               be used as a parent span. If false, parent span will be
+         *                               extracted from HTTP headers.
+         *                               This feature can be used when chaining spans from lower
+         *                               instrumentation layers e.g. servlet instrumentation.
          *                               Default is false.
          * @return builder
          */
