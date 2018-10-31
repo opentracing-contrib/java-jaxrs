@@ -1,8 +1,9 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
-import static org.awaitility.Awaitility.await;
-
 import io.opentracing.Scope;
+import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
+import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
+import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.tag.Tags;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -10,16 +11,38 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.EnumSet;
-import java.util.List;
-
 import javax.servlet.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.EnumSet;
+import java.util.List;
+
+import static org.awaitility.Awaitility.await;
 
 public abstract class AbstractParentSpanResolutionTest extends AbstractJettyTest {
+
+    protected abstract boolean shouldUseParentSpan();
+
+    @Override
+    protected void initTracing(ServletContextHandler context) {
+        client.register(new ClientTracingFeature.Builder(mockTracer).build());
+
+        ServerTracingDynamicFeature.Builder builder = new ServerTracingDynamicFeature.Builder(mockTracer);
+        if (shouldUseParentSpan()) {
+            builder = builder.withJoinExistingActiveSpan(true);
+        }
+        ServerTracingDynamicFeature serverTracingFeature = builder.build();
+
+        context.addFilter(new FilterHolder(new SpanFinishingFilter()),
+                "/*", EnumSet.of(DispatcherType.REQUEST));
+
+        context.setAttribute(TRACER_ATTRIBUTE, mockTracer);
+        context.setAttribute(CLIENT_ATTRIBUTE, client);
+        context.setAttribute(SERVER_TRACING_FEATURE, serverTracingFeature);
+    }
+
 
     @Override
     protected void initServletContext(ServletContextHandler context) {
@@ -51,7 +74,11 @@ public abstract class AbstractParentSpanResolutionTest extends AbstractJettyTest
         MockSpan preceding = getSpanWithTag(spans, new ImmutableTag(Tags.COMPONENT.getKey(), "preceding-opentracing-filter"));
         MockSpan original = getSpanWithTag(spans, new ImmutableTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER));
 
-        Assert.assertEquals(preceding.context().spanId(), original.parentId());
+        if (shouldUseParentSpan()) {
+            Assert.assertEquals(preceding.context().spanId(), original.parentId());
+        } else {
+            Assert.assertEquals(0, original.parentId());
+        }
     }
 
     class FilterThatInitsSpan implements Filter {

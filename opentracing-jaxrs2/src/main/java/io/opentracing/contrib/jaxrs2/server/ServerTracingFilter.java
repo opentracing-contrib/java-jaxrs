@@ -37,18 +37,21 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
     private String operationName;
     private OperationNameProvider operationNameProvider;
     private Pattern skipPattern;
+    private final boolean joinExistingActiveSpan;
 
     protected ServerTracingFilter(
         Tracer tracer,
         String operationName,
         List<ServerSpanDecorator> spanDecorators,
         OperationNameProvider operationNameProvider,
-        Pattern skipPattern) {
+        Pattern skipPattern,
+        boolean joinExistingActiveSpan) {
         this.tracer = tracer;
         this.operationName = operationName;
         this.spanDecorators = new ArrayList<>(spanDecorators);
         this.operationNameProvider = operationNameProvider;
         this.skipPattern = skipPattern;
+        this.joinExistingActiveSpan = joinExistingActiveSpan;
     }
 
     @Context
@@ -64,6 +67,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
         if (tracer != null) {
 
             Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameProvider.operationName(requestContext))
+                    .ignoreActiveSpan()
                     .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
 
             SpanContext parentSpanContext = parentSpanContext(requestContext);
@@ -94,13 +98,14 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
 
     /**
      * Returns a parent for a span created by this filter (jax-rs span).
-     * The context from the active span takes precedence over context in the request.
+     * The context from the active span takes precedence over context in the request,
+     * but only if joinExistingActiveSpan has been set.
      * The current active span should be child-of extracted context and for example
      * created at a lower level e.g. jersey filter.
      */
     private SpanContext parentSpanContext(ContainerRequestContext requestContext) {
         Span activeSpan = tracer.activeSpan();
-        if (activeSpan != null) {
+        if (activeSpan != null && this.joinExistingActiveSpan) {
             return activeSpan.context();
         } else {
             return tracer.extract(

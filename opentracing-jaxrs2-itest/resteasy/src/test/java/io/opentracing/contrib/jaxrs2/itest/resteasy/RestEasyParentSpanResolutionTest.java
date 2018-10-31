@@ -5,6 +5,11 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 
 public class RestEasyParentSpanResolutionTest extends AbstractParentSpanResolutionTest {
 
+  @Override
+  protected boolean shouldUseParentSpan() {
+    return true;
+  }
+
   protected void initServletContext(ServletContextHandler context) {
     super.initServletContext(context);
     RestEasyHelper.initServletContext(context);
