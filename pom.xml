@@ -4,7 +4,7 @@
 
   <groupId>io.opentracing.contrib</groupId>
   <artifactId>opentracing-jaxrs-parent</artifactId>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.3.1</version>
   <packaging>pom</packaging>
 
   <name>${project.groupId}:${project.artifactId}</name>
@@ -15,7 +15,7 @@
     <url>https://github.com/opentracing-contrib/java-jaxrs</url>
     <connection>scm:git:https://github.com/opentracing-contrib/java-jaxrs.git</connection>
     <developerConnection>scm:git:https://github.com/opentracing-contrib/java-jaxrs.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>0.3.1</tag>
   </scm>
 
   <licenses>
