@@ -96,7 +96,7 @@ public interface OperationNameProvider {
           path = path.replace(currentPathFragment, originalPathFragment);
         }
       }
-      return path;
+      return requestContext.getMethod() + ":" + path;
     }
 
     public static Builder newBuilder() {

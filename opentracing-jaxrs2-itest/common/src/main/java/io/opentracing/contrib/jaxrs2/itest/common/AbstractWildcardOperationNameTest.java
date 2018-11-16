@@ -51,7 +51,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        Assert.assertEquals("/", mockSpans.get(0).operationName());
+        Assert.assertEquals("GET:/", mockSpans.get(0).operationName());
     }
 
     @Test
@@ -66,7 +66,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        Assert.assertEquals("/path/{pathParam}", mockSpans.get(0).operationName());
+        Assert.assertEquals("GET:/path/{pathParam}", mockSpans.get(0).operationName());
     }
 
     @Test
@@ -81,7 +81,7 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        Assert.assertEquals("/path/{pathParam}/path2/{pathParam2}", mockSpans.get(0).operationName());
+        Assert.assertEquals("GET:/path/{pathParam}/path2/{pathParam2}", mockSpans.get(0).operationName());
     }
 
     @Test
@@ -96,6 +96,6 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        Assert.assertEquals("/path/{pathParam}/path/{regexParam}", mockSpans.get(0).operationName());
+        Assert.assertEquals("GET:/path/{pathParam}/path/{regexParam}", mockSpans.get(0).operationName());
     }
 }
