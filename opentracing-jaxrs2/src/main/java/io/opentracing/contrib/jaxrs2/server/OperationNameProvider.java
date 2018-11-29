@@ -3,6 +3,7 @@ package io.opentracing.contrib.jaxrs2.server;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -96,6 +97,41 @@ public interface OperationNameProvider {
           path = path.replace(currentPathFragment, originalPathFragment);
         }
       }
+      return requestContext.getMethod() + ":" + path;
+    }
+
+    public static Builder newBuilder() {
+      return new Builder();
+    }
+  }
+
+  /**
+   * As operation name provides the path annotation from both the class and the method e.g:
+   *
+   * resource class annotated with @Path("/foo/") and method annotated with
+   * @Path("bar/{name: \\w+}") produces "/foo/bar/{name}"
+   */
+  class PathAnnotationOperationName implements OperationNameProvider {
+    static class Builder implements OperationNameProvider.Builder {
+      @Override
+      public OperationNameProvider build(Class<?> clazz, Method method) {
+        String name = extractPath(clazz.getAnnotation(Path.class))
+          + extractPath(method.getAnnotation(Path.class));
+        return new PathAnnotationOperationName(name);
+      }
+      private static String extractPath(Path path) {
+        return path == null ? "" : path.value();
+      }
+    }
+
+    private final String path;
+
+    PathAnnotationOperationName(String path) {
+      this.path = path;
+    }
+
+    @Override
+    public String operationName(ContainerRequestContext requestContext) {
       return requestContext.getMethod() + ":" + path;
     }
 
