@@ -11,6 +11,7 @@ import io.opentracing.noop.NoopScopeManager.NoopScope;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -21,6 +22,7 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.ClientResponseContext;
 import javax.ws.rs.client.ClientResponseFilter;
+import org.eclipse.microprofile.opentracing.Traced;
 
 /**
  * @author Pavol Loffay
@@ -39,10 +41,8 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
     }
 
     @Override
-    public void filter(ClientRequestContext requestContext) throws IOException {
-        Boolean tracingDisabled = CastUtils.cast(requestContext.getProperty(TracingProperties.TRACING_DISABLED), Boolean.class);
-
-        if (tracingDisabled != null && tracingDisabled) {
+    public void filter(ClientRequestContext requestContext) {
+        if (tracingDisabled(requestContext)) {
             log.finest("Client tracing disabled");
             return;
         }
@@ -105,5 +105,24 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
 
             spanWrapper.finish();
         }
+    }
+
+    private boolean tracingDisabled(ClientRequestContext clientRequestContext) {
+        Boolean tracingDisabled = CastUtils.cast(clientRequestContext.getProperty(TracingProperties.TRACING_DISABLED), Boolean.class);
+        if (tracingDisabled != null && tracingDisabled) {
+            return true;
+        }
+
+        Object invokedMethod = clientRequestContext.getProperty("org.eclipse.microprofile.rest.client.invokedMethod");
+        if (invokedMethod == null) {
+            return false;
+        }
+
+        Method method = (Method) invokedMethod;
+        Traced traced = method.getAnnotation(Traced.class);
+        if (traced != null && !traced.value()) {
+            return true;
+        }
+        return false;
     }
 }
