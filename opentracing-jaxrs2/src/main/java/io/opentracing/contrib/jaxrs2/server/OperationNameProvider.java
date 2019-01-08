@@ -69,64 +69,32 @@ public interface OperationNameProvider {
   /**
    * As operation name provides "wildcard" HTTP path e.g:
    *
-   * resource method annotated with @Path("/foo/bar/{name: \\w+}") produces "/foo/bar/{name}"
+   * resource method annotated with @Path("/foo/bar/{name: \\w+}") produces "/foo/bar/{name: \\w+}"
    *
    */
   class WildcardOperationName implements OperationNameProvider {
     static class Builder implements OperationNameProvider.Builder {
       @Override
       public OperationNameProvider build(Class<?> clazz, Method method) {
-        return new WildcardOperationName();
-      }
-    }
-
-    WildcardOperationName() {
-    }
-
-    @Override
-    public String operationName(ContainerRequestContext requestContext) {
-      MultivaluedMap<String, String> pathParameters = requestContext.getUriInfo().getPathParameters();
-      String path = requestContext.getUriInfo().getPath();
-      if (path.isEmpty() || path.charAt(0) != '/') {
-        path = "/" + path;
-      }
-      for (Map.Entry<String, List<String>> entry: pathParameters.entrySet()) {
-        final String originalPathFragment = String.format("{%s}", entry.getKey());
-
-        for (String currentPathFragment: entry.getValue()) {
-          path = path.replace(currentPathFragment, originalPathFragment);
+        String classPath = extractPath(clazz.getAnnotation(Path.class));
+        if (classPath.endsWith("/")) {
+          classPath = classPath.substring(0, classPath.length() - 1);
         }
+        String methodPath = extractPath(method.getAnnotation(Path.class));
+        return new WildcardOperationName(classPath + methodPath);
       }
-      return requestContext.getMethod() + ":" + path;
-    }
-
-    public static Builder newBuilder() {
-      return new Builder();
-    }
-  }
-
-  /**
-   * As operation name provides the path annotation from both the class and the method e.g:
-   *
-   * resource class annotated with @Path("/foo/") and method annotated with
-   * @Path("bar/{name: \\w+}") produces "/foo/bar/{name}"
-   */
-  class PathAnnotationOperationName implements OperationNameProvider {
-    static class Builder implements OperationNameProvider.Builder {
-      @Override
-      public OperationNameProvider build(Class<?> clazz, Method method) {
-        String name = extractPath(clazz.getAnnotation(Path.class))
-          + extractPath(method.getAnnotation(Path.class));
-        return new PathAnnotationOperationName(name);
-      }
-      private static String extractPath(Path path) {
-        return path == null ? "" : path.value();
+      private static String extractPath(Path pathAnn) {
+        String path = pathAnn == null ? "" : pathAnn.value();
+        if (path.isEmpty() || path.charAt(0) != '/') {
+          path = "/" + path;
+        }
+        return path;
       }
     }
 
     private final String path;
 
-    PathAnnotationOperationName(String path) {
+    WildcardOperationName(String path) {
       this.path = path;
     }
 

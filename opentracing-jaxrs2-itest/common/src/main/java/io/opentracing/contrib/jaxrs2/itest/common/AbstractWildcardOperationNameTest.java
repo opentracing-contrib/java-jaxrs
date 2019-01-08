@@ -85,6 +85,21 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
     }
 
     @Test
+    public void testTwoSameParams() {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/twoIds/1/1"))
+            .request()
+            .get();
+        response.close();
+        await().until(finishedSpansSizeEquals(1));
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockTracer.finishedSpans());
+        Assert.assertEquals("GET:/twoIds/{first}/{second}", mockSpans.get(0).operationName());
+    }
+
+    @Test
     public void testRegexParam() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/path/param/path/word1"))
@@ -96,6 +111,6 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         Assert.assertEquals(1, mockSpans.size());
         assertOnErrors(mockTracer.finishedSpans());
-        Assert.assertEquals("GET:/path/{pathParam}/path/{regexParam}", mockSpans.get(0).operationName());
+        Assert.assertEquals("GET:/path/{pathParam}/path/{regexParam: \\w+}", mockSpans.get(0).operationName());
     }
 }
