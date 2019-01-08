@@ -179,6 +179,12 @@ public class TestHandler {
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/twoIds/{first}/{second}")
+    public Response twoIds(@PathParam("first") String id, @PathParam("second") String id2) {
+        return Response.ok().build();
+    }
+
     private class ExpensiveOperation implements Runnable {
 
         private AsyncResponse asyncResponse;
