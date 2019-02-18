@@ -1,6 +1,8 @@
 package io.opentracing.contrib.jaxrs2.server;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.Path;
@@ -76,26 +78,49 @@ public interface OperationNameProvider {
     static class Builder implements OperationNameProvider.Builder {
       @Override
       public OperationNameProvider build(Class<?> clazz, Method method) {
-        String classPath = extractPath(clazz.getAnnotation(Path.class));
-        if (classPath.endsWith("/")) {
-          classPath = classPath.substring(0, classPath.length() - 1);
+        String classPath = extractPath(clazz);
+        String methodPath = extractPath(method);
+        if (classPath == null || methodPath == null) {
+          for (Class<?> i: clazz.getInterfaces()) {
+            if (classPath == null) {
+              String intfPath = extractPath(i);
+              if (intfPath != null) {
+                classPath = intfPath;
+              }
+            }
+            if (methodPath == null) {
+              for (Method m: i.getMethods()) {
+                if (m.getName() == method.getName() && Arrays.deepEquals(m.getParameterTypes(), method.getParameterTypes())) {
+                  methodPath = extractPath(m);
+                }
+              }
+            }
+          }
         }
-        String methodPath = extractPath(method.getAnnotation(Path.class));
-        return new WildcardOperationName(classPath + methodPath);
+        return new WildcardOperationName(classPath == null ? "" : classPath, methodPath == null ? "" : methodPath);
       }
-      private static String extractPath(Path pathAnn) {
-        String path = pathAnn == null ? "" : pathAnn.value();
-        if (path.isEmpty() || path.charAt(0) != '/') {
-          path = "/" + path;
+      private static String extractPath(AnnotatedElement element) {
+        Path path = element.getAnnotation(Path.class);
+        if (path != null) {
+          return path.value();
         }
-        return path;
+        return null;
       }
     }
 
     private final String path;
 
-    WildcardOperationName(String path) {
-      this.path = path;
+    WildcardOperationName(String clazz, String method) {
+      if (clazz.isEmpty() || clazz.charAt(0) != '/') {
+        clazz = "/" + clazz;
+      }
+      if (clazz.endsWith("/")) {
+        clazz = clazz.substring(0, clazz.length() - 1);
+      }
+      if (method.isEmpty() || method.charAt(0) != '/') {
+        method = "/" + method;
+      }
+      this.path = clazz + method;
     }
 
     @Override
