@@ -50,6 +50,9 @@ public class InstrumentedRestApplication extends Application {
         objects.add(serverTracingFeature);
         objects.add(new TestHandler(tracer, client));
         objects.add(new DisabledTestHandler(tracer));
+        objects.add(new ServicesImpl());
+        objects.add(new ServicesImplOverrideClassPath());
+        objects.add(new ServicesImplOverrideMethodPath());
         objects.add(new DenyFilteredFeature());
         objects.add(new MappedExceptionMapper());
 

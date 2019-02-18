@@ -113,4 +113,51 @@ public abstract class AbstractWildcardOperationNameTest extends AbstractJettyTes
         assertOnErrors(mockTracer.finishedSpans());
         Assert.assertEquals("GET:/path/{pathParam}/path/{regexParam: \\w+}", mockSpans.get(0).operationName());
     }
+
+    @Test
+    public void testInterface() {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/services/method/15"))
+            .request()
+            .get();
+        response.close();
+        await().until(finishedSpansSizeEquals(1));
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockTracer.finishedSpans());
+        Assert.assertEquals("GET:/services/method/{id}", mockSpans.get(0).operationName());
+    }
+
+    @Test
+    public void testInterfaceClassPathOverriden() {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/override/method/15"))
+            .request()
+            .get();
+        response.close();
+        System.out.println(response.getStatus());
+        await().until(finishedSpansSizeEquals(1));
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockTracer.finishedSpans());
+        Assert.assertEquals("GET:/override/method/{id}", mockSpans.get(0).operationName());
+    }
+
+    @Test
+    public void testInterfaceMethodPathOverriden() {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/foo/override/15"))
+            .request()
+            .get();
+        response.close();
+        System.out.println(response.getStatus());
+        await().until(finishedSpansSizeEquals(1));
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(1, mockSpans.size());
+        assertOnErrors(mockTracer.finishedSpans());
+        Assert.assertEquals("GET:/foo/override/{id}", mockSpans.get(0).operationName());
+    }
 }
