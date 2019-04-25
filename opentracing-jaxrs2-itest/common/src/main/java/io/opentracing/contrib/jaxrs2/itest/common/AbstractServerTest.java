@@ -203,6 +203,10 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
         MockSpan mockSpan = mockSpans.get(0);
         Assert.assertEquals(6, mockSpan.tags().size());
         Assert.assertEquals(true, mockSpan.tags().get(Tags.ERROR.getKey()));
+        Assert.assertEquals(1, mockSpan.logEntries().size());
+        Assert.assertEquals(2, mockSpan.logEntries().get(0).fields().size());
+        Assert.assertNotNull(mockSpan.logEntries().get(0).fields().get("error.object"));
+        Assert.assertEquals("error", mockSpan.logEntries().get(0).fields().get("event"));
         // TODO resteasy and CXF returns 200
         // Resteasy filter https://issues.jboss.org/browse/RESTEASY-1758
 //        Assert.assertEquals(500, mockSpan.tags().get(Tags.HTTP_STATUS.getKey()));
