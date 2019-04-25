@@ -66,33 +66,29 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
 
         if (tracer != null) {
 
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationNameProvider.operationName(requestContext))
-                    .ignoreActiveSpan()
-                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
-
             SpanContext parentSpanContext = parentSpanContext(requestContext);
-            if (parentSpanContext != null) {
-                spanBuilder.asChildOf(parentSpanContext);
-            }
-
-            Scope scope = spanBuilder.startActive(false);
+            Span span = tracer.buildSpan(operationNameProvider.operationName(requestContext))
+                    .ignoreActiveSpan()
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
+                    .asChildOf(parentSpanContext)
+                    .start();
 
             if (spanDecorators != null) {
                 for (ServerSpanDecorator decorator: spanDecorators) {
-                    decorator.decorateRequest(requestContext, scope.span());
+                    decorator.decorateRequest(requestContext, span);
                 }
             }
 
             // override operation name set by @Traced
             if (this.operationName != null) {
-                scope.span().setOperationName(operationName);
+                span.setOperationName(operationName);
             }
 
             if (log.isLoggable(Level.FINEST)) {
                 log.finest("Creating server span: " + operationName);
             }
 
-            requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(scope));
+            requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(span, tracer.activateSpan(span)));
         }
     }
 

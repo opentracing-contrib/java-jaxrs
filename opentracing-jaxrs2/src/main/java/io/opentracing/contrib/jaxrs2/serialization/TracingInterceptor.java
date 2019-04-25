@@ -2,9 +2,10 @@ package io.opentracing.contrib.jaxrs2.serialization;
 
 import io.opentracing.References;
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
-import io.opentracing.noop.NoopScopeManager.NoopScope;
+import io.opentracing.noop.NoopSpan;
 import io.opentracing.tag.Tags;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,27 +34,33 @@ public abstract class TracingInterceptor implements WriterInterceptor, ReaderInt
     @Override
     public Object aroundReadFrom(ReaderInterceptorContext context)
         throws IOException, WebApplicationException {
-        try (Scope scope = decorateRead(context, buildSpan(context, "deserialize"))) {
+        Span span = buildSpan(context, "deserialize");
+        try (Scope scope = tracer.activateSpan(span)) {
+            decorateRead(context, span);
             try {
                 return context.proceed();
             } catch (Exception e) {
                 //TODO add exception logs in case they are not added by the filter.
-                Tags.ERROR.set(scope.span(), true);
+                Tags.ERROR.set(span, true);
                 throw e;
             }
+        } finally {
+            span.finish();
         }
     }
 
     @Override
     public void aroundWriteTo(WriterInterceptorContext context)
         throws IOException, WebApplicationException {
-        try (Scope scope = decorateWrite(context, buildSpan(context, "serialize"))) {
-            try {
-                context.proceed();
-            } catch (Exception e) {
-                Tags.ERROR.set(scope.span(), true);
-                throw e;
-            }
+        Span span = buildSpan(context, "serialize");
+        try (Scope scope = tracer.activateSpan(span)) {
+            decorateWrite(context, span);
+            context.proceed();
+        } catch (Exception e) {
+            Tags.ERROR.set(span, true);
+            throw e;
+        } finally {
+            span.finish();
         }
     }
 
@@ -72,10 +79,10 @@ public abstract class TracingInterceptor implements WriterInterceptor, ReaderInt
      * @param operationName "serialize" or "deserialize" depending on the context
      * @return a noop span is no span context is registered in the context. Otherwise a new span related to the current on retrieved from the context.
      */
-    private Scope buildSpan(InterceptorContext context, String operationName) {
+    private Span buildSpan(InterceptorContext context, String operationName) {
         final SpanWrapper spanWrapper = findSpan(context);
         if(spanWrapper == null) {
-            return NoopScope.INSTANCE;
+            return NoopSpan.INSTANCE;
         }
         final Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
         if(spanWrapper.isFinished()) {
@@ -83,22 +90,20 @@ public abstract class TracingInterceptor implements WriterInterceptor, ReaderInt
         } else {
             spanBuilder.asChildOf(spanWrapper.get());
         }
-        return spanBuilder.startActive(true);
+        return spanBuilder.start();
     }
 
     protected abstract SpanWrapper findSpan(InterceptorContext context);
 
-    private Scope decorateRead(InterceptorContext context, Scope span) {
+    private void decorateRead(InterceptorContext context, Span span) {
         for (InterceptorSpanDecorator decorator : spanDecorators) {
-            decorator.decorateRead(context, span.span());
+            decorator.decorateRead(context, span);
         }
-        return span;
     }
 
-    private Scope decorateWrite(InterceptorContext context, Scope span) {
+    private void decorateWrite(InterceptorContext context, Span span) {
         for (InterceptorSpanDecorator decorator : spanDecorators) {
-            decorator.decorateWrite(context, span.span());
+            decorator.decorateWrite(context, span);
         }
-        return span;
     }
 }

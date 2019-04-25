@@ -38,13 +38,13 @@ public class DisabledTestHandler {
 
   private void assertNoActiveSpan() {
     if (!(tracer instanceof NoopTracer)) {
-      Assert.assertNull(tracer.scopeManager().active());
+      Assert.assertNull(tracer.scopeManager().activeSpan());
     }
   }
 
   private void assertActiveSpan() {
     if (!(tracer instanceof NoopTracer)) {
-      Assert.assertNotNull(tracer.scopeManager().active());
+      Assert.assertNotNull(tracer.scopeManager().activeSpan());
     }
   }
 }

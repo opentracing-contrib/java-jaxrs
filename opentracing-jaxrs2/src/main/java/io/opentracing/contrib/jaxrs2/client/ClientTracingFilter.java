@@ -78,7 +78,7 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
         }
 
         tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new ClientHeadersInjectTextMap(requestContext.getHeaders()));
-        requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(new NoopScope() {
+        requestContext.setProperty(PROPERTY_NAME, new SpanWrapper(span, new NoopScope() {
             @Override
             public void close() {
             }

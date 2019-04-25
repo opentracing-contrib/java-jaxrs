@@ -1,6 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
 import io.opentracing.contrib.jaxrs2.server.ServerTracingDynamicFeature;
 import io.opentracing.contrib.jaxrs2.server.SpanFinishingFilter;
@@ -91,11 +92,14 @@ public abstract class AbstractParentSpanResolutionTest extends AbstractJettyTest
 
         @Override
         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-            Scope scope = mockTracer.buildSpan("initializing-span")
+            Span span = mockTracer.buildSpan("initializing-span")
                     .withTag(Tags.COMPONENT.getKey(), "preceding-opentracing-filter")
-                    .startActive(true);
-            chain.doFilter(request, response);
-            scope.close();
+                    .start();
+            try (Scope scope = mockTracer.activateSpan(span)) {
+                chain.doFilter(request, response);
+            } finally {
+                span.finish();
+            }
         }
 
         @Override

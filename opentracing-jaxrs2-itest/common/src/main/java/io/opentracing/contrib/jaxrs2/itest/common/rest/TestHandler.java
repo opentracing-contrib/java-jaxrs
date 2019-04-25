@@ -1,6 +1,7 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.itest.common.rest.InstrumentedRestApplication.MappedException;
@@ -120,7 +121,7 @@ public class TestHandler {
     @Path("/async")
     public void async(@Suspended AsyncResponse asyncResponse) {
         assertActiveSpan();
-        new Thread(new ExpensiveOperation(asyncResponse, tracer.scopeManager().active().span().context()))
+        new Thread(new ExpensiveOperation(asyncResponse, tracer.activeSpan().context()))
                 .start();
     }
 
@@ -199,14 +200,14 @@ public class TestHandler {
 
         @Override
         public void run() {
-            try(Scope expensiveOpSpan = tracer.buildSpan("expensiveOperation")
-                    .asChildOf(parentContext).startActive(true)) {
-                try {
-                    Thread.sleep(random.nextInt(5));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            Span span = tracer.buildSpan("expensiveOperation")
+                .asChildOf(parentContext).start();
+            try {
+                Thread.sleep(random.nextInt(5));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             } finally {
+                span.finish();
                 asyncResponse.resume(Response.ok().build());
             }
         }
@@ -214,13 +215,13 @@ public class TestHandler {
 
     private void assertNoActiveSpan() {
         if (!(tracer instanceof NoopTracer)) {
-            Assert.assertNull(tracer.scopeManager().active());
+            Assert.assertNull(tracer.scopeManager().activeSpan());
         }
     }
 
     private void assertActiveSpan() {
         if (!(tracer instanceof NoopTracer)) {
-            Assert.assertNotNull(tracer.scopeManager().active());
+            Assert.assertNotNull(tracer.scopeManager().activeSpan());
         }
     }
 }

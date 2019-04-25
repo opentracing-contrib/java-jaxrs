@@ -2,7 +2,6 @@ package io.opentracing.contrib.jaxrs2.internal;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
-import java.sql.Wrapper;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -15,14 +14,17 @@ public class SpanWrapper {
     public static final String PROPERTY_NAME = SpanWrapper.class.getName() + ".activeSpanWrapper";
 
     private Scope scope;
+    private Span span;
     private AtomicBoolean finished = new AtomicBoolean();
 
-    public SpanWrapper(Scope scope) {
+    public SpanWrapper(Span span, Scope scope) {
+        this.span = span;
         this.scope = scope;
+
     }
 
     public Span get() {
-        return scope.span();
+        return span;
     }
 
     public Scope getScope() {
@@ -32,7 +34,7 @@ public class SpanWrapper {
     public synchronized void finish() {
         if (!finished.get()) {
             finished.set(true);
-            scope.span().finish();
+            span.finish();
         }
     }
 
