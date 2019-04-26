@@ -315,6 +315,7 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
 
         executorService.shutdown();
         executorService.awaitTermination(1, TimeUnit.SECONDS);
+        await().until(finishedSpansSizeEquals(numberOfThreads*10));
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         assertOnErrors(mockSpans);
