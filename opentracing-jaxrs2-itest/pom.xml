@@ -19,9 +19,9 @@
   </modules>
 
   <properties>
-    <version.org.apache.cxf>3.2.6</version.org.apache.cxf>
-    <version.org.eclipse.jetty>9.4.12.v20180830</version.org.eclipse.jetty>
-    <version.org.glassfish.jersey>2.27</version.org.glassfish.jersey>
+    <version.org.apache.cxf>3.3.1</version.org.apache.cxf>
+    <version.org.eclipse.jetty>9.4.17.v20190418</version.org.eclipse.jetty>
+    <version.org.glassfish.jersey>2.28</version.org.glassfish.jersey>
     <version.org.jboss.resteasy>3.6.1.Final</version.org.jboss.resteasy>
     <version.wildfly>13.0.0.Final</version.wildfly>
     <version.org.jboss.arquillian>1.4.0.Final</version.org.jboss.arquillian>
