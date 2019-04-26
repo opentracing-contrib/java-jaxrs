@@ -222,12 +222,12 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Scope parentScope = mockTracer.scopeManager().activate(parentSpan, true);
-                    Response response = client.target(requestUrl)
-                        .request()
-                        .get();
-                    response.close();
-                    assertEquals(parentScope, mockTracer.scopeManager().active());
+                    try (Scope parentScope = mockTracer.activateSpan(parentSpan)) {
+                        Response response = client.target(requestUrl)
+                            .request()
+                            .get();
+                        response.close();
+                    }
                 }
             }));
         }
@@ -274,8 +274,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Scope parentScope = mockTracer.scopeManager().activate(parentSpan, true);
-                    try {
+                    try (Scope parentScope = mockTracer.activateSpan(parentSpan)) {
                         Future<Response> responseFuture = client.target(requestUrl)
                             .request()
                             .async()
@@ -292,7 +291,6 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
 
                         Response response = responseFuture.get();
                         response.close();
-                        assertEquals(parentScope, mockTracer.scopeManager().active());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (ExecutionException e) {

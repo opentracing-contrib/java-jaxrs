@@ -22,7 +22,7 @@ public class ClientTracingFeature implements Feature {
     private Builder builder;
 
     /**
-     * When using this constructor application has to call {@link GlobalTracer#register} to register
+     * When using this constructor application has to call {@link GlobalTracer#registerIfAbsent(Tracer)} to register
      * tracer instance.
      *
      * For a custom configuration use {@link Builder#build()}.
