@@ -82,11 +82,6 @@ public class ClientTracingFilter implements ClientRequestFilter, ClientResponseF
             @Override
             public void close() {
             }
-
-            @Override
-            public Span span() {
-                return span;
-            }
         }));
     }
 
