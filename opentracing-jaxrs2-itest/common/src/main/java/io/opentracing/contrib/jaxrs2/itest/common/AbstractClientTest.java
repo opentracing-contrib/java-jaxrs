@@ -64,7 +64,7 @@ public abstract class AbstractClientTest extends AbstractJettyTest {
     @Test
     public void testDefaultConfiguration() {
         MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
-        GlobalTracer.register(mockTracer);
+        GlobalTracer.registerIfAbsent(mockTracer);
 
         Client client = ClientBuilder.newClient()
                 .register(ClientTracingFeature.class);

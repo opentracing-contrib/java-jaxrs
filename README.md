@@ -163,7 +163,7 @@ Client client = ClientBuilder.newBuilder()
 #### RestEasy
 ```java
 Client client = new ResteasyClientBuilder()
-    .asyncExecutor(new TracedExecutorService(Executors.newFixedThreadPool(8), tracer))
+    .executorService(new TracedExecutorService(Executors.newFixedThreadPool(8), tracer))
     ...
 ```
 
