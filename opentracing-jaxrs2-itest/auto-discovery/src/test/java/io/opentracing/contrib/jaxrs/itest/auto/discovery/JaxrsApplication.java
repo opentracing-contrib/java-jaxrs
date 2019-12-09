@@ -16,6 +16,6 @@ public class JaxrsApplication extends Application {
     private static final MockTracer mockTracer = new MockTracer();
 
     public JaxrsApplication() {
-        GlobalTracer.register(mockTracer);
+        GlobalTracer.registerIfAbsent(mockTracer);
     }
 }
