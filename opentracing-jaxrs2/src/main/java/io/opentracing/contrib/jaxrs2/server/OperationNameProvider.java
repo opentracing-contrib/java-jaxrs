@@ -1,13 +1,10 @@
 package io.opentracing.contrib.jaxrs2.server;
 
+import javax.ws.rs.Path;
+import javax.ws.rs.container.ContainerRequestContext;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.Path;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.MultivaluedMap;
 
 /**
  * @author Pavol Loffay
