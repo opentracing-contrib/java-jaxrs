@@ -55,12 +55,12 @@ public interface OperationNameProvider {
 
     private String classMethod;
     ClassNameOperationName(Class<?> clazz, Method method) {
-      this.classMethod = String.format("%s.%s", clazz.getName() , method.getName());
+      this.classMethod = clazz.getName()  + "." + method.getName();
     }
 
     @Override
     public String operationName(ContainerRequestContext requestContext) {
-      return String.format("%s:%s", requestContext.getMethod(), classMethod);
+      return requestContext.getMethod() + ":" + classMethod;
     }
 
     public static Builder newBuilder() {
