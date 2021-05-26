@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MultivaluedMap;
@@ -90,7 +91,7 @@ public interface OperationNameProvider {
             }
             if (methodPath == null) {
               for (Method m: i.getMethods()) {
-                if (m.getName() == method.getName() && Arrays.deepEquals(m.getParameterTypes(), method.getParameterTypes())) {
+                if (Objects.equals(m.getName(), method.getName()) && Arrays.deepEquals(m.getParameterTypes(), method.getParameterTypes())) {
                   methodPath = extractPath(m);
                 }
               }
