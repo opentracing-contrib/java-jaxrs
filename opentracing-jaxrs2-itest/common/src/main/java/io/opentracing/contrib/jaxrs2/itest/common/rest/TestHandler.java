@@ -1,6 +1,5 @@
 package io.opentracing.contrib.jaxrs2.itest.common.rest;
 
-import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -24,6 +23,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.opentracing.Traced;
 import org.junit.Assert;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * @author Pavol Loffay
@@ -92,6 +95,30 @@ public class TestHandler {
     public Response postWithBody(@Context HttpServletRequest request, String body) {
         assertActiveSpan();
         return Response.ok().entity(body).build();
+    }
+
+    @GET
+    @Path("/failToSerialize")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response failToSerialize(@Context HttpServletRequest request) {
+        assertActiveSpan();
+        StreamingOutput output = new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException {
+                throw new IOException("Fail to serialize");
+            }
+        };
+        return Response.ok().entity(output).build();
+    }
+
+    @POST
+    @Path("/failToDeserialize")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response failToDeserialize(@Context HttpServletRequest request, Map<String, String> body) {
+        assertActiveSpan();
+        return Response.ok().build();
     }
 
     @GET
