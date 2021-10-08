@@ -31,9 +31,8 @@ public class SpanWrapper {
         return scope;
     }
 
-    public synchronized void finish() {
-        if (!finished.get()) {
-            finished.set(true);
+    public void finish() {
+        if (finished.compareAndSet(false, true)) {
             span.finish();
         }
     }
