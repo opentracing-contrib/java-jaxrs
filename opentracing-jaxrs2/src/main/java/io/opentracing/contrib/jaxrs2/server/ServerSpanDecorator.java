@@ -22,10 +22,11 @@ public interface ServerSpanDecorator {
     /**
      * Decorate spans by outgoing object.
      *
+     * @param requestContext
      * @param responseContext
      * @param span
      */
-    void decorateResponse(ContainerResponseContext responseContext, Span span);
+    void decorateResponse(ContainerRequestContext requestContext, ContainerResponseContext responseContext, Span span);
 
     /**
      * Adds standard tags: {@link io.opentracing.tag.Tags#SPAN_KIND},
@@ -45,7 +46,7 @@ public interface ServerSpanDecorator {
         }
 
         @Override
-        public void decorateResponse(ContainerResponseContext responseContext, Span span) {
+        public void decorateResponse(ContainerRequestContext requestContext, ContainerResponseContext responseContext, Span span) {
             Tags.HTTP_STATUS.set(span, responseContext.getStatus());
         }
     };

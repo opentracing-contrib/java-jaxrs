@@ -121,7 +121,7 @@ public class ServerTracingFilter implements ContainerRequestFilter, ContainerRes
 
         if (spanDecorators != null) {
             for (ServerSpanDecorator decorator: spanDecorators) {
-                decorator.decorateResponse(responseContext, spanWrapper.get());
+                decorator.decorateResponse(requestContext, responseContext, spanWrapper.get());
             }
         }
     }
