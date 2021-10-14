@@ -213,6 +213,43 @@ public abstract class AbstractServerTest extends AbstractJettyTest {
     }
 
     @Test
+    public void testExceptionInWriteInterceptor() {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/failToSerialize"))
+                .request()
+                .get();
+        response.close();
+        Assert.assertEquals(500, response.getStatus());
+        await().until(finishedSpansSizeEquals(2));
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(2, mockSpans.size());
+        MockSpan mockSpan = mockSpans.get(0);
+        Assert.assertEquals(3, mockSpan.tags().size());
+        Assert.assertEquals("serialize", mockSpan.operationName());
+        Assert.assertEquals(true, mockSpan.tags().get(Tags.ERROR.getKey()));
+    }
+
+    @Test
+    public void testExceptionInReadInterceptor() {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url("/failToDeserialize"))
+                .request()
+                .post(Entity.text("hello!"));
+        response.close();
+        // cxf returns 500 while jersey and resteasy returns 415
+        Assert.assertTrue(response.getStatus() > 400);
+        await().until(finishedSpansSizeEquals(2));
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        Assert.assertEquals(2, mockSpans.size());
+        MockSpan mockSpan = mockSpans.get(0);
+        Assert.assertEquals(3, mockSpan.tags().size());
+        Assert.assertEquals("deserialize", mockSpan.operationName());
+        Assert.assertEquals(true, mockSpan.tags().get(Tags.ERROR.getKey()));
+    }
+
+    @Test
     public void testMappedExceptionInHandler() {
         Client client = ClientBuilder.newClient();
         Response response = client.target(url("/mappedException"))

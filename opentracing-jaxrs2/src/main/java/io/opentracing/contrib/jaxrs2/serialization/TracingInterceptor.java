@@ -6,7 +6,6 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jaxrs2.internal.SpanWrapper;
 import io.opentracing.noop.NoopSpan;
-import io.opentracing.tag.Tags;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,8 +39,7 @@ public abstract class TracingInterceptor implements WriterInterceptor, ReaderInt
             try {
                 return context.proceed();
             } catch (Exception e) {
-                //TODO add exception logs in case they are not added by the filter.
-                Tags.ERROR.set(span, true);
+                decorateReadException(e, context, span);
                 throw e;
             }
         } finally {
@@ -55,10 +53,12 @@ public abstract class TracingInterceptor implements WriterInterceptor, ReaderInt
         Span span = buildSpan(context, "serialize");
         try (Scope scope = tracer.activateSpan(span)) {
             decorateWrite(context, span);
-            context.proceed();
-        } catch (Exception e) {
-            Tags.ERROR.set(span, true);
-            throw e;
+            try {
+                context.proceed();
+            } catch (Exception e) {
+                decorateWriteException(e, context, span);
+                throw e;
+            }
         } finally {
             span.finish();
         }
@@ -104,6 +104,18 @@ public abstract class TracingInterceptor implements WriterInterceptor, ReaderInt
     private void decorateWrite(InterceptorContext context, Span span) {
         for (InterceptorSpanDecorator decorator : spanDecorators) {
             decorator.decorateWrite(context, span);
+        }
+    }
+
+    private void decorateReadException(Exception e, ReaderInterceptorContext context, Span span) {
+        for (InterceptorSpanDecorator decorator : spanDecorators) {
+            decorator.decorateReadException(e, context, span);
+        }
+    }
+
+    private void decorateWriteException(Exception e, WriterInterceptorContext context, Span span) {
+        for (InterceptorSpanDecorator decorator : spanDecorators) {
+            decorator.decorateWriteException(e, context, span);
         }
     }
 }
